@@ -49,23 +49,27 @@ Backend/
 ### Installation
 
 1. Clone repository
+
 ```bash
 git clone https://github.com/karuqii9704/protein_RADAR.git
 cd protein_RADAR/Backend
 ```
 
 2. Install dependencies
+
 ```bash
 npm install
 ```
 
 3. Setup environment variables
+
 ```bash
 cp .env.example .env
 # Edit .env dengan konfigurasi Anda
 ```
 
 4. Setup database
+
 ```bash
 # Generate Prisma Client
 npm run db:generate
@@ -78,6 +82,7 @@ npm run db:seed
 ```
 
 5. Run development server
+
 ```bash
 npm run dev
 ```
@@ -110,6 +115,7 @@ npm run test:ui      # Run tests with UI
 Lihat `.env.example` untuk daftar lengkap environment variables yang diperlukan.
 
 ### Essential Variables:
+
 - `DATABASE_URL`: Connection string database
 - `NEXTAUTH_SECRET`: Secret key untuk NextAuth
 - `JWT_SECRET`: Secret key untuk JWT
@@ -117,6 +123,7 @@ Lihat `.env.example` untuk daftar lengkap environment variables yang diperlukan.
 ## 📡 API Documentation
 
 ### Base URL
+
 ```
 Development: http://localhost:3000/api
 Production: https://your-domain.com/api
@@ -125,11 +132,13 @@ Production: https://your-domain.com/api
 ### Endpoints (Coming Soon)
 
 #### Authentication
+
 - `POST /api/auth/login` - User login
 - `POST /api/auth/logout` - User logout
 - `GET /api/auth/me` - Get current user
 
 #### Incomes
+
 - `GET /api/incomes` - List all incomes
 - `GET /api/incomes/:id` - Get income detail
 - `POST /api/incomes` - Create income
@@ -137,6 +146,7 @@ Production: https://your-domain.com/api
 - `DELETE /api/incomes/:id` - Delete income
 
 #### Expenses
+
 - `GET /api/expenses` - List all expenses
 - `GET /api/expenses/:id` - Get expense detail
 - `POST /api/expenses` - Create expense
@@ -144,6 +154,7 @@ Production: https://your-domain.com/api
 - `DELETE /api/expenses/:id` - Delete expense
 
 #### Reports
+
 - `GET /api/reports/summary` - Get financial summary
 - `GET /api/reports/weekly` - Get weekly report
 - `GET /api/reports/monthly` - Get monthly report
@@ -152,17 +163,20 @@ Production: https://your-domain.com/api
 ## 🏛️ MVC Pattern Implementation
 
 ### Model Layer (`/repositories`)
+
 - Data access dan database queries
 - Menggunakan Prisma ORM
 - Pure data operations
 
 ### Service Layer (`/services`)
+
 - Business logic
 - Data validation
 - Error handling
 - Pure TypeScript functions
 
 ### Controller Layer (`/app/api`)
+
 - Request/Response handling
 - Input validation
 - Memanggil services
