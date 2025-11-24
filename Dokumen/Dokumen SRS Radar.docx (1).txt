@@ -1,0 +1,469 @@
+Spesifikasi Kebutuhan Perangkat Lunak
+
+Proyek Teknologi Informasi
+
+Judul Proyek: Dashboard Keuangan Masjid
+Syamsul ‘Ulum Telkom University
+
+Anggota
+NIM
+1303223004
+1303223031
+1303223056
+1303223065
+
+Nama
+Ketua: Rifqi Sigwan Nugraha
+Anggota 1: Davin Verrellius
+Anggota 2: Aldi Satria Hidayatullah
+Anggota 3: Anju Manginar Angelo
+Sitanggang
+Anggota 4: Rama Aulia Ramadan
+
+email
+karuqii@student.telkomuniverisity.ac.id
+davinvarrellius@gmail.com
+aldisatria25k@gmail.com
+sitangganganju@gmail.com
+ramaramadanaulia@gmai.com
+
+Program Studi Sarjana Teknologi Informasi
+Universitas Telkom
+2025
+
+Ringkasan
+Dashboard Keuangan Masjid Syamsul ‘Ulum adalah sistem berbasis web yang mentransformasikan
+pencatatan donasi dan pengeluaran dari manual menjadi digital, terintegrasi, dan real‑time. Solusi ini
+dirancang untuk memenuhi kebutuhan transparansi kepada jamaah dan efisiensi kerja pengurus melalui
+pelaporan yang ringkas, akurat, dan mudah diakses. Fitur inti meliputi autentikasi dan manajemen peran,
+pencatatan pemasukan/pengeluaran, dashboard analitik dengan filter periode, serta visualisasi grafik
+yang ramah pengguna. Tersedia pula halaman publik dan QR code untuk mempermudah akses informasi
+keuangan secara terbuka.
+Dari sisi rekayasa, sistem menggunakan basis data relasional, kontrol akses berbasis peran, dan praktik
+keamanan web untuk menjaga integritas data. Alur kerja dirancang modular agar pemeliharaan dan
+pengembangan lanjutan lebih mudah, termasuk perluasan metrik dan integrasi sumber data eksternal di
+masa depan. Ruang lingkup saat ini berfokus pada pencatatan dan pelaporan (tanpa otomasi transaksi),
+dengan prasyarat koneksi internet serta input oleh admin terverifikasi. Dampaknya diharapkan
+meningkatkan akuntabilitas, membangun kepercayaan jamaah, dan memperkuat literasi digital
+pengurus.
+
+I.​
+
+Pengantar
+
+Need Statement
+Pencatatan donasi dan pengeluaran dilakukan secara manual menggunakan buku catatan atau
+spreadsheet sederhana, yang seringkali menyebabkan data tidak terintegrasi dan sulit diakses. Hal ini
+juga menyulitkan pelaporan keuangan yang akurat dan transparan kepada jamaah [1],. Masjid Syamsul
+Ulum membutuhkan sistem berbasis web yang dapat mengelola donasi dan pengeluaran secara efisien,
+transparan, dan secara real-time. Sistem informasi berbasis web memungkinkan pengelolaan dana
+masjid tercatat dengan baik dan mudah diakses oleh jamaah [2]. Sistem serupa terbukti mampu
+meningkatkan akuntabilitas pengelolaan keuangan dan membangun kepercayaan publik terhadap
+aktivitas donasi masjid [3].
+Objective Statement
+Tujuan dari proyek ini adalah mengembangkan Website Manajemen Donasi dan Keuangan Masjid
+Syamsul Ulum yang dapat digunakan untuk:
+1.​ Mencatat dan menyimpan data donasi serta pengeluaran secara digital.
+2.​ Menyediakan dashboard interaktif bagi admin untuk memantau laporan keuangan mingguan,
+bulanan, dan tahunan.
+3.​ Menampilkan informasi keuangan dan program donasi kepada publik secara online dengan tampilan
+yang menarik dan transparan, sehingga mempermudah akses bagi jamaah yang tidak dapat hadir
+langsung [4].
+4.​ Memberikan fitur visualisasi data dalam bentuk grafik untuk membantu analisis keuangan.
+5.​ Meningkatkan efisiensi dan akuntabilitas pengurus dalam mengelola dana masjid.
+Kebutuhan Pasar
+Untuk menentukan fitur utama sistem yang akan dikembangkan, kebutuhan pasar digunakan. Website
+ini dibuat untuk membantu pengurus dan jamaah Masjid Syamsul Ulum mengawasi dan mengelola dana
+dengan lebih jelas dan efektif [5]. Selain itu, sistem ini berfungsi untuk menyediakan informasi dan
+melaporkan kegiatan donasi yang dilakukan masjid secara real-time. Pelatihan dan adopsi sistem serupa
+telah berhasil meningkatkan literasi digital pengurus masjid dan memberikan solusi manajemen yang
+lebih sistematis .
+Tabel I. Kebutuhan Pengguna “Dashboard Keuangan Masjid Syamsul ‘Ulum Telkom University”
+Produk/layanan sejenis yang
+sudah ada dan pembedanya
+
+-​
+-​
+
+Sampel Statement Kebutuhan
+Pengguna
+
+WakafSalman.or.id: Fokus pada penggalangan dana skala
+besar dan multi-program
+Kitabisa.com: Fokus pada donasi umum lintas kategori
+
+1.​ “Kami membutuhkan sistem yang bisa menampilkan laporan
+donasi mingguan dan bulanan.”
+2.​ “Sistem perlu menampilkan total donasi dan pengeluaran
+secara transparan.”
+
+3.​ “Perlu tampilan grafik agar mudah memahami arus keuangan
+masjid.”
+User
+Kebutuhan pengguna
+(Marketing /user
+Requirement)
+
+Pengurus Masjid Syamsul Ulum (admin), Publik
+1. Website harus bisa mengelola data donasi dan pengeluaran.
+2. Website harus memiliki dashboard laporan keuangan berbasis
+grafik.
+3. Website harus menampilkan informasi donasi secara publik dan
+transparan.
+
+Kebutuhan Teknis
+Kebutuhan pasar membentuk kebutuhan teknis, yang memastikan bahwa setiap fitur dapat digunakan
+secara efisien. Untuk memenuhi standar pengembangan sistem berbasis web dan keamanan data,
+semua kebutuhan teknis dijelaskan.
+Tabel II. Kebutuhan Pasar
+Kebutuhan Pasar
+(Marketing Requirement)
+Rifqi Sigwan Nugroho
+PJ: Ketua
+
+Davin Verrellius
+Anggota 1
+
+Aldi Satria Hidayatullah
+Anggota 2
+
+Rama Aulia Ramadhan
+Anggota 3
+
+Anju Manginar Angelo
+Sitanggang
+Anggota 4
+
+Kebutuhan Teknis
+(Engineering Requirement)
+
+Standar
+(Standards)
+
+Sistem harus menggunakan database relasional
+(MySQL) untuk menyimpan data donasi dan
+pengeluaran dengan validasi input.
+
+W3C Web Standard
+
+Sistem harus menampilkan grafik keuangan
+menggunakan library visualisasi seperti Chart.js
+atau ECharts.
+
+HTML5 & JavaScript
+Standard
+
+Sistem harus memiliki halaman publik yang
+menampilkan total donasi dan kegiatan masjid
+secara real-time.
+Sistem harus dapat menampilkan laporan
+berdasarkan tanggal, bulan, dan tahun melalui
+query database.
+Sistem harus memiliki fitur login dan otentikasi
+berbasis token/session untuk menjaga
+keamanan data keuangan.
+
+ISO/IEC 9126
+Software Quality
+Standard
+SQL Query
+Standard
+
+OWASP Web
+Security Standard
+
+Batasan (constraint):
+1.​ Sistem hanya dapat diakses melalui koneksi internet.
+2.​ Penginputan data hanya dapat dilakukan oleh akun admin yang terverifikasi.
+3.​ Laporan keuangan ditampilkan berdasarkan data yang dimasukkan secara manual.
+4.​ Sistem tidak mengatur transaksi otomatis, hanya mencatat data yang sudah dilakukan.
+5.​ Akses publik terbatas pada tampilan informasi dan tidak memiliki hak ubah data.
+
+II.​
+
+Perancangan
+
+Perancangan Sistem
+Sistem ini berfungsi untuk mengelola data donasi dan pengeluaran masjid secara terintegrasi
+dan real-time. Melalui sistem ini, pengurus masjid dapat melakukan input data donasi, pengeluaran,
+serta memperbarui laporan keuangan dengan mudah. Sistem juga menyediakan fitur login agar hanya
+pengguna yang berwenang dapat melakukan pembaruan data dan menulis artikel berita masjid. Dengan
+adanya sistem ini, pengelolaan dana masjid menjadi lebih efisien, transparan, dan mudah diakses oleh
+jamaah.
+
+Gambar 1. Rancangan system (Level 0)
+
+Sistem yang dirancang merupakan Sistem Informasi Keuangan Masjid Syamsul Ulum berbasis
+web yang berfungsi untuk mengelola data donasi dan pengeluaran masjid secara terintegrasi. Sistem ini
+memiliki tiga input utama yaitu input data donasi dan input data pengeluaran yang digunakan untuk
+mengakses fitur administrasi. Setelah data dimasukkan, sistem akan memproses dan menghasilkan
+output berupa laporan keuangan masjid yang dapat diakses secara real-time. Fungsionalitas utama dari
+sistem ini adalah mengelola data keuangan dengan efisien serta memastikan transparansi dalam setiap
+transaksi yang tercatat. Dengan adanya sistem ini, pengelolaan keuangan masjid menjadi lebih mudah,
+akurat, dan dapat dipantau secara langsung oleh pengurus maupun jamaah.
+Tabel IV. Rancangan system (Level 0)
+
+Modul
+Input
+
+Nama Proyek
+1.​ Input Data Pemasukan
+2.​ Input Data Pengeluaran
+3.​ Input Data Artikel
+
+Output
+
+fungsionalitas
+
+1.​ Laporan keuangan masjid
+2.​ Berita/ Artikel
+Mengelola data donasi secara real time dan transparansi
+
+Dekomposisi Sistem
+Sistem dashboard keuangan masjid ini terbagi menjadi beberapa fungsi utama yang
+saling terhubung. Pertama, sistem memiliki modul dashboard publik yang menampilkan
+informasi pemasukan, pengeluaran, dan saldo serta ringkasan yang bisa difilter berdasarkan
+tanggal, minggu, atau bulan. Kedua, terdapat modul autentikasi dan manajemen peran, di mana
+admin dapat masuk untuk mengelola data, sedangkan pengunjung umum hanya dapat melihat
+tampilan publik dan artikel. Selanjutnya, modul manajemen transaksi digunakan oleh admin
+untuk mencatat, mengubah, dan menghapus data pemasukan serta pengeluaran. Data tersebut
+kemudian secara otomatis dihitung dan dirangkum oleh modul pelaporan agar dapat
+ditampilkan sebagai laporan keuangan mingguan atau bulanan. Terakhir, sistem dilengkapi
+modul konten dan QR, yang berfungsi untuk membuat dan menampilkan artikel dengan kode
+QR agar jamaah dapat memindai dan membaca informasi secara langsung melalui perangkat
+mereka.
+
+Gambar 2. Rancangan system (Level 1)
+
+Tabel V. Submodul system (Level 1)
+
+Keterangan
+
+Nilai
+
+Submodul 1
+Input
+Output
+
+Dashboard Publik
+Data Pemasukan, Pengeluaran dan saldo dari database
+Tampilan informasi keuangan yang dapat difilter
+berdasarkan tanggal, minggu, atau bulan
+Menampilkan ringkasan kondisi keuangan masjid secara
+real time kepada pengunjung umum
+Autentikasi dan Manajemen peran
+Username, Password, dan hak akses pengguna
+Akses halaman admin untuk mengelola data dan tampilan
+publik bagi pengunjung
+Mengatur proses login, otorisasi, dan pembatasan hak
+akses pengguna
+Manajemen Transaksi
+Data donasi (pemasukan) dan data pengeluaran
+Data transaksi yang tersimpan dan diperbarui di database
+Mencatat, mengubah, dan menghapus transaksi keuangan
+masjid
+Pelaporan Keuangan
+Data transaksi dari modul manajemen keuangan
+Laporan keuangan mingguan atau bulanan
+Menghitung total pemasukan dan pengeluaran serta
+menampilkan laporan dalam format ringkas
+Konten dan Poster
+Data artikel dan Poster
+Artikel berita dan Poster dengan kode QR yang dapat
+dipindai oleh jamaah
+Menampilkan dan mengelola konten publik serta
+menyediakan akses cepat ke artikel melalui QR code
+
+Fungsionalitas
+Submodul 2
+Input
+Output
+Fungsionalitas
+Submodul 3
+Input
+Output
+Fungsionalitas
+Submodul 4
+Input
+Output
+Fungsionalitas
+Submodul 5
+Input
+Output
+Fungsionalitas
+
+Sistem Dashboard Keuangan Masjid Syamsul Ulum terdiri dari beberapa submodul yang saling
+terhubung untuk mendukung pengelolaan keuangan secara efisien. Submodul Dashboard Publik
+berfungsi menampilkan informasi pemasukan, pengeluaran, dan saldo masjid yang dapat difilter
+berdasarkan periode waktu tertentu. Submodul Autentikasi dan Manajemen Peran memastikan
+keamanan sistem dengan membedakan akses antara admin dan pengunjung umum. Selanjutnya,
+Manajemen Transaksi digunakan oleh admin untuk mencatat, memperbarui, dan menghapus data
+keuangan yang tersimpan di database. Hasil pengolahan data tersebut kemudian ditampilkan melalui
+Pelaporan Keuangan dan dilengkapi oleh Modul Konten dan QR untuk menampilkan artikel berita
+dengan kode QR agar jamaah dapat mengakses informasi secara mudah dan transparan.
+
+Gambar Submodul 1.0
+
+Gambar Submodul 2.0
+
+Gambar Submodul 3.0
+
+Gambar Submodul 4.0
+
+Gambar Submodul 5.0
+
+III.​ Pengujian
+Pengujian dilakukan agar sistem Website Manajemen Donasi Masjid Syamsul Ulum bisa
+mengelola data keuangan dengan baik menggunakan proses CRUD (Create, Read, Update, Delete). Setiap
+fitur diuji mulai dari menambahkan data donasi, melihat detail transaksi, mengubah nominal, hingga
+menghapus data yang tidak diperlukan. Selain itu, dashboard juga diuji agar laporan keuangan tampil
+dengan tepat dan bisa disaring sesuai dengan periode waktu yang dipilih. Semua fitur berjalan lancar,
+dan hasil pengujian menunjukkan bahwa integrasi antara bagian backend dan tampilan web berjalan
+dengan baik. Dengan demikian, sistem dianggap stabil dan siap digunakan oleh admin masjid untuk
+mengelola keuangan secara digital dan transparan.
+Tabel VI. Pengujian
+Test Writer:
+Test Case Name: Website Keuangan Mingguan Masjid
+
+Test ID #: WS-AT-01
+
+Description:
+
+Type:
+
+Menguji fungsionalitas dashboard untuk
+menampilkan total donasi dan pengeluaran
+selama satu minggu terakhir berdasarkan data
+transaksi yang diinput oleh admin.
+
+□ white box
+black box
+
+Tester Information
+Name of Tester:
+
+Date:
+
+Software Ver:
+
+Web Server 1.0
+
+Setup:
+
+Sistem terhubung dengan database yang berisi data transaksi donasi dan
+pengeluaran minimal satu minggu terakhir.
+
+Step Action
+
+Expected Result
+
+1
+
+Admin login
+menggunakan
+akun yang
+terdaftar
+
+Sistem menampilkan halaman dashboard
+utama
+
+2
+
+Admin memilih Sistem menampilkan grafik dan tabel donasi
+menu “Laporan serta pengeluaran selama 7 hari terakhir
+Mingguan”
+
+3
+
+Admin
+Total saldo sesuai hasil perhitungan database
+memverifikasi
+total saldo akhir
+
+Time:
+
+Pass Fail N/A Comments
+
+4
+
+Admin mencoba Dashboard memperbarui data sesuai rentang
+filter tanggal
+waktu yang dipilih
+tertentu
+
+5
+
+Admin
+Data baru tersimpan dan muncul di tabel
+menambah data
+donasi baru
+(nama, nominal,
+tanggal)
+
+6
+
+Admin membuka Sistem menampilkan informasi lengkap
+detail data
+donatur dan transaksi
+donasi
+
+7
+
+Admin dapat
+Data diperbarui di database dan ditampilkan
+mengubah detail ulang secara real-time
+data donasi
+
+8
+
+Admin dapat
+Data terhapus dan tidak lagi muncul di daftar
+menghapus data
+donasi
+
+9
+
+Admin logout
+dari sistem
+
+Sistem kembali ke halaman login tanpa error
+
+Overall test result:
+
+IV.​
+
+Simpulan
+
+Dokumen SRS ini menjadi pegangan bersama tentang apa yang akan dibangun, mengapa dibutuhkan,
+dan bagaimana sistem akan digunakan. Isinya menjelaskan tujuan, siapa saja pengguna dan perannya,
+fitur yang diperlukan, cara kerja secara umum, serta batasan yang perlu dipatuhi. Dokumen ini juga
+merangkum aturan penggunaan agar pencatatan dan penyajian informasi berjalan rapi dan aman.
+Dengan adanya SRS, semua pihak memiliki pemahaman yang sama sehingga mengurangi salah tafsir
+selama proses pembuatan.
+Langkah selanjutnya adalah meninjau isi SRS bersama perwakilan pengurus dan jamaah, lalu
+menyepakati urutan prioritas fitur. Tim akan menyiapkan kriteria sederhana untuk menerima sebuah
+fitur, rencana uji coba, serta daftar risiko yang mungkin muncul misalnya keamanan data, kerapian input,
+dan beban server beserta cara pencegahannya. Setelah disetujui, SRS ini menjadi acuan resmi untuk
+desain, pembangunan bertahap, uji coba dengan pengguna, hingga penyerahan sistem.
+
+Referensi
+[1] M. Azmi, Y. Sonatha, S. O. Kirana, R. Idmayanti, dan R. Afyenni, “Design and Development of a
+Web-Based Mosque Management Information System: A Case Study of Darul Amal Mosque,” Invotek:
+Jurnal Inovasi Vokasional dan Teknologi, vol. 24, no. 3, May 2025. [Online].
+http://invotek.ppj.unp.ac.id/index.php/invotek/article/view/1205
+[2] F. Sukya dan E. Nurfarida, “Design and Development a Web Platform Portal for Mosque Financial
+Management,” Journal of Advanced in Information and Industrial Technology, vol. 6, no. 1, Aug. 2024.
+[Online]. https://journal.ittelkom-sby.ac.id/jaiit/article/view/599
+[3] H. Herfandi dan F. Hamdani, “Implementasi Sistem Informasi Manajemen Masjid Berbasis Web,”
+Informal: Informatics Journal, vol. 7, no. 3, Dec. 2022. [Online].
+https://scholar.archive.org/work/krmbtqrdkncsdf3irp5cc26vta/access/wayback/https://jurnal.unej.ac.id/
+index.php/INFORMAL/article/download/34233/12293
+[4] M. I. A. Siregar, A. Sutardjo, dan R. M. R. Rafi, “Web-Based Donation Information System At Tpq / Tqa
+Masjid Nurhikmah Kampung Melayu Nanggalo Padang,” JENTIK, vol. 1, no. 3, Dec. 2023. [Online].
+https://www.jentik.org/index.php/jurnal/article/view/73
+[5] Walhidayat, E. P. Pane, D. Toresa, T. A. Jumala, dan Y. P. Bunda, “Web-Based Financial Management
+Socialization And Training In Mushalla Al – Hikmah Rumai – Pekanbaru,” Jurnal Pengabdian Masyarakat,
+vol. 3, no. 2, Dec. 2023. [Online].
+https://www.jurnal.yaspenosumatera.org/index.php/mejuajua/article/view/93
+
+

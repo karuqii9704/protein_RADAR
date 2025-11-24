@@ -1,0 +1,1947 @@
+​
+​
+
+​
+​
+PROJECT CHARTER
+
+​
+1. General Project Information
+Project Name:
+
+Dashboard Keuangan Masjid Syamsul ‘Ulum Telkom
+University
+
+Executive Sponsors:
+
+Dewan Kemakmuran Masjid Syamsul ‘Ulum Telkom
+University
+
+Impact of project:
+
+Proyek Dashboard Keuangan Masjid meningkatkan
+transparansi dan akuntabilitas dengan menampilkan
+pemasukan - pengeluaran secara jelas dan mudah diakses
+publik. Admin menjadi lebih efisien karena pencatatan rapi,
+laporan otomatis, dan jejak perubahan terdokumentasi.
+Dampaknya, kepercayaan jamaah naik dan ajakan donasi lebih
+tepat sasaran karena informasi kegiatan dan kebutuhan
+ditampilkan secara real-time.
+
+Budget:
+
+-
+
+2. Project Team
+Name
+
+Telephone
+
+E-mail
+
+Project Manager:
+
+Rifqi Sigwan
+Nugraha
+
++6282246326
+670
+
+karuqii@student.telkomuniversit
+y.ac.id
+
+Team Members:
+
+Anju Manginar
+Angelo
+
++6285881616
+011
+
+anjusitanggang@student.telkom
+university.ac.id
+
+Davin Verrelius
+
++6282184846
+321
+
+davinverrelius@student.telkomu
+niversity.ac.id
+
+Aldi Satria
+Hidayatullah
+
++6281806562
+835
+
+aldisatria@student.telkomuniver
+sity.ac.id
+
+Rama Aulia
+Ramadan
+
++6281935344
+242
+
+nnefola@student.telkomuniversi
+ty.ac.id
+
+3. Project Scope Statement
+Project Purpose / Business Justification Describe the business need this project addresses
+Proyek ini bertujuan untuk mengembangkan Sistem Informasi Keuangan Masjid Syamsul
+Ulum berbasis web guna meningkatkan efisiensi dan transparansi dalam pengelolaan dana
+masjid. Sistem ini dibutuhkan karena proses pencatatan donasi dan pengeluaran sebelumnya
+dilakukan secara manual menggunakan buku catatan atau spreadsheet yang sulit diakses dan
+rentan terhadap kesalahan. Dengan adanya sistem berbasis web, pengurus dapat mencatat,
+1​
+
+​
+
+​
+​
+
+​
+​
+memantau, dan melaporkan kondisi keuangan secara real-time serta menyajikan laporan kepada
+jamaah dengan mudah. Selain itu, sistem ini juga memungkinkan pengelolaan artikel dan
+informasi masjid melalui modul konten serta penggunaan QR code untuk akses cepat oleh
+jamaah. Proyek ini diharapkan dapat meningkatkan akuntabilitas, kemudahan pelaporan, dan
+kepercayaan jamaah terhadap pengelolaan dana masjid.
+Objectives (in business terms) Describe the measurable outcomes of the project, e.g., reduce
+cost by xxxx or increase quality to yyyy
+1.​ Hemat waktu & biaya admin: proses pembuatan laporan menjadi jauh lebih cepat dan
+beban kerja administrasi berkurang signifikan.​
+2.​ Transparansi & keandalan: laporan terbit tepat waktu secara konsisten, dan dashboard
+dapat diakses stabil sepanjang jam operasional.​
+3.​ Peningkatan donasi: partisipasi jamaah meningkat, dengan lebih banyak donasi yang
+masuk berkat kampanye dan informasi yang jelas.
+
+Deliverables List the high-level “products” to be created (e.g., improved xxxx process, employee
+manual on yyyy)
+a. Dokumen project charter sebagai keputusan formal pada awal proyek antara developer proyek
+dengan stakeholder proyek
+b. Buku Laporan Pendahuluan pasca memuat atau membahas sekurang kurangnya gambaran
+umum, metode dan mekanisme pelaksanaan pekerjaan, rencana kerja, personil (tenaga ahli dan
+tenaga pendukung) serta konsep kerangka pengelolaan aplikasi.
+c. Buku Draft Laporan Akhir menyajikan integrasi aplikasi/sistem informasi yang sudah
+dikerjakan lengkap dengan alat analisa baru yang dikembangkan.
+d. Buku Laporan Akhir sejumlah merupakan penyempurnaan Draft Laporan Akhir yang telah
+mengakomodasi masukan-masukan pasca pembahasan draft laporan akhir.
+Scope List what the project will and will not address (e.g., this project addresses units that
+report into the Office of Executive Vice President. Units that report into the Provosts Office are
+not included)
+-​
+portal Admin untuk login dan input pemasukan-pengeluaran beserta
+keterangan/lampiran,
+-​ Dashboard Publik untuk melihat ringkasan dan laporan keuangan, serta
+-​ Modul Konten untuk artikel/poster ajakan donasi sesuai kegiatan masjid. Sistem berfokus
+pada satu masjid, mengacu pada SRS/KAK.
+Project Milestones Propose start and end dates for Project Phases (e.g., Inception, Planning,
+Construction, Delivery) and other major milestones
+10 Minggu
+
+2​
+
+​
+
+​
+​
+
+​
+​
+Major Known Risks (including significant Assumptions) Identify obstacles that may cause
+the project to fail.
+Risk
+
+Risk Rating (Hi, Med, Lo)
+
+Terjadi kendala saat aplikasi digunakan secara serentak
+
+Medium
+
+Terjadinya kebocoran data
+
+High
+
+Terjadinya penggunaan data tanpa izin
+
+High
+
+Constraints List any conditions that may limit the project team’s options with respect to
+resources, personnel, or schedule (e.g., predetermined budget or project end date, limit on
+number of staff that may be assigned to the project).
+-​ Waktu pelaksanaan 10 minggu (±50 hari kerja).
+-​ Ruang lingkup fase ini hanya satu masjid (bukan multi-tenant).
+-​ Data transaksi diinput manual oleh admin terverifikasi; publik hanya baca.
+-​ Anggaran dan formasi tim disepakati dalam PMP (diisi saat persetujuan).
+-​ Infrastruktur: domain/hosting/SSL yang tersedia; akses internet memadai.
+-​ Inovasi/perubahan harus tetap sesuai substansi KAK/SRS dan melalui persetujuan.
+External Dependencies Will project success depend on coordination of efforts between the
+project team and one or more other individuals or groups? Has everyone involved agreed to this
+interaction?
+- Pengelolaan aplikasi baru bisa dikerjakan saat tenaga aslinya sudah ada
+- Pasokan listrik
+- Ketersediaan jaringan internet
+5. Communication Strategy (specify how the project manager will communicate to the
+Executive Sponsor, Project Team members and Stakeholders, e.g., frequency of status reports,
+frequency of Project Team meetings, etc.
+- Koordinasi awal diperlukan untuk menyamakan persepsi dengan pemilik pekerjaan dan
+menyepakati jadwal pelaksanaan pekerjaan.
+- Pendekatan dan metodologi kerja yang ditawarkan perlu untuk diharmonisasikan dengan
+pemilik pekerjaan untuk mengantisipasi sesuatu hal yang kurang sesuai/relevan dengan substansi
+pekerjaan.
+- menyelenggarakan pertemuan dan pembahasan dalam rangka alih pengetahuan kepada Pemberi
+Pekerjaan.
+
+3​
+
+​
+
+​
+​
+
+​
+​
+6. Sign-off
+Name
+Sponsor
+
+Project Manager
+
+Signature
+
+Dewan
+Kemakmuran
+Masjid Syamsul
+‘Ulum
+Rifqi Sigwan
+Nugraha
+
+7. Notes
+
+4​
+
+​
+
+Date (MM/DD/YYYY)
+
+​
+​
+
+​
+​
+
+PROJECT MANAGEMENT PLAN
+DASHBOARD KEUANGAN MASJID SYAMSUL ‘ULUM TELKOM
+UNIVERSITY
+
+PROGRAM STUDI S1 TEKNOLOGI INFORMASI​
+FAKULTAS INFORMATIKA
+UNIVERSITAS TELKOM
+TAHUN 2025
+
+5​
+
+​
+
+​
+​
+
+​
+​
+
+1.​ INTRODUCTION
+Pencatatan donasi dan pengeluaran di Masjid Syamsul Ulum selama ini dilakukan
+secara manual menggunakan buku catatan atau spreadsheet sederhana. Cara tersebut
+seringkali menyebabkan data tidak terintegrasi, sulit diakses, serta menyulitkan proses
+pelaporan keuangan yang akurat dan transparan kepada jamaah. Oleh karena itu,
+dibutuhkan sebuah sistem berbasis web yang mampu mengelola donasi dan pengeluaran
+secara efisien, transparan, dan real-time. Sistem informasi berbasis web memungkinkan
+pengelolaan dana masjid tercatat dengan baik, mudah diakses oleh jamaah, serta dapat
+meningkatkan akuntabilitas dan kepercayaan publik terhadap kegiatan keuangan masjid.
+Berdasarkan kebutuhan tersebut, proyek ini bertujuan untuk mengembangkan Website
+Manajemen Donasi dan Keuangan Masjid Syamsul Ulum yang dapat digunakan untuk
+mencatat dan menyimpan data donasi serta pengeluaran secara digital. Selain itu, sistem
+ini menyediakan dashboard interaktif bagi admin untuk memantau laporan keuangan
+mingguan, bulanan, dan tahunan, serta menampilkan informasi keuangan dan program
+donasi kepada publik dengan tampilan yang menarik dan transparan sehingga dapat
+diakses oleh jamaah yang tidak hadir secara langsung. Sistem juga dilengkapi dengan
+fitur visualisasi data berbentuk grafik untuk membantu analisis keuangan, serta dirancang
+untuk meningkatkan efisiensi dan akuntabilitas pengurus dalam mengelola dana masjid.
+Dari sisi kebutuhan pasar, sistem ini dikembangkan untuk membantu pengurus
+dan jamaah Masjid Syamsul Ulum dalam mengawasi dan mengelola dana dengan lebih
+jelas dan efektif. Website ini juga berfungsi sebagai sarana pelaporan kegiatan donasi
+yang dilakukan masjid secara real-time, serta sebagai media penyebaran informasi
+mengenai program keagamaan dan kegiatan sosial. Penerapan sistem ini diharapkan dapat
+meningkatkan literasi digital pengurus masjid sekaligus menghadirkan solusi manajemen
+keuangan yang lebih sistematis dan modern. Beberapa kebutuhan utama pengguna yang
+diidentifikasi mencakup kemampuan sistem untuk menampilkan laporan donasi
+mingguan dan bulanan, menampilkan total donasi serta pengeluaran secara transparan,
+dan menyediakan tampilan grafik agar jamaah dapat lebih mudah memahami arus
+keuangan masjid. Dengan demikian, pengguna utama sistem ini meliputi pengurus masjid
+sebagai admin yang bertanggung jawab mengelola data, serta jamaah atau publik yang
+berperan sebagai pengguna yang dapat mengakses informasi secara terbuka.
+Secara teknis, sistem ini dikembangkan menggunakan database relasional
+(MySQL) untuk menyimpan data donasi dan pengeluaran dengan validasi input sesuai
+standar W3C Web Standard. Tampilan laporan keuangan divisualisasikan menggunakan
+library seperti Chart.js atau ECharts berdasarkan HTML5 & JavaScript Standard.
+Sistem juga memiliki halaman publik yang menampilkan total donasi dan kegiatan masjid
+secara real-time, mengacu pada ISO/IEC 9126 Software Quality Standard. Selain itu,
+laporan dapat ditampilkan berdasarkan tanggal, bulan, dan tahun melalui query database
+sesuai SQL Query Standard. Untuk menjaga keamanan data keuangan, sistem
+dilengkapi fitur login dan otentikasi berbasis token atau session yang mengikuti OWASP
+Web Security Standard.
+Terdapat beberapa batasan dalam pengembangan sistem ini, di antaranya sistem hanya
+dapat diakses melalui koneksi internet, penginputan data hanya dapat dilakukan oleh akun
+6​
+
+​
+
+​
+​
+
+​
+​
+
+admin yang terverifikasi, dan laporan keuangan ditampilkan berdasarkan data yang
+dimasukkan secara manual. Sistem tidak mengatur transaksi otomatis, tetapi hanya
+mencatat data transaksi yang telah dilakukan, serta akses publik dibatasi hanya pada
+tampilan informasi tanpa hak untuk mengubah data. Dengan perancangan yang demikian,
+diharapkan sistem ini dapat menjadi solusi yang efektif dalam mendigitalisasi proses
+pengelolaan keuangan masjid dan meningkatkan transparansi terhadap jamaah.
+
+2.​ PROJECT SCOPE MANAGEMENT
+a.​ Plan Scope Management
+1.​ Preparation of The Project Scope Statement
+Proyek pengelolaan aplikasi Dashboard Keuangan Masjid ini
+merupakan kerja sama antara Tim Proyek sebagai penyedia jasa yang
+dipimpin Project Manager dan Pengurus/DKM Masjid Syamsul ‘Ulum
+sebagai pemilik pekerjaan. Scope management menjadi tanggung
+jawab Project Manager. Ruang lingkup didefinisikan runut: deskripsi
+produk, batasan proyek (constraint), karakteristik & kriteria produk
+yang disejajarkan dengan SRS dan WBS, menjadi dasar kesepakatan
+ruang lingkup seluruh pihak.
+Inovasi dari penyedia jasa maupun perubahan dari stakeholder
+diperbolehkan sepanjang sesuai substansi dan ruang lingkup pada
+KAK/SRS. Setiap usulan dicatat sebagai change request, dievaluasi
+Project Manager (dampak waktu/biaya/kualitas/risiko), lalu
+dimintakan persetujuan Sponsor/Pengurus. Setelah disetujui, Project
+Manager
+memperbarui
+dokumen
+ruang
+lingkup,
+mengkomunikasikannya ke stakeholder & tim proyek, serta
+menyesuaikan backlog dan baseline jadwal/biaya bila diperlukan.
+2.​ Preparation of Work Breakdowns Structure (WBS)
+WBS disusun top–down dengan level 1 mengikuti fase proyek
+(Persiapan, Pelaksanaan, Pelaporan, Penyelesaian) agar konsisten
+dengan KAK/SRS dan tabel aktivitas yang telah dicontohkan. Pada
+level 2–3, pekerjaan diuraikan menjadi paket kerja terukur: Auth &
+RBAC, Modul Transaksi, Dashboard Publik, Modul Konten,
+Pelaporan (CSV/PDF), QA & UAT, Hardening & Deploy, serta
+Dokumentasi & Pelatihan. Setiap paket kerja diberi kode, deskripsi,
+durasi/estimasi, biaya, dan kriteria selesai (done criteria) sehingga
+dapat ditelusuri ke deliverable dan kebutuhan SRS. Penomoran
+mengikuti konvensi hierarkis (misal 2.3.1) untuk memudahkan
+pelacakan dependensi dan pengendalian perubahan. Draft WBS
+direview lintas peran (PM, pengurus/DKM, admin keuangan, tim dev)
+7​
+
+​
+
+​
+​
+
+​
+​
+dan disahkan sebagai baseline ruang lingkup sebelum perencanaan
+jadwal dan biaya dirinci.
+3.​ WBS Dictionary
+Berikut adalah WBS Dictionary yang menjadi panduan dalam
+setiap komponen pekerjaan :
+
+4.​ Deliverable Acceptance
+Proyek dinyatakan selesai setelah dijalankan selama 10 minggu dan
+menyerahkan aplikasi Dashboard Keuangan Masjid yang berfungsi
+sesuai kebutuhan pengurus/DKM, beserta laporan akhir. Penerimaan
+dilakukan melalui uji coba bersama; jika fitur utama (input transaksi,
+dashboard publik, dan artikel/poster) berjalan baik dan mudah
+digunakan, maka BAST ditandatangani oleh pihak pengurus. Tim
+proyek menyerahkan semua dokumen panduan singkat dan
+memberikan pelatihan ringkas kepada admin. Tim proyek wajib
+menjaga kerahasiaan data dan menindaklanjuti perbaikan kecil yang
+ditemukan setelah serah terima dalam jangka waktu yang disepakati.
+Jika ada kekurangan penting, tim memperbaikinya hingga memenuhi
+kesepakatan.
+
+8​
+
+​
+
+​
+​
+
+​
+​
+
+b.​ Collect Requirements
+REQUIREMENTS DESCRIPTION
+
+REQUEST BY
+
+Pembaruan dashboard publik untuk transparansi keuangan
+
+Stakeholder
+
+Pemisahan kewenangan: Admin input vs publik read-only
+
+Stakeholder
+
+Data transaksi (saldo awal, pemasukan, pengeluaran) untuk
+dimasukkan ke aplikasi
+
+Tim Proyek
+
+Laporan Pendahuluan, Laporan Bulanan, dan Laporan Akhir
+
+Stakeholder
+
+Kanal rapat/komunikasi rutin (ruang rapat atau meeting online) Tim Proyek
+Hosting, domain, dan sertifikat SSL
+
+Tim Proyek
+
+Pelatihan singkat admin + panduan penggunaan
+
+Stakeholder
+
+Menjaga kerahasiaan data (NDA/SOP)
+
+Stakeholder
+
+Pembaruan dashboard publik untuk transparansi keuangan
+
+Stakeholder
+
+Pengelolaan database
+
+Stakeholder
+
+Menjaga rahasia data
+
+Stakeholder
+
+c.​ Defining Scope
+1.​ Product Scope Description
+Proyek ini meningkatkan dan mengoptimalkan aplikasi
+pengelolaan keuangan masjid agar lebih mudah, rapi, dan transparan.
+Aplikasi mencakup tiga fitur utama: ​
+(a) portal Admin untuk login dan input pemasukan-pengeluaran
+beserta keterangan/lampiran, ​
+(b) Dashboard Publik untuk melihat ringkasan dan laporan keuangan,
+serta (c) Modul Konten untuk artikel/poster ajakan donasi sesuai
+kegiatan masjid. Sistem berfokus pada satu masjid, mengacu pada
+SRS/KAK.
+2.​ Project Constraint
+Proyek ini memiliki batasan dalam pengerjaanya yaitu :
+●​ Waktu pelaksanaan 10 minggu).
+●​ Ruang lingkup fase ini hanya satu masjid (bukan multi-tenant).
+●​ Data transaksi diinput manual oleh admin terverifikasi; publik
+hanya baca.
+●​ Anggaran dan formasi tim disepakati dalam PMP (diisi saat
+persetujuan).
+9​
+
+​
+
+​
+​
+
+​
+​
+●​ Infrastruktur: domain/hosting/SSL yang tersedia; akses internet
+memadai.
+●​ Inovasi/perubahan harus tetap sesuai substansi KAK/SRS dan
+melalui persetujuan.
+
+3.​ Product Acceptance Criteria
+Kriteria penerimaan proyek oleh stakeholder adalah :
+●​ Fitur utama berfungsi baik: input transaksi, dashboard publik, dan
+artikel/poster.
+●​ Laporan bulanan dapat terbit otomatis dan bisa diunduh
+(CSV/PDF); saldo tepat (pemasukan–pengeluaran).
+●​ Tampilan sederhana dan mudah dipakai oleh admin; publik dapat
+mengakses transparansi tanpa login.
+●​ Uji coba bersama (UAT) lulus dan ada BAST yang ditandatangani
+pengurus/DKM.
+4.​ Deliverables
+Deliverables yang akan diserahkan oleh tim protek kepada pihak
+Stakeholder adalah :
+●​ Project Charter (kesepakatan formal ruang lingkup & tujuan).
+●​ Laporan Pendahuluan (gambaran umum, metode kerja, rencana &
+personel).
+●​ Laporan Akhir (penyempurnaan draft + keputusan akhir).
+●​ Paket sistem: source code, skema database, panduan admin &
+panduan publikasi konten, serta BAST.
+d.​ Work Breakdowns Structure (WBS)
+
+10​
+
+​
+
+​
+​
+
+​
+​
+
+3.​ PROJECT TIME/SCHEDULE MANAGEMENT
+a.​ Time Management Approach
+Rencana waktu pelaksanaan Pekerjaan Pengelolaan Aplikasi
+SIMBANKEU adalah 10 bulan atau 300 (tiga ratus) hari kalender dengan
+jadwal sebagai berikut :
+Minggu
+Kegiatan
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+Tahap Persiapan
+Identifikasi Kebutuhan
+v
+Tahap Pelaksanaan
+Penyusunan Dokumen
+v
+v
+Proyek
+Desain Sistem
+Desain UI/UX Website
+v
+v
+Desain Arsitektur Sistem
+v
+v
+v
+Desain Database
+v
+v
+v
+Pengembangan aplikasi
+v
+v
+v
+v
+v
+v
+v
+v
+v
+v
+
+11​
+
+Pengembangan Frontend
+
+v
+
+v
+
+v
+
+v
+
+Pengembangan Backend
+
+v
+
+v
+
+v
+
+v
+
+​
+
+​
+​
+
+​
+​
+Integrasi sistem
+(Frontend-Backend)
+
+v
+
+v
+
+Pengujian Sistem
+
+v
+v
+
+Pebaikan & Debugging
+Tahap Pelaporan Pekerjaan
+Penyusunan laporan
+pendahuluan
+Penyusunan laporan
+bulanan
+Penyusunan laporan draft
+akhir
+Tahap Penyelesaian
+Perbaikan draft laporan
+akhir
+Pengumpulan produk
+laporan akhir
+
+v
+
+v
+
+v
+
+v
+
+v
+
+v
+v
+
+v
+v
+
+v
+v
+
+v
+
+b.​ Project Schedule
+Berikut ini merupakan jadwal pengerjaan proyek per tahapan sesuai
+dengan WBS (Work Breakdown Structure).
+Kode
+Nama
+Tahap
+Deskripsi
+WBS
+Komponen
+Tahap awal: studi dokumen,
+Persiapan
+1
+penyelarasan ruang lingkup &
+rencana
+
+Pelaksanaan
+
+12​
+
+v
+
+Durasi
+
+1.1
+
+Koordinasi
+Awal
+
+Kick-off, kesepakatan tujuan, KPI,
+kanal komunikasi
+
+3
+
+1.2
+
+Penyesuaian
+(Baseline)
+
+Baseline scope–jadwal–biaya; setup
+repo/board & akses
+
+5
+
+Tahap inti: desain, pengembangan,
+data, hardening, uji
+
+2
+Evaluasi
+2.1 Aplikasi/Desai
+n
+
+Review arsitektur, skema DB,
+UI/UX mengacu SRS
+
+4
+
+Pendampingan
+2.2 Verifikasi
+Kategori
+
+Finalisasi kategori transaksi & SOP
+input data
+
+3
+
+​
+
+​
+​
+
+​
+​
+
+Pelaporan
+
+Penyelesaian
+
+Implementasi
+2.3 Modul
+Transaksi
+
+CRUD pemasukan/pengeluaran,
+kategori, lampiran, RBAC
+
+8
+
+2.3.1
+
+Input Data
+Induk
+
+Import saldo awal/kamus data;
+rekonsiliasi sampel
+
+3
+
+2.4
+
+Dashboard
+Publik
+
+Ringkasan saldo, grafik tren, filter,
+unduh CSV/PDF
+
+6
+
+Modul Konten
+2.5 (Artikel/Poster
+& QR)
+
+CRUD konten, unggah gambar,
+jadwal tayang, QR/share
+
+4
+
+Keamanan,
+2.6 Logging &
+Backup
+
+Hardening OWASP, audit log,
+backup & uji restore
+
+3
+
+2.7 QA & UAT
+
+Test plan, eksekusi uji, perbaikan,
+berita acara UAT
+
+6
+
+Penyusunan laporan berkala &
+kompilasi akhir
+
+3
+3.1
+
+Laporan
+Pendahuluan
+
+Ringkasan rencana kerja, jadwal,
+risiko awal
+
+2
+
+3.2
+
+Laporan
+Bulanan
+
+Rekap progres (dalam 10 minggu
+ada 2 edisi)
+
+3
+
+3.3
+
+Laporan Draft
+Akhir
+
+Kompilasi hasil, metrik kualitas,
+panduan operasi
+
+3
+
+4
+
+Finalisasi & serah terima
+
+Perbaikan
+4.1 Draft Laporan
+Akhir
+
+Revisi sesuai masukan
+UAT/pemeriksaan akhir
+
+3
+
+Pengumpulan
+4.2 Produk Akhir
+(BAST)
+
+Serah terima sistem, source code,
+dokumentasi, pelatihan singkat
+
+2
+
+c.​ Gantt Chart
+Perangkat lunak yang digunakan untuk membuat gantt chart ini adalah .
+
+13​
+
+​
+
+​
+​
+
+​
+​
+
+d.​ Schedule Control
+Proses utama untuk mengendalikan jadwal proyek adalah memantau kemajuan,
+menganalisis perbedaan dari rencana awal, dan mengambil tindakan korektif
+jika terjadi keterlambatan.
+1. Penetapan Baseline
+●​
+WBS & Durasi: Menggunakan WBS dan Gantt Chart yang disetujui
+sebagai acuan jadwal dasar (baseline).
+2. Pengukuran dan Pemantauan
+●​
+Status Aktual: Mencatat tanggal mulai dan selesai aktual untuk
+setiap komponen (misalnya, Modul Transaksi 2.3).
+●​
+Persentase Selesai: Menghitung Percent Complete setiap tugas secara
+berkala.
+3. Analisis Kinerja (EVM Sederhana)
+●​
+Hitung Variansi: Membandingkan nilai pekerjaan yang seharusnya
+selesai (PV) dengan yang sudah selesai (EV).
+●​
+Schedule Variance (SV): Jika EV<PV (nilai negatif), proyek sedang
+terlambat.
+●​
+Schedule Performance Index (SPI): Jika SPI<1.0, kinerja jadwal tidak
+efisien.
+4. Tindakan Korektif dan Pencegahan
+●​
+Aksi Cepat: Jika SPI di bawah 1.0, segera lakukan tindakan seperti
+Crashing (menambah sumber daya) atau Fast Tracking (paralelisasi tugas).
+●​
+Fokus Kritis: Prioritaskan percepatan tugas-tugas pada Jalur Kritis
+(Critical Path) seperti Implementasi Modul (2.3) atau QA & UAT (2.7).
+14​
+
+​
+
+​
+​
+
+​
+​
+5. Manajemen Perubahan
+●​
+Formalisasi: Setiap penyesuaian besar pada baseline jadwal (misalnya,
+penundaan 5 hari) harus didokumentasikan melalui Change Request dan
+disetujui oleh pengurus/sponsor.
+6. Pelaporan
+●​
+Transparansi: Menyampaikan laporan status jadwal (termasuk metrik
+SPI) secara mingguan kepada stakeholder masjid untuk menjaga akuntabilitas
+dan memungkinkan intervensi dini.
+
+e.​ Schedule Changes and Thresholds
+Jika terdapat permintaan perubahan jadwal dalam proyek Dashboard
+Keuangan ini, maka yang akan dilakukan adalah:
+1.​ Ambang Batas Kinerja (SPI): Jika Indeks Kinerja Jadwal (SPI)
+mencapai 0.95 atau lebih rendah, proyek dianggap berisiko tinggi.
+Ini memicu perlunya eskalasi segera ke pengurus masjid/sponsor
+untuk meninjau opsi pemulihan seperti penambahan sumber daya
+(crashing).
+2.​ Ambang Batas Keterlambatan Absolut (SV): Keterlambatan
+kumulatif sebesar 5 hari kerja atau lebih (SV ≤−5) pada jadwal
+total memerlukan tindakan korektif wajib dari Manajer Proyek,
+seperti realokasi tim atau penjadwalan ulang tugas internal.
+3.​ Keterlambatan Tugas Kritis: Keterlambatan 2 hari atau lebih pada
+tugas-tugas Jalur Kritis (seperti Implementasi Modul atau
+QA/UAT) harus direspon dengan pertemuan mitigasi darurat tim
+teknis untuk mencari solusi instan.
+4.​ Perubahan Tanggal Selesai: Jika perubahan jadwal berdampak
+menggeser tanggal selesai proyek 3 hari kerja atau lebih, ini
+memerlukan Formulir Permintaan Perubahan resmi dan persetujuan
+Pengurus.
+f.​ Scope Change
+Adapun batasan yang perlu dipertimbangkan dalam perubahan jadwal
+pada proyek, yaitu sebagai berikut.
+1.​ Pengajuan Formal: Setiap permintaan penambahan atau modifikasi
+fitur oleh stakeholder (pengurus/jamaah) harus diisi dalam Formulir
+Permintaan Perubahan untuk mencegah scope creep.
+
+15​
+
+​
+
+​
+​
+
+​
+​
+2.​ Analisis Dampak: Tim proyek wajib menganalisis secara detail
+bagaimana perubahan yang diusulkan akan memengaruhi jadwal
+(durasi), WBS, dan biaya proyek.
+3.​ Keputusan Sponsor: Permintaan Perubahan (beserta analisis
+dampaknya) diajukan kepada Pengurus Masjid/Sponsor yang
+bertindak sebagai badan pengendali perubahan. Pengurus berhak
+menerima, menolak, atau menunda perubahan tersebut.
+4.​ Revisi Baseline: Jika perubahan disetujui, WBS dan Gantt Chart
+baseline harus diperbarui secara resmi, dan tim mulai bekerja
+berdasarkan jadwal yang direvisi.
+5.​ Dokumentasi: Semua permintaan, analisis, dan keputusan harus
+diarsipkan untuk menjaga akuntabilitas dan jejak audit proyek.
+
+4.​ PROJECT COST MANAGEMENT
+Manajemen biaya proyek (Project Cost Management) merupakan proses penting yang
+bertujuan untuk memastikan bahwa seluruh kegiatan dalam pengembangan Website
+Dashboard Keuangan Masjid Syamsul ’Ulum dapat diselesaikan sesuai dengan anggaran
+yang telah direncanakan. Pengelolaan biaya dilakukan secara sistematis mulai dari tahap
+perencanaan hingga pengendalian, agar sumber daya yang digunakan baik manusia,
+perangkat, maupun infrastruktur dapat dimanfaatkan secara efisien dan efektif.
+Dalam konteks proyek ini, pengelolaan biaya menjadi sangat krusial karena proyek
+bersifat sosial dan berbasis komunitas, di mana dana yang tersedia harus digunakan secara
+tepat sasaran. Oleh karena itu, proses cost management tidak hanya fokus pada
+perhitungan biaya teknis seperti pengembangan sistem, domain, dan hosting, tetapi juga
+memperhitungkan faktor pendukung seperti pelatihan pengguna, pemeliharaan sistem
+(maintenance), serta cadangan dana untuk risiko yang mungkin muncul.
+Secara umum, Project Cost Management terdiri dari tiga proses utama, yaitu Cost
+Estimation (Estimasi Biaya), Cost Budgeting (Penyusunan Anggaran), dan Cost
+Controlling (Pengendalian Biaya). Ketiganya saling berkaitan dan membentuk siklus
+pengelolaan biaya yang komprehensif dimulai dari perhitungan awal, alokasi dana,
+hingga pemantauan realisasi pengeluaran selama proyek berlangsung.
+a.​ Cost Estimating
+Tahap estimasi biaya dilakukan untuk memperkirakan total dana yang
+dibutuhkan selama pelaksanaan proyek Website Dashboard Keuangan
+Masjid Syamsul ’Ulum. Proses ini mencakup identifikasi seluruh
+kebutuhan sumber daya seperti perangkat keras, perangkat lunak, layanan
+16​
+
+​
+
+​
+​
+
+​
+​
+hosting, serta tenaga kerja yang terlibat. Estimasi dilakukan dengan
+pendekatan bottom-up, yaitu menghitung biaya dari setiap aktivitas utama
+proyek seperti analisis kebutuhan, perancangan antarmuka, pengembangan
+sistem, pengujian, dan implementasi. Hasil perhitungan ini menjadi dasar
+utama dalam penyusunan anggaran keseluruhan agar alokasi dana dapat
+dilakukan secara realistis dan efisien.
+
+b.​ Cost Budgeting
+Tahap penyusunan anggaran dilakukan setelah estimasi biaya disetujui untuk
+menetapkan pembagian dana secara resmi dalam setiap komponen proyek.
+Anggaran dibagi ke dalam beberapa kategori utama, seperti biaya
+pengembangan sistem, biaya server dan hosting, biaya pelatihan pengguna,
+serta dana cadangan untuk kebutuhan tak terduga. Dalam proyek ini, proporsi
+anggaran dirancang agar seimbang antara aspek teknis dan non-teknis, di
+mana sebagian besar dana dialokasikan untuk pembangunan website dan
+pemeliharaan server, sedangkan sisanya digunakan untuk dukungan pengguna
+dan keberlanjutan sistem pasca implementasi.
+
+17​
+
+​
+
+​
+​
+
+​
+​
+c.​ Cost Controling
+Tahap pengendalian biaya dilakukan untuk memantau dan memastikan
+pengeluaran aktual tetap sesuai dengan anggaran yang telah direncanakan.
+Seluruh transaksi dan pengeluaran dicatat serta dievaluasi secara berkala oleh
+tim proyek agar transparansi dan akuntabilitas tetap terjaga. Apabila ditemukan
+selisih atau deviasi biaya, dilakukan analisis penyebab dan penyesuaian
+terhadap prioritas kegiatan tanpa mengganggu jadwal utama proyek. Melalui
+proses cost controlling ini, tim dapat memastikan bahwa penggunaan dana
+berjalan efisien, terukur, dan mendukung keberhasilan proyek secara
+keseluruhan.
+
+Dengan penerapan ketiga tahap di atas Cost Estimation, Cost Budgeting, dan Cost
+Controlling proyek Website Dashboard Keuangan Masjid Syamsul ’Ulum
+diharapkan dapat berjalan sesuai rencana tanpa melebihi batas anggaran. Proses
+pengelolaan biaya ini juga mendukung prinsip efisiensi dan tanggung jawab sosial,
+agar dana yang tersedia benar-benar digunakan untuk mendukung keberhasilan
+implementasi sistem dan memberi manfaat nyata bagi pengurus serta jamaah
+masjid.
+5.​ Project Quality Management
+Manajemen kualitas dalam proyek Website Dashboard Keuangan Masjid Syamsul
+’Ulum memiliki peran penting untuk menjamin bahwa sistem yang dikembangkan
+benar-benar sesuai dengan kebutuhan pengguna, yaitu pengurus dan jamaah
+masjid. Tujuan utamanya adalah agar website dashboard donasi dan pengeluaran
+dapat berjalan secara optimal, aman, serta mudah digunakan (user friendly).
+Sistem ini diharapkan mampu memberikan transparansi dalam pencatatan
+keuangan masjid dan meningkatkan kepercayaan jamaah terhadap pengelolaan
+dana.
+Manajemen kualitas dilaksanakan melalui tiga tahap utama, yaitu Quality
+Planning, Quality Assurance, dan Quality Control. Ketiga tahap ini saling
+berhubungan dan diterapkan secara berkelanjutan selama proses pengembangan
+hingga tahap implementasi.
+
+18​
+
+​
+
+​
+​
+
+​
+​
+1. Quality Planning (Perencanaan Kualitas)
+Tahap Quality Planning merupakan tahap awal dalam manajemen kualitas yang
+berfokus pada penentuan standar, metrik, dan prosedur pengujian yang akan
+diterapkan selama pengembangan website. Tujuannya adalah memastikan seluruh
+proses dan hasil akhir memenuhi kriteria kualitas yang diinginkan. Dalam proyek
+ini, beberapa standar dan referensi digunakan, seperti Unit Testing, Integration
+Testing, System Testing, dan User Acceptance Testing (UAT) untuk menjamin
+fungsionalitas sistem. Selain itu, aspek keamanan data juga menjadi prioritas
+utama dengan penerapan prinsip ISO/IEC 27001:2022 yang berfokus pada
+confidentiality, integrity, dan availability.
+Untuk menjaga kenyamanan pengguna, diterapkan pula standar kemudahan
+penggunaan (user experience), seperti tampilan yang responsif, navigasi yang
+jelas, dan aksesibilitas yang mudah. Pengujian dilakukan berdasarkan metrik
+kualitas, misalnya tingkat keberhasilan fungsi (functional pass rate) minimal 95%,
+waktu respon halaman kurang dari dua detik, serta tingkat kepuasan pengguna
+UAT minimal 4 dari 5.
+Perencanaan kualitas ini juga mencakup pembuatan dokumen penting seperti test
+plan, test case, security checklist, dan acceptance criteria untuk setiap fitur.
+Tahapan pengujian dijadwalkan secara terstruktur, mulai dari perencanaan di
+minggu pertama hingga pelaksanaan User Acceptance Testing di minggu ke-10
+proyek.
+Poin Penting Quality Planning:
+●​ Menetapkan standar kualitas (Unit, Integration, System, dan UAT Testing).
+●​ Mengacu pada keamanan ISO/IEC 27001:2022.
+●​ Menetapkan metrik kualitas seperti fungsionalitas, performa, dan kepuasan
+pengguna.
+●​ Membuat dokumen test plan dan acceptance criteria untuk setiap fitur.
+●​ Menyusun jadwal pengujian dari awal hingga akhir proyek.
+2. Quality Assurance (Penjaminan Kualitas)
+Tahap Quality Assurance berfungsi untuk memastikan seluruh proses
+pengembangan berjalan sesuai dengan standar yang telah direncanakan pada tahap
+sebelumnya. QA dilakukan secara berkelanjutan selama proyek berlangsung,
+mulai dari tahap perancangan, pengkodean, hingga pengujian akhir.
+Dalam proyek ini, tanggung jawab QA dibagi di antara beberapa anggota tim.
+Project Lead bertugas mengoordinasikan kegiatan QA dan memberikan
+persetujuan akhir sebelum peluncuran. Developer bertanggung jawab untuk
+melakukan unit testing serta memperbaiki bug yang ditemukan. QA Officer
+menjalankan test case, mengelola bug tracker, dan memastikan dokumentasi hasil
+pengujian tersimpan dengan baik. Sedangkan pengurus masjid berperan sebagai
+
+19​
+
+​
+
+​
+​
+
+​
+​
+stakeholder utama yang memberikan umpan balik pada tahap User Acceptance
+Testing.
+Kegiatan QA meliputi code review untuk memastikan kualitas kode, security
+review berdasarkan praktik OWASP Top 10 (misalnya validasi input dan
+pencegahan SQL injection), serta audit konfigurasi guna menjamin keamanan
+sistem. Proses ini didukung dengan alat bantu seperti GitHub Issues untuk
+pelacakan bug, Trello untuk manajemen tugas, serta framework pengujian seperti
+PHPUnit atau Jest.
+Dengan adanya Quality Assurance, tim dapat mendeteksi kesalahan lebih awal dan
+mencegah masalah serius sebelum sistem dirilis ke pengguna.
+Poin Penting Quality Assurance:
+●​
+●​
+●​
+●​
+●​
+
+Dilakukan selama seluruh tahap pengembangan proyek.
+Melibatkan Project Lead, Developer, QA Officer, dan Stakeholder.
+Melakukan code review, security review, dan audit konfigurasi.
+Menggunakan alat bantu seperti GitHub, Trello, dan framework testing.
+Menjamin kesesuaian proses dengan standar kualitas yang telah ditetapkan.
+
+3. Quality Control (Pengendalian Kualitas)
+Tahap Quality Control dilakukan menjelang akhir proyek untuk memastikan
+sistem telah memenuhi semua standar kualitas dan siap diluncurkan. Pengujian
+dilakukan secara menyeluruh terhadap semua fungsi utama website, termasuk
+proses pencatatan donasi, pengeluaran, serta pembuatan laporan keuangan.
+Beberapa jenis pengujian yang dilakukan meliputi Unit Testing untuk memastikan
+fungsi-fungsi dasar bekerja dengan benar, Integration Testing untuk memeriksa
+hubungan antar modul seperti login, input donasi, dan laporan, serta System
+Testing untuk menguji seluruh sistem secara end-to-end. Selain itu, Security
+Testing dilakukan untuk mendeteksi potensi celah keamanan, seperti uji injeksi
+atau input berbahaya.
+Selanjutnya, dilakukan User Acceptance Testing (UAT) dengan melibatkan
+pengurus masjid sebagai pengguna utama untuk menilai kemudahan penggunaan
+dan keakuratan laporan keuangan. Hasil pengujian dicatat dalam bug tracker
+dengan kategori prioritas (Critical, Major, Minor), dan perbaikan dilakukan sesuai
+tingkat keparahan masalah. Setelah semua bug diperbaiki, dilakukan regression
+testing untuk memastikan sistem tetap stabil.
+Poin Penting Quality Control:
+●​
+Melakukan pengujian menyeluruh terhadap fungsi, keamanan, dan
+integrasi sistem.
+●​
+Melibatkan pengurus masjid dalam tahap User Acceptance Testing.
+●​
+Menggunakan sistem pelacakan bug dan kategori prioritas perbaikan.
+20​
+
+​
+
+​
+​
+
+​
+​
+●​
+Melakukan regression testing setelah perbaikan bug.
+●​
+Memastikan sistem siap digunakan dengan kualitas optimal sebelum
+peluncuran.
+
+6.​ PROJECT HUMAN RESOURCE MANAGEMENT
+a.​ Project Roles and Responsibilities
+Berikut merupakan roles yang dibutuhkan dalam pengerjaan proyek
+Website Manajemen Donasi dan Keuangan Masjid Syamsul Ulum ini.
+Roles ini ditentukan oleh project manager dengan melakukan penyesuaian
+terhadap kegiatan proyek.
+Roles
+
+Project Manager
+
+Responsibilities
+
+Bertanggung
+
+jawab
+
+Name
+
+mengatur,
+
+Rifqi Sigwan Nugraha
+
+mengawasi, dan memastikan seluruh
+kegiatan proyek berjalan sesuai rencana
+dan target yang telah ditetapkan.
+
+Frontend Developer
+
+Bertugas
+
+merancang
+
+dan Rama Aulia Ramadan
+
+mengembangkan antarmuka pengguna
+agar sistem terlihat interaktif, responsif,
+dan mudah digunakan.
+
+Backend Developer
+
+Bertanggung jawab membangun logika
+
+Aldi Satria Hidayatullah
+
+aplikasi, basis data, serta integrasi
+antara sistem dan antarmuka pengguna.
+
+System Analyst
+
+Bertanggung
+
+jawab
+
+menganalisis
+
+kebutuhan sistem, merancang arsitektur
+teknis, dan
+
+memastikan kesesuaian
+
+implementasi dengan tujuan proyek.
+
+21​
+
+​
+
+Davin Verrellius
+
+​
+​
+
+​
+​
+QA Tester
+
+Anju Manginar Angelo
+Bertugas menguji seluruh fitur sistem Sitanggang
+untuk memastikan tidak ada kesalahan
+dan sistem berjalan sesuai kebutuhan.
+
+b.​ Struktur Organisasi
+Berikut merupakan
+
+struktur organisasi
+
+dari
+
+proyek
+
+Website
+
+Manajemen Donasi dan Keuangan Masjid Syamsul Ulum. Susunan
+organisasi ini dibuat untuk memudahkan anggota tim melakukan pekerjaan
+sesuai dengan tanggung jawab masing-masing serta kepada siapa mereka
+akan bertanggung jawab. Susunan ini juga dibuat sesuai dengan sistem
+manajemen yang telah ditentukan oleh project manager.
+
+c.​ Staffing Management Plan
+Staffing Management Plan (SMP) merupakan hasil dari Human
+Resource Plan yang menjelaskan kebutuhan staf untuk mendukung
+keberhasilan proyek Dashboard Keuangan Masjid Syamsul Ulum Telkom
+University. Rencana ini disusun secara formal dan detail karena melibatkan
+beberapa peran penting seperti Project Manager, System Analyst,
+Front-End Developer, Back-End Developer, dan QA Tester yang memiliki
+22​
+
+​
+
+​
+​
+
+​
+​
+tanggung jawab berbeda namun saling mendukung. SMP bersifat dinamis
+dan dapat diperbarui sesuai perkembangan proyek agar pembagian tugas
+tetap efektif dan proyek berjalan sesuai target serta standar kualitas yang
+diharapkan.
+d.​ Acquiring The Project Team
+Pada proyek pengembangan Dashboard Keuangan Masjid Syamsul
+Ulum Telkom University, sumber daya manusia yang dibutuhkan terdiri
+dari Project Manager, System Analyst, Front-End Developer, Back-End
+Developer, dan QA Tester yang seluruhnya berasal dari anggota internal
+proyek, yaitu mahasiswa Proyek Teknologi Informasi Telkom University.
+Setiap anggota ditugaskan sesuai bidang keahlian masing-masing dan
+bekerja selama satu semester akademik di bawah bimbingan dosen
+pembimbing.
+e.​ Developing The Project Team
+Pada proyek pengembangan Dashboard Keuangan Masjid Syamsul
+Ulum Telkom University, kegiatan Developing the Project Team bertujuan
+untuk meningkatkan kerja sama antar anggota tim, mengembangkan
+kemampuan teknis maupun non-teknis, serta menciptakan lingkungan
+kerja yang produktif dan komunikatif. Pengembangan dilakukan melalui
+diskusi rutin, pembagian tugas yang adil sesuai keahlian, serta bimbingan
+dari dosen pembimbing guna memperkuat koordinasi internal dan
+memastikan setiap anggota memahami peran serta tanggung jawabnya
+dalam mencapai tujuan proyek secara optimal.
+f.​ Training
+Pada proyek pengembangan Dashboard Keuangan Masjid Syamsul
+Ulum Telkom University, pelatihan khusus bagi anggota tim tidak menjadi
+prioritas karena setiap anggota telah memiliki kompetensi dasar sesuai
+bidangnya masing-masing. Kegiatan yang dilakukan lebih difokuskan pada
+
+23​
+
+​
+
+​
+​
+
+​
+​
+koordinasi awal dan penyesuaian metodologi kerja agar seluruh anggota
+memahami alur pengembangan proyek, standar dokumentasi, serta
+tanggung jawab masing-masing. Pendekatan ini bertujuan menciptakan
+lingkungan kerja yang kolaboratif dan efisien sehingga produktivitas serta
+kualitas hasil proyek dapat meningkat.
+
+7.​ COMMUNICATION MANAGEMENT
+a.​ Tujuan Rencana Manajemen Komunikasi
+Tujuan komunikasi dalam proyek Web Dashboard Keuangan Masjid
+adalah untuk memastikan kelancaran aliran informasi antara tim
+pengembang, pengurus masjid (stakeholder), dan pengguna sistem.
+Komunikasi yang efektif diharapkan dapat:
+●​ Mencegah miskomunikasi terkait kebutuhan fitur dan ekspektasi
+hasil
+●​ Mempercepat proses pengambilan keputusan dan persetujuan
+●​ Memastikan pemahaman yang selaras terhadap ruang lingkup
+proyek
+●​ Memfasilitasi koordinasi antar tim secara konsisten dan efisien
+●​ Memberikan transparansi progres proyek kepada stakeholder
+b.​ Identifikasi dan Analisis Stakeholder
+Name
+Dewan Kemakmuran
+Masjid Syamsul
+'Ulum
+
+24​
+
+Title
+Client/
+Sponsor
+
+Requirements
+Sistem dashboard keuangan
+yang transparan, mudah
+digunakan, dan dapat diakses
+publik
+​
+
+Expectation
+Terkelolanya
+keuangan masjid
+dengan baik,
+transparansi penuh
+
+​
+​
+
+​
+​
+
+Rifqi Sigwan
+Nugraha
+
+Project
+Manager
+
+Aldi Satria
+Hidayatullah
+
+Backend
+Developer
+
+Rama Aulia
+Ramadan
+
+Frontend
+Developer
+
+Davin Verrellius
+
+System
+Analyst
+
+Anju Manginar
+Angelo Sitanggang
+
+QA Tester
+
+kepada jemaah, dan
+kemudahan dalam
+publikasi kegiatan
+Memastikan proses pembuatan
+Komunikasi lancar
+dashboard keuangan dengan
+antara tim dan
+tepat waktu dan sesuai anggaran stakeholder, proyek
+selesai sesuai scope
+Mengembangkan sistem
+Web berjalan stabil
+backend dan database
+dan aman sesuai
+dengan permintaan
+klien
+Membangun antarmuka
+Dashboard mudah
+pengguna yang responsif dan
+digunakan oleh admin
+user-friendly
+dan publik
+Analisis kebutuhan pengguna
+Requirement
+dan bisnis, menyusun spesifikasi terdokumentasi
+sistem
+dengan baik dan
+dipahami semua pihak
+Melakukan pengujian sistem
+Web bebas bug dan
+dan deteksi bug
+memenuhi standar
+kualitas
+
+c.​ Communication Management Plan
+Target
+Messages
+Vehicles
+Frequency
+Stakeholders
+Whatsapp,
+Smartphone Setiap 2 minggu
+Telegram,
+, Komputer (Sprint Review)
+Email
+Project
+Manager
+
+Whatsapp,
+Telegram,
+Email
+
+Smartphone Setiap hari Jumat
+, Komputer (Weekly Review)
+
+Tim
+Pengembang
+
+Whatsapp,
+Telegram,
+Email
+Whatsapp,
+Telegram,
+Email
+
+Smartphone Setiap pagi
+, Komputer (Daily Standup)
+via WhatsApp
+Smartphone Sesuai kebutuhan
+, Komputer
+
+System Analyst
+
+25​
+
+​
+
+Feedback Mechanisms
+Demo fitur yang sudah selesai,
+diskusi feedback, persetujuan
+perubahan. Meeting dihadiri oleh
+PM dan stakeholder
+Evaluasi mingguan progress,
+pembahasan kendala, planning
+sprint berikutnya. Dihadiri PM
+dan seluruh tim
+Update progress harian, kendala
+yang dihadapi, koordinasi tugas
+Diskusi requirement, validasi
+kebutuhan dengan stakeholder,
+dokumentasi teknis
+
+​
+​
+
+​
+​
+QA Tester
+
+Whatsapp,
+Telegram,
+Email
+
+Smartphone Setiap minggu
+, Komputer
+
+Laporan hasil testing, bug report,
+koordinasi perbaikan dengan
+developer
+
+d.​ Communications Constraints or Assumptions
+Berikut adalah beberapa hal yang perlu diperhatikan dalam hal
+komunikasi, constraint, dan asumsi dalam proyek Dashboard Keuangan
+Masjid:
+Constraints:
+-​ Waktu pelaksanaan proyek 10 minggu, sehingga komunikasi harus
+efisien dan tepat waktu
+-​ Stakeholder memiliki keterbatasan waktu untuk meeting, sehingga
+perlu dijadwalkan di waktu yang fleksibel
+-​ Tim proyek bekerja dengan sistem remote/hybrid, memerlukan
+tools komunikasi online yang stabil
+Assumptions:
+-​ Memastikan seluruh pihak sudah familiar dengan penggunaan tools
+aplikasi komunikasi yang digunakan (WhatsApp, Google Meet)
+-​ Laporan dan hasil rapat harus dibuat notulensi untuk bukti
+dokumentasi fisik
+-​ Dashboard harus sesuai dengan permintaan stakeholder dan
+kebutuhan transparansi keuangan masjid
+-​ Stakeholder akan memberikan feedback dan approval tepat waktu
+agar tidak menghambat progress proyek
+-​ Tim proyek memiliki akses internet yang stabil untuk komunikasi
+dan kolaborasi online
+
+8.​ PROJECT RISK MANAGEMENT
+Project Lead : Rifqi Sigwan Nugraha
+
+26​
+
+KETERANG
+AN
+
+ANCAMAN RESIKO
+
+PROBABILI
+TAS
+
+DAMPAK
+
+SOLUSI
+
+Anggota
+sakit
+
+Tim tidak
+Timeline
+lengkap
+proyek
+untuk
+mundur
+melaksanaka
+n tugas atau
+rapat
+
+HIGH
+
+MEDIUM
+
+Perlu adanya
+kerjasama antar
+anggota yang nantinya
+dapat membantu
+anggota lain yang
+berhalangan hadir,
+serta pengaturan
+jadwal yang harus
+
+​
+
+​
+​
+
+​
+​
+dipikirkan matang di
+awal
+
+27​
+
+Komunikasi
+buruk
+
+Koordinasi
+tidak
+berjalan
+dengan
+lancar
+
+Gagalnya
+proyek
+
+HIGH –
+MEDIUM
+
+HIGH
+
+Menyamakan persepsi
+awal dan menjaga
+komunikasi antar
+anggota agar selalu
+berjalan dengan lancar
+
+Kinerja
+buruk
+
+Hasil yang
+dikerjakan
+tidak
+memuaskan
+
+Proyek
+tidak
+berjalan
+sesuai
+rencana
+
+HIGH MEDIUM
+
+MEDIUM
+
+Perlu diadakannya
+komitmen untuk
+melakukan proyek
+pada PM dan anggota
+
+Requirement
+kurang
+
+Fitur kurang
+
+Client
+kurang
+puas
+
+HIGH MEDUM
+
+LOW
+
+Perlu melakukan
+analisis kebutuhan
+proyek sedari awal
+agar dapat
+memperkirakan
+kebutuhan proyek
+
+Infrastruktur
+atau
+kebutuhan
+proyek
+kurang
+
+Salah satu
+kegiatan
+proyek
+terhambat
+
+Timeline
+proyek
+mundur
+
+HIGH
+
+MEDIUM
+
+Perlu melakukan
+analisis kebutuhan
+proyek sedari awal
+agar dapat
+memperkirakan
+kebutuhan proyek
+
+Dana Kurang
+​
+
+Anggaran
+yang
+dialokasikan
+tidak cukup
+atau ada
+pengeluaran
+tak terduga
+​
+
+Proyek
+terhenti di
+tengah
+jalan​
+
+HIGH
+
+MEDIUM
+
+Perlu dibuat perkiraan
+biaya yang detail di
+awal, serta
+menyediakan dana
+cadangan
+(kontingensi) untuk
+keperluan tak terduga.
+
+Spesifikasi
+Tidak
+Lengkap
+​
+
+Permintaan
+dari client
+tidak detail
+atau
+berubah-uba
+h di tengah
+jalan
+
+Hasil akhir HIGH
+proyek
+tidak sesuai
+dengan
+yang
+dibayangka
+n client​
+
+HIGH
+
+Perlu adanya proses
+sign-off resmi dari
+client untuk setiap
+spesifikasi, dan
+membuat prosedur
+pengajuan perubahan
+(Change Request)
+yang ketat.
+
+​
+
+​
+​
+
+​
+​
+
+9.​ PROJECT PROCUREMENT MANAGEMENT
+Pengadaan berarti memperoleh barang dan / atau jasa dari sumber luar. Atau
+istilah lainnya termasuk pembelian. Berdasarkan cakupan proyek untuk pembuatan
+dashboard keuangan ini, maka diperlukan rencana untuk pengadaan pembelian
+kebutuhan proyek ini. Berikut merupakan rincian biaya pembelian barang / alat-alat
+yang diperlukan untuk proyek ini :
+
+10.​PROJECT STAKEHOLDER MANAGEMENT
+Pada proyek pengembangan Dashboard Keuangan Masjid Syamsul Ulum Telkom
+University, tim proyek bekerja secara mandiri tanpa melibatkan pihak lain di luar tim
+pengembang dan pihak DKM sebagai klien sekaligus sponsor proyek. Sebagai project
+sponsor, DKM berperan penting dalam memberikan kebutuhan sistem, memantau
+perkembangan proyek, serta menilai hasil akhir sesuai harapan melalui laporan
+pendahuluan, laporan berkala, dan laporan akhir. Project manager memiliki tanggung
+jawab besar dalam mengatur jalannya proyek, memastikan seluruh anggota tim bekerja
+sesuai rencana, dan menjaga komunikasi yang baik dengan pihak DKM serta dosen
+28​
+
+​
+
+​
+​
+
+​
+​
+
+pembimbing. Project team berperan mendukung proses pelaksanaan proyek dengan
+menyelesaikan rancangan antarmuka, pengkodean, serta pengujian sistem sesuai
+spesifikasi yang telah disepakati. Tim business analyst berfungsi sebagai penghubung
+antara DKM dan tim pengembang, sehingga perlu selalu menerima informasi yang akurat
+dan terkini untuk menghindari kesalahpahaman terhadap kebutuhan sistem. Sedangkan
+tim system analyst bertanggung jawab memastikan sistem berjalan sesuai tujuan dan
+standar teknis yang ditetapkan, sehingga memiliki tingkat pengaruh (power) yang tinggi
+terhadap keberhasilan proyek ini.
+Stakeholders Register
+No
+
+Name
+
+Position
+
+Internal/
+External
+
+Project
+Role
+
+Contact Information
+
+1
+
+Dewan Kemakmuran
+Masjid Syamsul ‘Ulum
+
+Client/
+Sponsor
+
+Internal
+
+Project
+Sponsor
+
+syamsululum.telkomuni
+v@gmail.com
+
+2
+
+Rifqi Sigwan Nugraha
+
+Project
+Manager
+
+External
+
+Project
+Manager
+
+karuqii@student.telkom
+univerisity.ac.id
+
+3
+
+Aldi Satria Hidayatullah
+
+Backend
+Developer
+
+External
+
+Project
+Team
+
+aldisatria25k@gmail.co
+m
+
+4
+
+Rama Aulia Ramadan
+
+Frontend
+Developer
+
+External
+
+Project
+Team
+
+nnefola@student.telkom
+university.ac.id
+
+5
+
+Davin Verellius
+
+System
+Analyst
+
+External
+
+Project
+Team
+
+davinvarrellius@gmail.c
+om
+
+6
+
+Anju Manginar Angelo
+Sitanggang
+
+QA Tester
+
+External
+
+Project
+Team
+
+sitangganganju@gmail.c
+om
+
+a.​ Stakeholders Matrix
+1.​ Stakeholder Engagement Assessment Matrix
+Current
+No
+Name
+Potential Management Strategies
+Engagement
+1
+Admin MSU
+Leading
+Admin saat ini berperan aktif dalam
+penginputan data keuangan dan
+pemantauan hasil laporan, namun
+belum terlibat penuh dalam pengujian
+dan validasi sistem.
+29​
+
+​
+
+​
+​
+
+30​
+
+​
+​
+2
+
+Rifqi Sigwan Nugraha
+
+Leading
+
+3
+
+Aldi Satria
+Hidayatullah
+
+Supportive
+
+4
+
+Rama Aulia Ramadan
+
+Supportive
+
+5
+
+Davin Verellius
+
+Supportive
+
+6
+
+Anju Manginar Angelo Supportive
+Sitanggang
+
+​
+
+Rifqi Sigwan Nugraha adalah
+pemimpin yang peduli terhadap tim
+dan mampu mengenali potensi setiap
+anggotanya. Ia memiliki kemampuan
+memotivasi, membangun semangat
+kerja, serta meningkatkan
+kepercayaan diri anggota tim untuk
+mencapai tujuan proyek dengan
+efektif.
+Aldi merupakan anggota yang logis
+dan sistematis, fokus pada
+pengembangan logika aplikasi,
+pengelolaan basis data, serta
+memastikan sistem berjalan stabil dan
+aman.
+Rama adalah anggota yang kreatif dan
+detail-oriented, bertanggung jawab
+dalam membangun tampilan
+antarmuka yang menarik, responsif,
+dan mudah digunakan oleh pengguna.
+Davin adalah individu yang teliti dan
+analitis, mampu memahami kebutuhan
+pengguna serta menerjemahkannya
+menjadi rancangan sistem yang
+efektif. Ia berperan penting dalam
+memastikan setiap fitur sesuai dengan
+tujuan proyek dan kebutuhan klien.
+Anju adalah anggota yang teliti dan
+disiplin, memastikan seluruh fitur
+sistem berfungsi dengan baik melalui
+pengujian menyeluruh, serta
+membantu menjaga kualitas hasil
+akhir proyek.
+
+
