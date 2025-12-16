@@ -1,0 +1,201 @@
+// Prisma Schema for Dashboard Keuangan Masjid Syamsul 'Ulum
+// Documentation: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==========================================
+// USER & AUTHENTICATION
+// ==========================================
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  password      String
+  name          String
+  role          Role      @default(ADMIN)
+  avatar        String?
+  isActive      Boolean   @default(true)
+  
+  // Relations
+  transactions  Transaction[]
+  news          News[]
+  donations     Donation[]
+  
+  // Timestamps
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@map("users")
+}
+
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+  VIEWER
+}
+
+// ==========================================
+// TRANSACTION (Pemasukan & Pengeluaran)
+// ==========================================
+
+model Transaction {
+  id            String            @id @default(cuid())
+  type          TransactionType   // INCOME or EXPENSE
+  amount        Decimal           @db.Decimal(15, 2)
+  description   String
+  donor         String?           // Nama donatur (untuk pemasukan)
+  recipient     String?           // Penerima (untuk pengeluaran)
+  date          DateTime          @default(now())
+  receiptNumber String?           // Nomor kwitansi
+  notes         String?
+  
+  // Relations
+  category      Category          @relation(fields: [categoryId], references: [id])
+  categoryId    String
+  createdBy     User              @relation(fields: [createdById], references: [id])
+  createdById   String
+  
+  // Timestamps
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  @@index([type])
+  @@index([date])
+  @@index([categoryId])
+  @@map("transactions")
+}
+
+enum TransactionType {
+  INCOME    // Pemasukan
+  EXPENSE   // Pengeluaran
+}
+
+// ==========================================
+// CATEGORY (Kategori Transaksi)
+// ==========================================
+
+model Category {
+  id            String        @id @default(cuid())
+  name          String        @unique
+  type          TransactionType
+  description   String?
+  color         String?       @default("#10B981") // Warna untuk UI
+  icon          String?       // Icon name untuk UI
+  isActive      Boolean       @default(true)
+  
+  // Relations
+  transactions  Transaction[]
+  
+  // Timestamps
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@map("categories")
+}
+
+// ==========================================
+// PROGRAM (Program Donasi)
+// ==========================================
+
+model Program {
+  id            String        @id @default(cuid())
+  title         String
+  slug          String        @unique
+  description   String        @db.Text
+  target        Decimal       @db.Decimal(15, 2)
+  collected     Decimal       @default(0) @db.Decimal(15, 2)
+  image         String?
+  startDate     DateTime      @default(now())
+  endDate       DateTime?
+  isActive      Boolean       @default(true)
+  isFeatured    Boolean       @default(false)
+  
+  // Relations
+  donations     Donation[]
+  
+  // Timestamps
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@map("programs")
+}
+
+// ==========================================
+// DONATION (Donasi ke Program)
+// ==========================================
+
+model Donation {
+  id            String        @id @default(cuid())
+  amount        Decimal       @db.Decimal(15, 2)
+  donorName     String
+  donorEmail    String?
+  donorPhone    String?
+  message       String?
+  isAnonymous   Boolean       @default(false)
+  status        DonationStatus @default(PENDING)
+  paymentMethod String?
+  
+  // Relations
+  program       Program       @relation(fields: [programId], references: [id])
+  programId     String
+  verifiedBy    User?         @relation(fields: [verifiedById], references: [id])
+  verifiedById  String?
+  
+  // Timestamps
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  verifiedAt    DateTime?
+
+  @@index([programId])
+  @@index([status])
+  @@map("donations")
+}
+
+enum DonationStatus {
+  PENDING     // Menunggu verifikasi
+  VERIFIED    // Sudah diverifikasi
+  CANCELLED   // Dibatalkan
+}
+
+// ==========================================
+// NEWS (Berita/Kabar Masjid)
+// ==========================================
+
+model News {
+  id            String        @id @default(cuid())
+  title         String
+  slug          String        @unique
+  content       String        @db.Text
+  excerpt       String?
+  image         String?
+  category      NewsCategory
+  isPublished   Boolean       @default(false)
+  publishedAt   DateTime?
+  viewCount     Int           @default(0)
+  
+  // Relations
+  author        User          @relation(fields: [authorId], references: [id])
+  authorId      String
+  
+  // Timestamps
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@index([category])
+  @@index([isPublished])
+  @@map("news")
+}
+
+enum NewsCategory {
+  LAPORAN       // Laporan keuangan
+  KEGIATAN      // Kegiatan masjid
+  PENGUMUMAN    // Pengumuman
+  ARTIKEL       // Artikel/kajian
+}
