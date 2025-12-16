@@ -1,4 +1,13 @@
 import Link from 'next/link';
+import Image from 'next/image';
+import { 
+  Facebook, 
+  Instagram, 
+  Twitter, 
+  MapPin, 
+  Phone, 
+  Mail 
+} from 'lucide-react';
 
 const quickLinks = [
   { href: '/about', label: 'Tentang Kami' },
@@ -9,9 +18,9 @@ const quickLinks = [
 ];
 
 const socialLinks = [
-  { href: '#', icon: '📘', label: 'Facebook' },
-  { href: '#', icon: '📸', label: 'Instagram' },
-  { href: '#', icon: '🐦', label: 'Twitter' },
+  { href: '#', icon: Facebook, label: 'Facebook' },
+  { href: '#', icon: Instagram, label: 'Instagram' },
+  { href: '#', icon: Twitter, label: 'Twitter' },
 ];
 
 export default function Footer() {
@@ -22,8 +31,14 @@ export default function Footer() {
           {/* About */}
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center">
-                <span className="text-2xl">🕌</span>
+              <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center overflow-hidden">
+                <Image 
+                  src="/icon-masjid.png" 
+                  alt="Masjid Syamsul Ulum Logo" 
+                  width={48}
+                  height={48}
+                  className="object-contain"
+                />
               </div>
               <div>
                 <h3 className="text-xl font-bold">Masjid Syamsul 'Ulum</h3>
@@ -41,7 +56,7 @@ export default function Footer() {
                   className="w-10 h-10 bg-gray-700 hover:bg-green-600 rounded-lg flex items-center justify-center transition"
                   aria-label={social.label}
                 >
-                  <span className="text-xl">{social.icon}</span>
+                  <social.icon className="w-5 h-5 text-white" />
                 </a>
               ))}
             </div>
@@ -69,18 +84,18 @@ export default function Footer() {
             <h4 className="text-lg font-bold mb-4">Kontak</h4>
             <ul className="space-y-3 text-gray-300">
               <li className="flex items-start gap-2">
-                <span className="text-green-400 mt-1">📍</span>
+                <MapPin className="w-5 h-5 text-green-400 mt-0.5 flex-shrink-0" />
                 <span className="text-sm">
                   Komplek Masjid Telkom University<br />
                   Bandung, Jawa Barat 40257
                 </span>
               </li>
               <li className="flex items-center gap-2">
-                <span className="text-green-400">📞</span>
+                <Phone className="w-5 h-5 text-green-400 flex-shrink-0" />
                 <span className="text-sm">+62 811 2222 3333</span>
               </li>
               <li className="flex items-center gap-2">
-                <span className="text-green-400">✉️</span>
+                <Mail className="w-5 h-5 text-green-400 flex-shrink-0" />
                 <span className="text-sm">info@masjidsyamsululum.ac.id</span>
               </li>
             </ul>
@@ -100,3 +115,4 @@ export default function Footer() {
     </footer>
   );
 }
+

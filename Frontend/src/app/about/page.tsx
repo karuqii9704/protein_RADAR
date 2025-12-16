@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { 
   Building2, 
   Target, 
@@ -66,8 +67,14 @@ export default function AboutPage() {
                 dengan baik melalui laporan keuangan yang terbuka.
               </p>
             </div>
-            <div className="bg-gradient-to-br from-green-100 to-green-200 rounded-2xl h-80 flex items-center justify-center">
-              <span className="text-9xl">🕌</span>
+            <div className="bg-gradient-to-br from-green-100 to-green-200 rounded-2xl h-80 flex items-center justify-center overflow-hidden">
+              <Image
+                src="/icon-masjid.png"
+                alt="Masjid Syamsul Ulum"
+                width={280}
+                height={280}
+                className="object-contain"
+              />
             </div>
           </div>
         </div>
