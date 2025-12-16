@@ -23,17 +23,19 @@ export default function AdminLoginPage() {
     setIsLoading(true);
     setError('');
 
+    console.log('Attempting login...');
     const result = await login(formData.email, formData.password);
+    console.log('Login result:', result);
     
     if (result.success) {
       toast.success(`Selamat datang, ${result.user?.name}!`);
-      router.push('/admin');
+      // Use window.location for full page reload to ensure layout change
+      window.location.href = '/admin';
     } else {
       setError(result.error || 'Login gagal');
       toast.error(result.error || 'Login gagal');
+      setIsLoading(false);
     }
-    
-    setIsLoading(false);
   };
 
   return (
