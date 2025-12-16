@@ -2,27 +2,38 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
-import { Eye, EyeOff, Lock, User, ArrowRight } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Eye, EyeOff, Lock, Mail, ArrowRight } from 'lucide-react';
+import { login } from '@/lib/auth';
+import toast from 'react-hot-toast';
 
 export default function AdminLoginPage() {
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
-    username: '',
+    email: '',
     password: '',
     remember: false
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    // Simulate login
-    setTimeout(() => {
-      setIsLoading(false);
-      // Redirect to admin dashboard
-      window.location.href = '/admin';
-    }, 1500);
+    setError('');
+
+    const result = await login(formData.email, formData.password);
+    
+    if (result.success) {
+      toast.success(`Selamat datang, ${result.user?.name}!`);
+      router.push('/admin');
+    } else {
+      setError(result.error || 'Login gagal');
+      toast.error(result.error || 'Login gagal');
+    }
+    
+    setIsLoading(false);
   };
 
   return (
@@ -42,7 +53,7 @@ export default function AdminLoginPage() {
               <span className="text-green-600 font-bold text-2xl">M</span>
             </div>
             <div className="text-white">
-              <h1 className="text-xl font-bold">Masjid Syamsul 'Ulum</h1>
+              <h1 className="text-xl font-bold">Masjid Syamsul &apos;Ulum</h1>
               <p className="text-green-200 text-sm">Telkom University</p>
             </div>
           </Link>
@@ -61,7 +72,7 @@ export default function AdminLoginPage() {
         {/* Footer */}
         <div className="relative z-10">
           <p className="text-green-200 text-sm">
-            © 2025 Masjid Syamsul 'Ulum. All rights reserved.
+            © 2025 Masjid Syamsul &apos;Ulum. All rights reserved.
           </p>
         </div>
       </div>
@@ -76,7 +87,7 @@ export default function AdminLoginPage() {
                 <span className="text-white font-bold text-xl">M</span>
               </div>
               <div className="text-left">
-                <h1 className="text-lg font-bold text-gray-900">Masjid Syamsul 'Ulum</h1>
+                <h1 className="text-lg font-bold text-gray-900">Masjid Syamsul &apos;Ulum</h1>
                 <p className="text-green-600 text-xs">Admin Panel</p>
               </div>
             </Link>
@@ -89,19 +100,25 @@ export default function AdminLoginPage() {
               <p className="text-gray-500">Masuk ke akun admin Anda</p>
             </div>
 
+            {error && (
+              <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm">
+                {error}
+              </div>
+            )}
+
             <form onSubmit={handleSubmit} className="space-y-5">
-              {/* Username */}
+              {/* Email */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Username
+                  Email
                 </label>
                 <div className="relative">
-                  <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <input
-                    type="text"
-                    placeholder="Masukkan username"
-                    value={formData.username}
-                    onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                    type="email"
+                    placeholder="admin@masjid-msu.id"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
                     required
                   />
@@ -148,9 +165,6 @@ export default function AdminLoginPage() {
                   />
                   <span className="text-sm text-gray-600">Ingat saya</span>
                 </label>
-                <button type="button" className="text-sm text-green-600 hover:text-green-700 font-medium">
-                  Lupa password?
-                </button>
               </div>
 
               {/* Submit Button */}
@@ -194,10 +208,7 @@ export default function AdminLoginPage() {
 
           {/* Footer */}
           <p className="text-center text-gray-500 text-sm mt-6">
-            Butuh bantuan? Hubungi admin IT di{' '}
-            <a href="mailto:admin@msu.ac.id" className="text-green-600 hover:underline">
-              admin@msu.ac.id
-            </a>
+            <strong>Login:</strong> admin@masjid-msu.id / admin123
           </p>
         </div>
       </div>

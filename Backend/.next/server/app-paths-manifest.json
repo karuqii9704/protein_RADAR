@@ -1,3 +1,10 @@
 {
-  "/page": "app/page.js"
+  "/page": "app/page.js",
+  "/api/auth/login/route": "app/api/auth/login/route.js",
+  "/api/dashboard/stats/route": "app/api/dashboard/stats/route.js",
+  "/api/transactions/route": "app/api/transactions/route.js",
+  "/api/programs/route": "app/api/programs/route.js",
+  "/api/news/route": "app/api/news/route.js",
+  "/api/reports/stats/route": "app/api/reports/stats/route.js",
+  "/api/reports/route": "app/api/reports/route.js"
 }

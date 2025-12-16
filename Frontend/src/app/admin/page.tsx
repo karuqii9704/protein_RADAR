@@ -1,3 +1,6 @@
+'use client';
+
+import { useEffect, useState } from 'react';
 import { 
   FileText, 
   Newspaper, 
@@ -11,9 +14,29 @@ import {
   ArrowDownRight
 } from 'lucide-react';
 import Link from 'next/link';
+import { apiGet } from '@/lib/api';
+import type { DashboardStats } from '@/types';
+
+interface AdminStats {
+  totalLaporan: number;
+  totalBerita: number;
+  totalArtikel: number;
+  pengunjung: number;
+}
+
+interface Activity {
+  id: string;
+  action: string;
+  user: string;
+  time: string;
+  type: string;
+}
 
 export default function AdminDashboard() {
-  // Mock stats data
+  const [dashboardStats, setDashboardStats] = useState<DashboardStats | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  // Mock admin stats - could be replaced with real API later
   const stats = [
     {
       title: 'Total Laporan',
@@ -54,20 +77,30 @@ export default function AdminDashboard() {
   ];
 
   // Mock recent activities
-  const recentActivities = [
-    { id: 1, action: 'Laporan November 2025 ditambahkan', user: 'Admin', time: '5 menit lalu', type: 'laporan' },
-    { id: 2, action: 'Berita "Kajian Akbar" dipublikasi', user: 'Admin', time: '1 jam lalu', type: 'berita' },
-    { id: 3, action: 'Artikel "Keutamaan Sedekah" diupdate', user: 'Admin', time: '2 jam lalu', type: 'artikel' },
-    { id: 4, action: 'Laporan Oktober 2025 diedit', user: 'Admin', time: '3 jam lalu', type: 'laporan' },
-    { id: 5, action: 'Berita "Renovasi Masjid" draft disimpan', user: 'Admin', time: '5 jam lalu', type: 'berita' },
+  const recentActivities: Activity[] = [
+    { id: '1', action: 'Laporan November 2025 ditambahkan', user: 'Admin', time: '5 menit lalu', type: 'laporan' },
+    { id: '2', action: 'Berita "Kajian Akbar" dipublikasi', user: 'Admin', time: '1 jam lalu', type: 'berita' },
+    { id: '3', action: 'Artikel "Keutamaan Sedekah" diupdate', user: 'Admin', time: '2 jam lalu', type: 'artikel' },
+    { id: '4', action: 'Laporan Oktober 2025 diedit', user: 'Admin', time: '3 jam lalu', type: 'laporan' },
+    { id: '5', action: 'Berita "Renovasi Masjid" draft disimpan', user: 'Admin', time: '5 jam lalu', type: 'berita' },
   ];
 
-  // Mock quick stats
-  const financialSummary = {
-    totalIncome: 125500000,
-    totalExpense: 87300000,
-    balance: 38200000,
-  };
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const res = await apiGet<DashboardStats>('/api/dashboard/stats');
+        if (res.success && res.data) {
+          setDashboardStats(res.data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch stats:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStats();
+  }, []);
 
   const getColorClasses = (color: string) => {
     const colors: Record<string, { bg: string; text: string; iconBg: string }> = {
@@ -88,13 +121,20 @@ export default function AdminDashboard() {
     }
   };
 
+  const formatCurrency = (amount: number) => {
+    if (amount >= 1000000) {
+      return `Rp ${(amount / 1000000).toFixed(1)}M`;
+    }
+    return `Rp ${amount.toLocaleString('id-ID')}`;
+  };
+
   return (
     <div className="space-y-6">
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-gray-500 mt-1">Selamat datang di Admin Panel Masjid Syamsul 'Ulum</p>
+          <p className="text-gray-500 mt-1">Selamat datang di Admin Panel Masjid Syamsul &apos;Ulum</p>
         </div>
         <div className="flex gap-3">
           <Link
@@ -156,9 +196,9 @@ export default function AdminDashboard() {
                 <span className="text-sm font-medium text-green-700">Pemasukan</span>
               </div>
               <p className="text-2xl font-bold text-gray-900">
-                Rp {(financialSummary.totalIncome / 1000000).toFixed(1)}M
+                {loading ? '...' : formatCurrency(dashboardStats?.totalIncome ?? 0)}
               </p>
-              <p className="text-xs text-green-600 mt-1">Bulan ini</p>
+              <p className="text-xs text-green-600 mt-1">{dashboardStats?.period?.label ?? 'Bulan ini'}</p>
             </div>
 
             {/* Expense */}
@@ -170,9 +210,9 @@ export default function AdminDashboard() {
                 <span className="text-sm font-medium text-red-700">Pengeluaran</span>
               </div>
               <p className="text-2xl font-bold text-gray-900">
-                Rp {(financialSummary.totalExpense / 1000000).toFixed(1)}M
+                {loading ? '...' : formatCurrency(dashboardStats?.totalExpense ?? 0)}
               </p>
-              <p className="text-xs text-red-600 mt-1">Bulan ini</p>
+              <p className="text-xs text-red-600 mt-1">{dashboardStats?.period?.label ?? 'Bulan ini'}</p>
             </div>
 
             {/* Balance */}
@@ -184,7 +224,7 @@ export default function AdminDashboard() {
                 <span className="text-sm font-medium text-blue-700">Saldo</span>
               </div>
               <p className="text-2xl font-bold text-gray-900">
-                Rp {(financialSummary.balance / 1000000).toFixed(1)}M
+                {loading ? '...' : formatCurrency(dashboardStats?.balance ?? 0)}
               </p>
               <p className="text-xs text-blue-600 mt-1">Tersedia</p>
             </div>

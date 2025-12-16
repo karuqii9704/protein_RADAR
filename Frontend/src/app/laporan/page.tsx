@@ -1,213 +1,255 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { 
+  Download, 
   TrendingUp, 
-  TrendingDown, 
-  Calendar,
-  Download,
-  BarChart3,
-  PieChart
+  TrendingDown,
+  ChevronRight,
+  FileText,
+  Calendar
 } from 'lucide-react';
-import MonthlyComparisonChart from '@/components/laporan/MonthlyComparisonChart';
-import CategoryBreakdownChart from '@/components/laporan/CategoryBreakdownChart';
-import FilterSection from '@/components/laporan/FilterSection';
+import { apiGet } from '@/lib/api';
+import type { ReportStats, Transaction } from '@/types';
 
-export default function LaporanPage() {
-  const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth() + 1);
-  const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
+interface MonthlyReport {
+  id: string;
+  period: string;
+  month: number;
+  year: number;
+  income: number;
+  expense: number;
+  balance: number;
+  publishedDate: string;
+}
 
-  // Mock data - akan diganti dengan API call
-  const summaryStats = {
-    totalIncome: 125500000,
-    totalExpense: 87300000,
-    balance: 38200000,
-    transactionCount: 156,
-  };
+export default function LaporanPublicPage() {
+  const [stats, setStats] = useState<ReportStats | null>(null);
+  const [reports, setReports] = useState<MonthlyReport[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const reports = [
-    { 
-      id: 1, 
-      period: 'November 2025', 
-      income: 125500000, 
-      expense: 87300000, 
-      balance: 38200000,
-      publishedDate: '2025-11-25'
-    },
-    { 
-      id: 2, 
-      period: 'Oktober 2025', 
-      income: 118200000, 
-      expense: 82100000, 
-      balance: 36100000,
-      publishedDate: '2025-10-25'
-    },
-    { 
-      id: 3, 
-      period: 'September 2025', 
-      income: 112800000, 
-      expense: 79500000, 
-      balance: 33300000,
-      publishedDate: '2025-09-25'
-    },
-  ];
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [statsRes, reportsRes] = await Promise.all([
+          apiGet<ReportStats>('/api/reports/stats'),
+          apiGet<MonthlyReport[]>('/api/reports'),
+        ]);
+
+        if (statsRes.success && statsRes.data) setStats(statsRes.data);
+        if (reportsRes.success && reportsRes.data) setReports(reportsRes.data);
+      } catch (error) {
+        console.error('Failed to fetch data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
-      minimumFractionDigits: 0,
-    }).format(amount);
-  };
-
-  const handleFilterChange = (month: number, year: number) => {
-    setSelectedMonth(month);
-    setSelectedYear(year);
-    // TODO: Fetch data based on filter
+    return `Rp ${amount.toLocaleString('id-ID')}`;
   };
 
   return (
-    <div className="bg-gradient-to-b from-white via-green-50/30 to-white">
-      {/* Page Title */}
-      <section className="py-8 px-4 bg-gradient-to-r from-green-600 to-green-700">
-        <div className="container mx-auto">
-          <div className="flex items-center gap-3 mb-2">
-            <BarChart3 className="w-8 h-8 text-white" />
-            <h2 className="text-3xl font-bold text-white">Laporan Keuangan</h2>
-          </div>
-          <p className="text-green-50">Transparansi pengelolaan keuangan masjid untuk jamaah</p>
+    <div className="bg-gradient-to-b from-gray-50 to-white min-h-screen py-8 px-4">
+      <div className="container mx-auto max-w-6xl">
+        {/* Header */}
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">Laporan Keuangan</h1>
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            Transparansi keuangan Masjid Syamsul &apos;Ulum untuk masyarakat
+          </p>
         </div>
-      </section>
 
-      {/* Filter Section */}
-      <section className="py-6 px-4 bg-white border-b border-gray-200">
-        <div className="container mx-auto">
-          <FilterSection 
-            selectedMonth={selectedMonth}
-            selectedYear={selectedYear}
-            onFilterChange={handleFilterChange}
-          />
+        {/* Summary Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+          <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+            <div className="flex items-center gap-4 mb-4">
+              <div className="p-4 bg-gradient-to-br from-green-500 to-green-600 rounded-xl shadow-lg">
+                <TrendingUp className="w-7 h-7 text-white" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">Total Pemasukan</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {loading ? '...' : formatCurrency(stats?.summary?.totalIncome ?? 0)}
+                </p>
+              </div>
+            </div>
+            <p className="text-sm text-gray-500">{stats?.period?.label ?? 'Bulan ini'}</p>
+          </div>
+
+          <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+            <div className="flex items-center gap-4 mb-4">
+              <div className="p-4 bg-gradient-to-br from-red-500 to-red-600 rounded-xl shadow-lg">
+                <TrendingDown className="w-7 h-7 text-white" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">Total Pengeluaran</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {loading ? '...' : formatCurrency(stats?.summary?.totalExpense ?? 0)}
+                </p>
+              </div>
+            </div>
+            <p className="text-sm text-gray-500">{stats?.period?.label ?? 'Bulan ini'}</p>
+          </div>
+
+          <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+            <div className="flex items-center gap-4 mb-4">
+              <div className="p-4 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg">
+                <FileText className="w-7 h-7 text-white" />
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">Saldo</p>
+                <p className="text-2xl font-bold text-gray-900">
+                  {loading ? '...' : formatCurrency(stats?.summary?.balance ?? 0)}
+                </p>
+              </div>
+            </div>
+            <p className="text-sm text-gray-500">Tersedia</p>
+          </div>
         </div>
-      </section>
 
-      {/* Summary Stats */}
-      <section className="py-8 px-4">
-        <div className="container mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            {/* Total Pemasukan */}
-            <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-3 bg-gradient-to-br from-green-500 to-green-600 rounded-xl">
-                  <TrendingUp className="w-6 h-6 text-white" />
-                </div>
-                <span className="text-xs font-semibold text-green-600 bg-green-50 px-3 py-1 rounded-full">
-                  +12.5%
-                </span>
-              </div>
-              <p className="text-sm text-gray-600 mb-1">Total Pemasukan</p>
-              <h3 className="text-2xl font-bold text-gray-900">{formatCurrency(summaryStats.totalIncome)}</h3>
-            </div>
-
-            {/* Total Pengeluaran */}
-            <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-3 bg-gradient-to-br from-red-500 to-red-600 rounded-xl">
-                  <TrendingDown className="w-6 h-6 text-white" />
-                </div>
-                <span className="text-xs font-semibold text-red-600 bg-red-50 px-3 py-1 rounded-full">
-                  +8.3%
-                </span>
-              </div>
-              <p className="text-sm text-gray-600 mb-1">Total Pengeluaran</p>
-              <h3 className="text-2xl font-bold text-gray-900">{formatCurrency(summaryStats.totalExpense)}</h3>
-            </div>
-
-            {/* Saldo */}
-            <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
-              <div className="flex items-center justify-between mb-4">
-                <div className="p-3 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl">
-                  <Calendar className="w-6 h-6 text-white" />
-                </div>
-                <span className="text-xs font-semibold text-blue-600 bg-blue-50 px-3 py-1 rounded-full">
-                  Periode Ini
-                </span>
-              </div>
-              <p className="text-sm text-gray-600 mb-1">Saldo</p>
-              <h3 className="text-2xl font-bold text-gray-900">{formatCurrency(summaryStats.balance)}</h3>
-            </div>
-          </div>
-
-          {/* Charts Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            {/* Monthly Comparison Chart */}
-            <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-bold text-gray-900">Perbandingan Bulanan</h3>
-                <BarChart3 className="w-5 h-5 text-green-600" />
-              </div>
-              <MonthlyComparisonChart month={selectedMonth} year={selectedYear} />
-            </div>
-
-            {/* Category Breakdown Chart */}
-            <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-lg font-bold text-gray-900">Breakdown Per Kategori</h3>
-                <PieChart className="w-5 h-5 text-green-600" />
-              </div>
-              <CategoryBreakdownChart month={selectedMonth} year={selectedYear} />
-            </div>
-          </div>
-
-          {/* Reports List */}
-          <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-bold text-gray-900">Laporan Keuangan Bulanan</h3>
-              <Download className="w-5 h-5 text-green-600" />
-            </div>
-            
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-gray-200">
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Periode</th>
-                    <th className="text-right py-3 px-4 text-sm font-semibold text-gray-700">Pemasukan</th>
-                    <th className="text-right py-3 px-4 text-sm font-semibold text-gray-700">Pengeluaran</th>
-                    <th className="text-right py-3 px-4 text-sm font-semibold text-gray-700">Saldo</th>
-                    <th className="text-center py-3 px-4 text-sm font-semibold text-gray-700">Aksi</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {reports.map((report) => (
-                    <tr key={report.id} className="border-b border-gray-100 hover:bg-gray-50 transition">
-                      <td className="py-4 px-4">
-                        <div>
-                          <p className="font-medium text-gray-900">{report.period}</p>
-                          <p className="text-xs text-gray-500">Dipublikasi: {report.publishedDate}</p>
+        {/* Category Breakdown */}
+        {stats && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+            {/* Income by Category */}
+            <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+              <h2 className="text-xl font-bold text-gray-900 mb-6">Pemasukan per Kategori</h2>
+              <div className="space-y-4">
+                {loading ? (
+                  [...Array(4)].map((_, i) => (
+                    <div key={i} className="animate-pulse">
+                      <div className="h-4 bg-gray-200 rounded w-1/3 mb-2"></div>
+                      <div className="h-3 bg-gray-100 rounded-full"></div>
+                    </div>
+                  ))
+                ) : stats.incomeByCategory?.length > 0 ? (
+                  stats.incomeByCategory.map((cat) => {
+                    const percentage = stats.summary.totalIncome > 0 
+                      ? (cat.amount / stats.summary.totalIncome) * 100 
+                      : 0;
+                    return (
+                      <div key={cat.categoryId}>
+                        <div className="flex justify-between mb-2">
+                          <span className="text-sm font-medium text-gray-700">{cat.name}</span>
+                          <span className="text-sm font-bold text-gray-900">{formatCurrency(cat.amount)}</span>
                         </div>
-                      </td>
-                      <td className="py-4 px-4 text-right">
-                        <span className="text-green-600 font-semibold">{formatCurrency(report.income)}</span>
-                      </td>
-                      <td className="py-4 px-4 text-right">
-                        <span className="text-red-600 font-semibold">{formatCurrency(report.expense)}</span>
-                      </td>
-                      <td className="py-4 px-4 text-right">
-                        <span className="text-blue-600 font-semibold">{formatCurrency(report.balance)}</span>
-                      </td>
-                      <td className="py-4 px-4 text-center">
-                        <button className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors text-sm font-medium">
-                          <Download className="w-4 h-4" />
-                          Download PDF
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                        <div className="w-full bg-gray-100 rounded-full h-2">
+                          <div 
+                            className="h-2 rounded-full transition-all"
+                            style={{ 
+                              width: `${percentage}%`,
+                              backgroundColor: cat.color 
+                            }}
+                          ></div>
+                        </div>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <p className="text-gray-500 text-center py-4">Belum ada data</p>
+                )}
+              </div>
+            </div>
+
+            {/* Expense by Category */}
+            <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+              <h2 className="text-xl font-bold text-gray-900 mb-6">Pengeluaran per Kategori</h2>
+              <div className="space-y-4">
+                {loading ? (
+                  [...Array(4)].map((_, i) => (
+                    <div key={i} className="animate-pulse">
+                      <div className="h-4 bg-gray-200 rounded w-1/3 mb-2"></div>
+                      <div className="h-3 bg-gray-100 rounded-full"></div>
+                    </div>
+                  ))
+                ) : stats.expenseByCategory?.length > 0 ? (
+                  stats.expenseByCategory.map((cat) => {
+                    const percentage = stats.summary.totalExpense > 0 
+                      ? (cat.amount / stats.summary.totalExpense) * 100 
+                      : 0;
+                    return (
+                      <div key={cat.categoryId}>
+                        <div className="flex justify-between mb-2">
+                          <span className="text-sm font-medium text-gray-700">{cat.name}</span>
+                          <span className="text-sm font-bold text-gray-900">{formatCurrency(cat.amount)}</span>
+                        </div>
+                        <div className="w-full bg-gray-100 rounded-full h-2">
+                          <div 
+                            className="h-2 rounded-full transition-all"
+                            style={{ 
+                              width: `${percentage}%`,
+                              backgroundColor: cat.color 
+                            }}
+                          ></div>
+                        </div>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <p className="text-gray-500 text-center py-4">Belum ada data</p>
+                )}
+              </div>
             </div>
           </div>
+        )}
+
+        {/* Monthly Reports */}
+        <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+          <h2 className="text-xl font-bold text-gray-900 mb-6">Laporan Bulanan</h2>
+          <div className="space-y-4">
+            {loading ? (
+              [...Array(3)].map((_, i) => (
+                <div key={i} className="animate-pulse p-4 bg-gray-50 rounded-xl">
+                  <div className="h-5 bg-gray-200 rounded w-1/3 mb-2"></div>
+                  <div className="h-4 bg-gray-100 rounded w-1/2"></div>
+                </div>
+              ))
+            ) : reports.length > 0 ? (
+              reports.map((report) => (
+                <div 
+                  key={report.id}
+                  className="flex items-center justify-between p-5 bg-gray-50 hover:bg-gray-100 rounded-xl transition"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 bg-blue-100 rounded-xl">
+                      <Calendar className="w-6 h-6 text-blue-600" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-900">{report.period}</h3>
+                      <p className="text-sm text-gray-500">Dipublikasikan: {report.publishedDate}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-8">
+                    <div className="text-right">
+                      <p className="text-sm text-gray-500">Pemasukan</p>
+                      <p className="font-bold text-green-600">{formatCurrency(report.income)}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm text-gray-500">Pengeluaran</p>
+                      <p className="font-bold text-red-600">{formatCurrency(report.expense)}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm text-gray-500">Saldo</p>
+                      <p className={`font-bold ${report.balance >= 0 ? 'text-blue-600' : 'text-orange-600'}`}>
+                        {formatCurrency(report.balance)}
+                      </p>
+                    </div>
+                    <button className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition">
+                      <Download className="w-5 h-5" />
+                    </button>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className="text-center py-8 text-gray-500">Belum ada laporan bulanan</p>
+            )}
+          </div>
         </div>
-      </section>
+      </div>
     </div>
   );
 }

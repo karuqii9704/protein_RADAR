@@ -1,72 +1,136 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { 
   ArrowLeft, 
   Save, 
   X, 
   Plus, 
   Trash2,
-  Calendar,
-  FileText
+  TrendingUp,
+  TrendingDown
 } from 'lucide-react';
+import { apiGet, apiPost } from '@/lib/api';
+import type { Category } from '@/types';
+import toast from 'react-hot-toast';
 
-interface Transaction {
+interface TransactionItem {
   id: number;
-  type: 'income' | 'expense';
+  type: 'INCOME' | 'EXPENSE';
   description: string;
-  category: string;
+  categoryId: string;
   amount: number;
   date: string;
+  donor?: string;
+  recipient?: string;
 }
 
 export default function CreateLaporanPage() {
-  const [formData, setFormData] = useState({
-    title: '',
-    period: '',
-    description: '',
-    status: 'draft'
-  });
-
-  const [transactions, setTransactions] = useState<Transaction[]>([
-    { id: 1, type: 'income', description: '', category: '', amount: 0, date: '' }
+  const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [categories, setCategories] = useState<Category[]>([]);
+  
+  const [transactions, setTransactions] = useState<TransactionItem[]>([
+    { id: Date.now(), type: 'INCOME', description: '', categoryId: '', amount: 0, date: '', donor: '' }
   ]);
 
-  const incomeCategories = ['Infaq', 'Zakat', 'Sedekah', 'Wakaf', 'Donasi', 'Lainnya'];
-  const expenseCategories = ['Operasional', 'Listrik', 'Air', 'Kebersihan', 'Renovasi', 'Gaji', 'Lainnya'];
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await apiGet<Category[]>('/api/admin/categories');
+        if (res.success && res.data) {
+          setCategories(res.data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch categories:', error);
+      }
+    };
+    fetchCategories();
+  }, []);
 
-  const addTransaction = (type: 'income' | 'expense') => {
-    const newTransaction: Transaction = {
+  const incomeCategories = categories.filter(c => c.type === 'INCOME');
+  const expenseCategories = categories.filter(c => c.type === 'EXPENSE');
+
+  const addTransaction = (type: 'INCOME' | 'EXPENSE') => {
+    const newTransaction: TransactionItem = {
       id: Date.now(),
       type,
       description: '',
-      category: '',
+      categoryId: '',
       amount: 0,
-      date: ''
+      date: new Date().toISOString().split('T')[0],
+      donor: type === 'INCOME' ? '' : undefined,
+      recipient: type === 'EXPENSE' ? '' : undefined,
     };
     setTransactions([...transactions, newTransaction]);
   };
 
   const removeTransaction = (id: number) => {
+    if (transactions.length === 1) {
+      toast.error('Minimal harus ada 1 transaksi');
+      return;
+    }
     setTransactions(transactions.filter(t => t.id !== id));
   };
 
-  const updateTransaction = (id: number, field: keyof Transaction, value: string | number) => {
+  const updateTransaction = (id: number, field: keyof TransactionItem, value: string | number) => {
     setTransactions(transactions.map(t => 
       t.id === id ? { ...t, [field]: value } : t
     ));
   };
 
   const totalIncome = transactions
-    .filter(t => t.type === 'income')
-    .reduce((sum, t) => sum + t.amount, 0);
+    .filter(t => t.type === 'INCOME')
+    .reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
 
   const totalExpense = transactions
-    .filter(t => t.type === 'expense')
-    .reduce((sum, t) => sum + t.amount, 0);
+    .filter(t => t.type === 'EXPENSE')
+    .reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
 
   const balance = totalIncome - totalExpense;
+
+  const handleSubmit = async () => {
+    // Validate
+    const invalidTransactions = transactions.filter(t => !t.description || !t.categoryId || !t.amount);
+    if (invalidTransactions.length > 0) {
+      toast.error('Lengkapi semua field transaksi');
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      // Submit each transaction
+      const results = await Promise.all(
+        transactions.map(t => 
+          apiPost('/api/admin/transactions', {
+            type: t.type,
+            amount: Number(t.amount),
+            description: t.description,
+            categoryId: t.categoryId,
+            date: t.date || new Date().toISOString(),
+            donor: t.donor,
+            recipient: t.recipient,
+          })
+        )
+      );
+
+      const failed = results.filter(r => !r.success);
+      if (failed.length > 0) {
+        toast.error(`${failed.length} transaksi gagal disimpan`);
+      } else {
+        toast.success(`${transactions.length} transaksi berhasil disimpan`);
+        router.push('/admin/laporan');
+      }
+    } catch (error) {
+      toast.error('Gagal menyimpan transaksi');
+      console.error('Submit error:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -80,8 +144,8 @@ export default function CreateLaporanPage() {
             <ArrowLeft className="w-5 h-5" />
           </Link>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Tambah Laporan Baru</h1>
-            <p className="text-gray-500 mt-1">Buat laporan keuangan bulanan baru</p>
+            <h1 className="text-2xl font-bold text-gray-900">Tambah Transaksi Baru</h1>
+            <p className="text-gray-500 mt-1">Tambahkan transaksi pemasukan atau pengeluaran</p>
           </div>
         </div>
         <div className="flex gap-3">
@@ -92,224 +156,182 @@ export default function CreateLaporanPage() {
             <X className="w-5 h-5" />
             Batal
           </Link>
-          <button className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-green-600 to-green-500 text-white rounded-xl font-medium shadow-lg shadow-green-500/25 hover:shadow-xl transition">
-            <Save className="w-5 h-5" />
-            Simpan
+          <button 
+            onClick={handleSubmit}
+            disabled={isSubmitting}
+            className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-green-600 to-green-500 text-white rounded-xl font-medium shadow-lg shadow-green-500/25 hover:shadow-xl transition disabled:opacity-70"
+          >
+            {isSubmitting ? (
+              <>
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                Menyimpan...
+              </>
+            ) : (
+              <>
+                <Save className="w-5 h-5" />
+                Simpan
+              </>
+            )}
           </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Main Form */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Basic Info */}
-          <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
-            <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-              <FileText className="w-5 h-5 text-green-600" />
-              Informasi Dasar
-            </h2>
-            <div className="space-y-4">
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-5 border border-green-200">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2 bg-green-500 rounded-lg">
+              <TrendingUp className="w-5 h-5 text-white" />
+            </div>
+            <span className="font-medium text-green-700">Total Pemasukan</span>
+          </div>
+          <p className="text-2xl font-bold text-gray-900">Rp {totalIncome.toLocaleString('id-ID')}</p>
+        </div>
+        <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-xl p-5 border border-red-200">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2 bg-red-500 rounded-lg">
+              <TrendingDown className="w-5 h-5 text-white" />
+            </div>
+            <span className="font-medium text-red-700">Total Pengeluaran</span>
+          </div>
+          <p className="text-2xl font-bold text-gray-900">Rp {totalExpense.toLocaleString('id-ID')}</p>
+        </div>
+        <div className={`rounded-xl p-5 border ${balance >= 0 ? 'bg-blue-50 border-blue-200' : 'bg-orange-50 border-orange-200'}`}>
+          <div className="flex items-center gap-3 mb-2">
+            <span className={`font-medium ${balance >= 0 ? 'text-blue-700' : 'text-orange-700'}`}>Saldo</span>
+          </div>
+          <p className={`text-2xl font-bold ${balance >= 0 ? 'text-blue-600' : 'text-orange-600'}`}>
+            Rp {balance.toLocaleString('id-ID')}
+          </p>
+        </div>
+      </div>
+
+      {/* Add Transaction Buttons */}
+      <div className="flex gap-3">
+        <button
+          onClick={() => addTransaction('INCOME')}
+          className="flex items-center gap-2 px-4 py-2.5 bg-green-100 text-green-700 rounded-xl font-medium hover:bg-green-200 transition"
+        >
+          <Plus className="w-5 h-5" />
+          Tambah Pemasukan
+        </button>
+        <button
+          onClick={() => addTransaction('EXPENSE')}
+          className="flex items-center gap-2 px-4 py-2.5 bg-red-100 text-red-700 rounded-xl font-medium hover:bg-red-200 transition"
+        >
+          <Plus className="w-5 h-5" />
+          Tambah Pengeluaran
+        </button>
+      </div>
+
+      {/* Transaction List */}
+      <div className="space-y-4">
+        {transactions.map((transaction, index) => (
+          <div 
+            key={transaction.id}
+            className={`bg-white rounded-xl p-6 border-2 shadow-sm ${
+              transaction.type === 'INCOME' ? 'border-green-200' : 'border-red-200'
+            }`}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className={`p-2 rounded-lg ${
+                  transaction.type === 'INCOME' ? 'bg-green-100' : 'bg-red-100'
+                }`}>
+                  {transaction.type === 'INCOME' ? (
+                    <TrendingUp className="w-5 h-5 text-green-600" />
+                  ) : (
+                    <TrendingDown className="w-5 h-5 text-red-600" />
+                  )}
+                </div>
+                <span className={`font-semibold ${
+                  transaction.type === 'INCOME' ? 'text-green-700' : 'text-red-700'
+                }`}>
+                  {transaction.type === 'INCOME' ? 'Pemasukan' : 'Pengeluaran'} #{index + 1}
+                </span>
+              </div>
+              <button
+                onClick={() => removeTransaction(transaction.id)}
+                className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition"
+              >
+                <Trash2 className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Judul Laporan <span className="text-red-500">*</span>
+                  Deskripsi <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
-                  placeholder="contoh: Laporan Keuangan November 2025"
-                  value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  placeholder="Contoh: Infaq Jumat"
+                  value={transaction.description}
+                  onChange={(e) => updateTransaction(transaction.id, 'description', e.target.value)}
+                  className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Periode <span className="text-red-500">*</span>
-                  </label>
-                  <div className="relative">
-                    <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <input
-                      type="month"
-                      value={formData.period}
-                      onChange={(e) => setFormData({ ...formData, period: e.target.value })}
-                      className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Status
-                  </label>
-                  <select
-                    value={formData.status}
-                    onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                  >
-                    <option value="draft">Draft</option>
-                    <option value="published">Published</option>
-                  </select>
-                </div>
-              </div>
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Deskripsi / Catatan
+                  {transaction.type === 'INCOME' ? 'Donatur' : 'Penerima'}
                 </label>
-                <textarea
-                  rows={3}
-                  placeholder="Tambahkan catatan atau deskripsi untuk laporan ini..."
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none"
+                <input
+                  type="text"
+                  placeholder={transaction.type === 'INCOME' ? 'Nama donatur' : 'Nama penerima'}
+                  value={transaction.type === 'INCOME' ? transaction.donor || '' : transaction.recipient || ''}
+                  onChange={(e) => updateTransaction(
+                    transaction.id, 
+                    transaction.type === 'INCOME' ? 'donor' : 'recipient', 
+                    e.target.value
+                  )}
+                  className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Kategori <span className="text-red-500">*</span>
+                </label>
+                <select
+                  value={transaction.categoryId}
+                  onChange={(e) => updateTransaction(transaction.id, 'categoryId', e.target.value)}
+                  className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500"
+                >
+                  <option value="">Pilih Kategori</option>
+                  {(transaction.type === 'INCOME' ? incomeCategories : expenseCategories).map((cat) => (
+                    <option key={cat.id} value={cat.id}>{cat.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Jumlah <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="number"
+                  placeholder="0"
+                  value={transaction.amount || ''}
+                  onChange={(e) => updateTransaction(transaction.id, 'amount', parseInt(e.target.value) || 0)}
+                  className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Tanggal
+                </label>
+                <input
+                  type="date"
+                  value={transaction.date}
+                  onChange={(e) => updateTransaction(transaction.id, 'date', e.target.value)}
+                  className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
               </div>
             </div>
           </div>
-
-          {/* Transactions */}
-          <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold text-gray-900">Daftar Transaksi</h2>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => addTransaction('income')}
-                  className="flex items-center gap-1 px-3 py-2 bg-green-50 text-green-600 rounded-lg text-sm font-medium hover:bg-green-100 transition"
-                >
-                  <Plus className="w-4 h-4" />
-                  Pemasukan
-                </button>
-                <button
-                  onClick={() => addTransaction('expense')}
-                  className="flex items-center gap-1 px-3 py-2 bg-red-50 text-red-600 rounded-lg text-sm font-medium hover:bg-red-100 transition"
-                >
-                  <Plus className="w-4 h-4" />
-                  Pengeluaran
-                </button>
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              {transactions.map((transaction, index) => (
-                <div
-                  key={transaction.id}
-                  className={`p-4 rounded-xl border ${
-                    transaction.type === 'income' 
-                      ? 'bg-green-50/50 border-green-200' 
-                      : 'bg-red-50/50 border-red-200'
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-3">
-                    <span className={`text-sm font-medium px-2 py-1 rounded-lg ${
-                      transaction.type === 'income'
-                        ? 'bg-green-100 text-green-700'
-                        : 'bg-red-100 text-red-700'
-                    }`}>
-                      {transaction.type === 'income' ? 'Pemasukan' : 'Pengeluaran'} #{index + 1}
-                    </span>
-                    <button
-                      onClick={() => removeTransaction(transaction.id)}
-                      className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-                    <input
-                      type="text"
-                      placeholder="Deskripsi"
-                      value={transaction.description}
-                      onChange={(e) => updateTransaction(transaction.id, 'description', e.target.value)}
-                      className="px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                    />
-                    <select
-                      value={transaction.category}
-                      onChange={(e) => updateTransaction(transaction.id, 'category', e.target.value)}
-                      className="px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                    >
-                      <option value="">Pilih Kategori</option>
-                      {(transaction.type === 'income' ? incomeCategories : expenseCategories).map(cat => (
-                        <option key={cat} value={cat}>{cat}</option>
-                      ))}
-                    </select>
-                    <input
-                      type="number"
-                      placeholder="Jumlah (Rp)"
-                      value={transaction.amount || ''}
-                      onChange={(e) => updateTransaction(transaction.id, 'amount', parseInt(e.target.value) || 0)}
-                      className="px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                    />
-                    <input
-                      type="date"
-                      value={transaction.date}
-                      onChange={(e) => updateTransaction(transaction.id, 'date', e.target.value)}
-                      className="px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                    />
-                  </div>
-                </div>
-              ))}
-
-              {transactions.length === 0 && (
-                <div className="py-12 text-center text-gray-500">
-                  <FileText className="w-12 h-12 mx-auto text-gray-300 mb-3" />
-                  <p>Belum ada transaksi</p>
-                  <p className="text-sm">Klik tombol di atas untuk menambah transaksi</p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Sidebar Summary */}
-        <div className="space-y-6">
-          <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm sticky top-24">
-            <h2 className="text-lg font-bold text-gray-900 mb-4">Ringkasan</h2>
-            
-            <div className="space-y-4">
-              <div className="p-4 bg-green-50 rounded-xl">
-                <p className="text-sm text-green-600 font-medium mb-1">Total Pemasukan</p>
-                <p className="text-2xl font-bold text-green-700">
-                  Rp {totalIncome.toLocaleString('id-ID')}
-                </p>
-              </div>
-
-              <div className="p-4 bg-red-50 rounded-xl">
-                <p className="text-sm text-red-600 font-medium mb-1">Total Pengeluaran</p>
-                <p className="text-2xl font-bold text-red-700">
-                  Rp {totalExpense.toLocaleString('id-ID')}
-                </p>
-              </div>
-
-              <div className="border-t border-gray-200 pt-4">
-                <div className={`p-4 rounded-xl ${balance >= 0 ? 'bg-blue-50' : 'bg-orange-50'}`}>
-                  <p className={`text-sm font-medium mb-1 ${balance >= 0 ? 'text-blue-600' : 'text-orange-600'}`}>
-                    Saldo Akhir
-                  </p>
-                  <p className={`text-2xl font-bold ${balance >= 0 ? 'text-blue-700' : 'text-orange-700'}`}>
-                    Rp {balance.toLocaleString('id-ID')}
-                  </p>
-                </div>
-              </div>
-
-              <div className="pt-4 border-t border-gray-200 text-sm text-gray-500 space-y-2">
-                <div className="flex justify-between">
-                  <span>Jumlah Transaksi</span>
-                  <span className="font-medium text-gray-900">{transactions.length}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Pemasukan</span>
-                  <span className="font-medium text-green-600">
-                    {transactions.filter(t => t.type === 'income').length}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Pengeluaran</span>
-                  <span className="font-medium text-red-600">
-                    {transactions.filter(t => t.type === 'expense').length}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        ))}
       </div>
     </div>
   );

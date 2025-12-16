@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { 
   ArrowLeft, 
   Save, 
@@ -11,20 +12,60 @@ import {
   FileText,
   Eye
 } from 'lucide-react';
+import { apiPost } from '@/lib/api';
+import toast from 'react-hot-toast';
 
 export default function CreateBeritaPage() {
+  const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     category: '',
     excerpt: '',
     content: '',
-    status: 'draft',
-    featuredImage: null as File | null
+    isPublished: false
   });
 
   const [preview, setPreview] = useState(false);
 
-  const categories = ['Kegiatan', 'Pengumuman', 'Laporan', 'Artikel'];
+  const categories = [
+    { value: 'KEGIATAN', label: 'Kegiatan' },
+    { value: 'PENGUMUMAN', label: 'Pengumuman' },
+    { value: 'LAPORAN', label: 'Laporan' },
+    { value: 'ARTIKEL', label: 'Artikel' },
+  ];
+
+  const handleSubmit = async (publish: boolean = false) => {
+    // Validate
+    if (!formData.title || !formData.content || !formData.category) {
+      toast.error('Judul, konten, dan kategori wajib diisi');
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const res = await apiPost('/api/admin/news', {
+        title: formData.title,
+        content: formData.content,
+        excerpt: formData.excerpt || formData.content.substring(0, 200),
+        category: formData.category,
+        isPublished: publish,
+      });
+
+      if (res.success) {
+        toast.success(publish ? 'Berita berhasil dipublikasi' : 'Draft berita berhasil disimpan');
+        router.push('/admin/berita');
+      } else {
+        toast.error(res.error || 'Gagal menyimpan berita');
+      }
+    } catch (error) {
+      toast.error('Gagal menyimpan berita');
+      console.error('Submit error:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -57,9 +98,29 @@ export default function CreateBeritaPage() {
             <X className="w-5 h-5" />
             Batal
           </Link>
-          <button className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-green-600 to-green-500 text-white rounded-xl font-medium shadow-lg shadow-green-500/25 hover:shadow-xl transition">
-            <Save className="w-5 h-5" />
-            Simpan
+          <button 
+            onClick={() => handleSubmit(false)}
+            disabled={isSubmitting}
+            className="flex items-center gap-2 px-4 py-2.5 bg-yellow-100 text-yellow-700 rounded-xl font-medium hover:bg-yellow-200 transition disabled:opacity-70"
+          >
+            Simpan Draft
+          </button>
+          <button 
+            onClick={() => handleSubmit(true)}
+            disabled={isSubmitting}
+            className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-green-600 to-green-500 text-white rounded-xl font-medium shadow-lg shadow-green-500/25 hover:shadow-xl transition disabled:opacity-70"
+          >
+            {isSubmitting ? (
+              <>
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                Menyimpan...
+              </>
+            ) : (
+              <>
+                <Save className="w-5 h-5" />
+                Publikasikan
+              </>
+            )}
           </button>
         </div>
       </div>
@@ -99,21 +160,8 @@ export default function CreateBeritaPage() {
                   >
                     <option value="">Pilih Kategori</option>
                     {categories.map((cat) => (
-                      <option key={cat} value={cat}>{cat}</option>
+                      <option key={cat.value} value={cat.value}>{cat.label}</option>
                     ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Status
-                  </label>
-                  <select
-                    value={formData.status}
-                    onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                  >
-                    <option value="draft">Draft</option>
-                    <option value="published">Published</option>
                   </select>
                 </div>
               </div>
@@ -135,7 +183,7 @@ export default function CreateBeritaPage() {
 
           {/* Content Editor */}
           <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
-            <h2 className="text-lg font-bold text-gray-900 mb-4">Konten Berita</h2>
+            <h2 className="text-lg font-bold text-gray-900 mb-4">Konten Berita <span className="text-red-500">*</span></h2>
             <div>
               <textarea
                 rows={15}
@@ -183,15 +231,11 @@ export default function CreateBeritaPage() {
                 <div className="flex items-center gap-2 mb-2">
                   {formData.category && (
                     <span className="px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-700 rounded">
-                      {formData.category}
+                      {categories.find(c => c.value === formData.category)?.label}
                     </span>
                   )}
-                  <span className={`px-2 py-0.5 text-xs font-medium rounded ${
-                    formData.status === 'published' 
-                      ? 'bg-green-100 text-green-700' 
-                      : 'bg-yellow-100 text-yellow-700'
-                  }`}>
-                    {formData.status === 'published' ? 'Published' : 'Draft'}
+                  <span className="px-2 py-0.5 text-xs font-medium rounded bg-yellow-100 text-yellow-700">
+                    Draft
                   </span>
                 </div>
                 <h3 className="font-bold text-gray-900 text-sm mb-1 line-clamp-2">
