@@ -12,7 +12,7 @@
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
-    "db:seed": "ts-node prisma/seed.ts",
+    "db:seed": "npx tsx prisma/seed.ts",
     "test": "vitest",
     "test:ui": "vitest --ui",
     "type-check": "tsc --noEmit"
@@ -51,6 +51,7 @@
     "eslint-config-next": "^14.2.0",
     "prisma": "^5.20.0",
     "ts-node": "^10.9.0",
+    "tsx": "^4.21.0",
     "typescript": "^5.5.0",
     "vitest": "^2.0.0"
   },

@@ -125,7 +125,7 @@ export default function AdminLoginPage() {
                   <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <input
                     type="email"
-                    placeholder="admin@masjid-msu.id"
+                    placeholder="Masukkan email"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition"
@@ -216,9 +216,7 @@ export default function AdminLoginPage() {
           </div>
 
           {/* Footer */}
-          <p className="text-center text-gray-500 text-sm mt-6">
-            <strong>Login:</strong> admin@masjid-msu.id / admin123
-          </p>
+          
         </div>
       </div>
     </div>

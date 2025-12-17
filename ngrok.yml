@@ -1,0 +1,11 @@
+version: "2"
+authtoken: 36ySbVir5zUmLfNWd44VI5s9tEi_6VTwwZJkKkTiGPjn6DFzY
+tunnels:
+  frontend:
+    addr: 3001
+    proto: http
+    inspect: true
+  backend:
+    addr: 3000
+    proto: http
+    inspect: true
