@@ -3,6 +3,8 @@ import { prisma } from '@/lib/prisma';
 import { successResponse, errorResponse, getPaginationParams, paginatedResponse } from '@/utils/api-response';
 import { TransactionType } from '@prisma/client';
 
+export const dynamic = 'force-dynamic';
+
 // GET /api/reports - Get monthly financial reports
 export async function GET(request: NextRequest) {
   try {

@@ -3,6 +3,8 @@ import { prisma } from '@/lib/prisma';
 import { successResponse, errorResponse, paginatedResponse, getPaginationParams } from '@/utils/api-response';
 import { TransactionType } from '@prisma/client';
 
+export const dynamic = 'force-dynamic';
+
 // GET /api/transactions - Get recent public transactions
 export async function GET(request: NextRequest) {
   try {
