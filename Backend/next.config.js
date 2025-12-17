@@ -1,4 +1,6 @@
 /** @type {import('next').NextConfig} */
+const path = require('path');
+
 const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
@@ -27,8 +29,13 @@ const nextConfig = {
   // Webpack configuration
   webpack: (config) => {
     config.resolve.fallback = { fs: false, net: false, tls: false };
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@': path.resolve(__dirname, 'src'),
+    };
     return config;
   },
 };
 
 module.exports = nextConfig;
+
