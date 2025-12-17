@@ -26,49 +26,49 @@ const categories: Category[] = [
     name: 'Operasional', 
     icon: Settings,
     color: 'from-blue-500 to-blue-600',
-    href: '/category/operasional' 
+    href: '/laporan' 
   },
   { 
     id: 2, 
     name: 'Renovasi Masjid', 
     icon: Building2,
     color: 'from-amber-500 to-amber-600',
-    href: '/category/renovasi' 
+    href: '/programs' 
   },
   { 
     id: 3, 
     name: 'Santunan', 
     icon: HandHeart,
     color: 'from-green-500 to-green-600',
-    href: '/category/santunan' 
+    href: '/programs' 
   },
   { 
     id: 4, 
     name: 'Pendidikan', 
     icon: GraduationCap,
     color: 'from-purple-500 to-purple-600',
-    href: '/category/pendidikan' 
+    href: '/programs' 
   },
   { 
     id: 5, 
     name: 'Infak Quran', 
     icon: BookOpen,
     color: 'from-emerald-500 to-emerald-600',
-    href: '/category/infak-quran' 
+    href: '/programs' 
   },
   { 
     id: 6, 
     name: 'Kegiatan', 
     icon: Target,
     color: 'from-orange-500 to-orange-600',
-    href: '/category/kegiatan' 
+    href: '/news' 
   },
   { 
     id: 7, 
     name: 'Lainnya', 
     icon: Star,
     color: 'from-pink-500 to-pink-600',
-    href: '/category/lainnya' 
+    href: '/about' 
   },
 ];
 

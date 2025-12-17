@@ -7,6 +7,7 @@ import {
   FileText,
   Newspaper,
   BookOpen,
+  HandHeart,
   Settings,
   LogOut,
   ChevronLeft,
@@ -36,6 +37,11 @@ const menuItems = [
     href: "/admin/artikel",
     label: "Artikel",
     icon: BookOpen,
+  },
+  {
+    href: "/admin/program",
+    label: "Program",
+    icon: HandHeart,
   },
   {
     href: "/admin/settings",
