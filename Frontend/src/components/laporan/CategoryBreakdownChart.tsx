@@ -1,23 +1,42 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
+import { PieChart as PieChartIcon } from 'lucide-react';
+import { apiGet } from '@/lib/api';
 
 interface CategoryBreakdownChartProps {
   month: number;
   year: number;
 }
 
+interface CategoryData {
+  name: string;
+  value: number;
+  color: string;
+}
+
 export default function CategoryBreakdownChart({ month, year }: CategoryBreakdownChartProps) {
-  // Mock data - akan diganti dengan API call
-  const data = [
-    { name: 'Operasional', value: 28500000, color: '#3b82f6' },
-    { name: 'Renovasi', value: 22300000, color: '#8b5cf6' },
-    { name: 'Santunan', value: 15800000, color: '#ec4899' },
-    { name: 'Pendidikan', value: 12400000, color: '#f59e0b' },
-    { name: 'Infak Quran', value: 5200000, color: '#10b981' },
-    { name: 'Kegiatan', value: 2100000, color: '#06b6d4' },
-    { name: 'Lainnya', value: 1000000, color: '#6b7280' },
-  ];
+  const [data, setData] = useState<CategoryData[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Try to fetch from reports API
+        const res = await apiGet<{ categoryData: CategoryData[] }>('/api/reports/stats', { month, year });
+        if (res.success && res.data?.categoryData && res.data.categoryData.length > 0) {
+          setData(res.data.categoryData);
+        }
+      } catch (error) {
+        console.error('Failed to fetch category data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [month, year]);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('id-ID', {
@@ -28,7 +47,7 @@ export default function CategoryBreakdownChart({ month, year }: CategoryBreakdow
     }).format(value);
   };
 
-  const CustomTooltip = ({ active, payload }: any) => {
+  const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: Array<{ name: string; value: number }> }) => {
     if (active && payload && payload.length) {
       const total = data.reduce((sum, entry) => sum + entry.value, 0);
       const percentage = ((payload[0].value / total) * 100).toFixed(1);
@@ -48,7 +67,14 @@ export default function CategoryBreakdownChart({ month, year }: CategoryBreakdow
     return null;
   };
 
-  const CustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }: any) => {
+  const CustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }: {
+    cx: number;
+    cy: number;
+    midAngle: number;
+    innerRadius: number;
+    outerRadius: number;
+    percent: number;
+  }) => {
     const RADIAN = Math.PI / 180;
     const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
     const x = cx + radius * Math.cos(-midAngle * RADIAN);
@@ -70,10 +96,11 @@ export default function CategoryBreakdownChart({ month, year }: CategoryBreakdow
     );
   };
 
-  const CustomLegend = ({ payload }: any) => {
+  const CustomLegend = ({ payload }: { payload?: Array<{ color: string; value: string }> }) => {
+    if (!payload) return null;
     return (
       <div className="grid grid-cols-2 gap-2 mt-4">
-        {payload.map((entry: any, index: number) => (
+        {payload.map((entry, index: number) => (
           <div key={`legend-${index}`} className="flex items-center gap-2">
             <div 
               className="w-3 h-3 rounded-full" 
@@ -85,6 +112,24 @@ export default function CategoryBreakdownChart({ month, year }: CategoryBreakdow
       </div>
     );
   };
+
+  if (loading) {
+    return (
+      <div className="w-full h-[300px] flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-green-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (data.length === 0) {
+    return (
+      <div className="w-full h-[300px] flex flex-col items-center justify-center text-gray-400">
+        <PieChartIcon className="w-16 h-16 mb-4 text-gray-300" />
+        <p className="text-sm">Belum ada data kategori</p>
+        <p className="text-xs text-gray-400 mt-1">Data akan muncul setelah ada transaksi</p>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full h-[300px]">

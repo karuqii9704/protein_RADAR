@@ -199,3 +199,24 @@ enum NewsCategory {
   PENGUMUMAN    // Pengumuman
   ARTIKEL       // Artikel/kajian
 }
+
+// ==========================================
+// SLIDE (Homepage Carousel)
+// ==========================================
+
+model Slide {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  image       String?
+  linkType    String?  // 'news', 'artikel', 'program', 'external'
+  linkId      String?  // ID of linked content
+  linkUrl     String?  // External URL or path
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("slides")
+}

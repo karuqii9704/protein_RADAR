@@ -52,7 +52,6 @@ export default function ArtikelListPage() {
     setLoading(true);
     try {
       const params: Record<string, string | number> = {
-        category: 'ARTIKEL',
         page,
         limit: 10,
       };
@@ -60,7 +59,7 @@ export default function ArtikelListPage() {
         params.search = searchQuery;
       }
 
-      const res = await apiGet<PaginatedResponse>('/api/admin/news', params);
+      const res = await apiGet<PaginatedResponse>('/api/admin/artikel', params);
       if (res.success && res.data) {
         setArticles(res.data.data);
         setTotalPages(res.data.pagination.totalPages);
@@ -87,7 +86,7 @@ export default function ArtikelListPage() {
     if (!confirm('Yakin ingin menghapus artikel ini?')) return;
 
     try {
-      const res = await apiDelete(`/api/admin/news/${id}`);
+      const res = await apiDelete(`/api/admin/artikel/${id}`);
       if (res.success) {
         toast.success('Artikel berhasil dihapus');
         fetchArticles();

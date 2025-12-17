@@ -1,41 +1,42 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { BarChart2 } from 'lucide-react';
+import { apiGet } from '@/lib/api';
 
 interface MonthlyComparisonChartProps {
   month: number;
   year: number;
 }
 
+interface MonthlyData {
+  month: string;
+  pemasukan: number;
+  pengeluaran: number;
+}
+
 export default function MonthlyComparisonChart({ month, year }: MonthlyComparisonChartProps) {
-  // Mock data - akan diganti dengan API call
-  const data = [
-    {
-      month: 'Jul',
-      pemasukan: 105000000,
-      pengeluaran: 72000000,
-    },
-    {
-      month: 'Agu',
-      pemasukan: 108500000,
-      pengeluaran: 75500000,
-    },
-    {
-      month: 'Sep',
-      pemasukan: 112800000,
-      pengeluaran: 79500000,
-    },
-    {
-      month: 'Okt',
-      pemasukan: 118200000,
-      pengeluaran: 82100000,
-    },
-    {
-      month: 'Nov',
-      pemasukan: 125500000,
-      pengeluaran: 87300000,
-    },
-  ];
+  const [data, setData] = useState<MonthlyData[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Try to fetch from reports API
+        const res = await apiGet<{ monthlyData: MonthlyData[] }>('/api/reports/stats', { month, year });
+        if (res.success && res.data?.monthlyData && res.data.monthlyData.length > 0) {
+          setData(res.data.monthlyData);
+        }
+      } catch (error) {
+        console.error('Failed to fetch monthly data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [month, year]);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('id-ID', {
@@ -46,8 +47,8 @@ export default function MonthlyComparisonChart({ month, year }: MonthlyCompariso
     }).format(value);
   };
 
-  const CustomTooltip = ({ active, payload }: any) => {
-    if (active && payload && payload.length) {
+  const CustomTooltip = ({ active, payload }: { active?: boolean; payload?: Array<{ value: number; payload: MonthlyData }> }) => {
+    if (active && payload && payload.length >= 2) {
       return (
         <div className="bg-white p-4 rounded-lg shadow-lg border border-gray-200">
           <p className="font-semibold text-gray-900 mb-2">{payload[0].payload.month}</p>
@@ -67,6 +68,24 @@ export default function MonthlyComparisonChart({ month, year }: MonthlyCompariso
     }
     return null;
   };
+
+  if (loading) {
+    return (
+      <div className="w-full h-[300px] flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-green-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (data.length === 0) {
+    return (
+      <div className="w-full h-[300px] flex flex-col items-center justify-center text-gray-400">
+        <BarChart2 className="w-16 h-16 mb-4 text-gray-300" />
+        <p className="text-sm">Belum ada data transaksi</p>
+        <p className="text-xs text-gray-400 mt-1">Data akan muncul setelah ada transaksi</p>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full h-[300px]">

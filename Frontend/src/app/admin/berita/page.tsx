@@ -32,7 +32,7 @@ export default function BeritaListPage() {
       if (search) params.search = search;
       if (categoryFilter) params.category = categoryFilter;
 
-      const res = await apiGet<News[]>('/api/admin/news', params);
+      const res = await apiGet<News[]>('/api/admin/berita', params);
       if (res.success && res.data) {
         setNews(res.data);
         setTotal(res.meta?.total ?? 0);
@@ -60,7 +60,7 @@ export default function BeritaListPage() {
     if (!confirm('Apakah Anda yakin ingin menghapus berita ini?')) return;
 
     try {
-      const res = await apiDelete(`/api/admin/news/${id}`);
+      const res = await apiDelete(`/api/admin/berita/${id}`);
       if (res.success) {
         toast.success('Berita berhasil dihapus');
         fetchNews();
@@ -149,7 +149,6 @@ export default function BeritaListPage() {
             <option value="LAPORAN">Laporan</option>
             <option value="KEGIATAN">Kegiatan</option>
             <option value="PENGUMUMAN">Pengumuman</option>
-            <option value="ARTIKEL">Artikel</option>
           </select>
 
           <button
