@@ -7,7 +7,7 @@ import {
   BookOpen, 
   TrendingUp, 
   TrendingDown,
-  Users,
+  Layers,
   Calendar,
   Plus,
   ArrowUpRight,
@@ -17,11 +17,12 @@ import Link from 'next/link';
 import { apiGet } from '@/lib/api';
 import type { DashboardStats } from '@/types';
 
-interface AdminStats {
-  totalLaporan: number;
-  totalBerita: number;
-  totalArtikel: number;
-  pengunjung: number;
+interface AdminStatsResponse {
+  totalTransactions: number;
+  totalNews: number;
+  totalArticles: number;
+  totalPrograms: number;
+  recentActivities: Activity[];
 }
 
 interface Activity {
@@ -30,67 +31,27 @@ interface Activity {
   user: string;
   time: string;
   type: string;
+  amount?: number;
 }
 
 export default function AdminDashboard() {
   const [dashboardStats, setDashboardStats] = useState<DashboardStats | null>(null);
+  const [adminStats, setAdminStats] = useState<AdminStatsResponse | null>(null);
   const [loading, setLoading] = useState(true);
-
-  // Mock admin stats - could be replaced with real API later
-  const stats = [
-    {
-      title: 'Total Laporan',
-      value: '24',
-      change: '+3',
-      changeType: 'increase',
-      icon: FileText,
-      color: 'blue',
-      href: '/admin/laporan'
-    },
-    {
-      title: 'Total Berita',
-      value: '18',
-      change: '+5',
-      changeType: 'increase',
-      icon: Newspaper,
-      color: 'green',
-      href: '/admin/berita'
-    },
-    {
-      title: 'Total Artikel',
-      value: '32',
-      change: '+2',
-      changeType: 'increase',
-      icon: BookOpen,
-      color: 'purple',
-      href: '/admin/artikel'
-    },
-    {
-      title: 'Pengunjung',
-      value: '1,234',
-      change: '+12%',
-      changeType: 'increase',
-      icon: Users,
-      color: 'orange',
-      href: '#'
-    },
-  ];
-
-  // Mock recent activities
-  const recentActivities: Activity[] = [
-    { id: '1', action: 'Laporan November 2025 ditambahkan', user: 'Admin', time: '5 menit lalu', type: 'laporan' },
-    { id: '2', action: 'Berita "Kajian Akbar" dipublikasi', user: 'Admin', time: '1 jam lalu', type: 'berita' },
-    { id: '3', action: 'Artikel "Keutamaan Sedekah" diupdate', user: 'Admin', time: '2 jam lalu', type: 'artikel' },
-    { id: '4', action: 'Laporan Oktober 2025 diedit', user: 'Admin', time: '3 jam lalu', type: 'laporan' },
-    { id: '5', action: 'Berita "Renovasi Masjid" draft disimpan', user: 'Admin', time: '5 jam lalu', type: 'berita' },
-  ];
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const res = await apiGet<DashboardStats>('/api/dashboard/stats');
-        if (res.success && res.data) {
-          setDashboardStats(res.data);
+        const [dashRes, adminRes] = await Promise.all([
+          apiGet<DashboardStats>('/api/dashboard/stats'),
+          apiGet<AdminStatsResponse>('/api/admin/stats'),
+        ]);
+        
+        if (dashRes.success && dashRes.data) {
+          setDashboardStats(dashRes.data);
+        }
+        if (adminRes.success && adminRes.data) {
+          setAdminStats(adminRes.data);
         }
       } catch (error) {
         console.error('Failed to fetch stats:', error);
@@ -101,6 +62,49 @@ export default function AdminDashboard() {
 
     fetchStats();
   }, []);
+
+  // Build stats array from API data
+  const stats = [
+    {
+      title: 'Total Transaksi',
+      value: loading ? '...' : (adminStats?.totalTransactions ?? 0).toString(),
+      change: '',
+      changeType: 'neutral',
+      icon: FileText,
+      color: 'blue',
+      href: '/admin/laporan'
+    },
+    {
+      title: 'Total Berita',
+      value: loading ? '...' : (adminStats?.totalNews ?? 0).toString(),
+      change: '',
+      changeType: 'neutral',
+      icon: Newspaper,
+      color: 'green',
+      href: '/admin/berita'
+    },
+    {
+      title: 'Total Artikel',
+      value: loading ? '...' : (adminStats?.totalArticles ?? 0).toString(),
+      change: '',
+      changeType: 'neutral',
+      icon: BookOpen,
+      color: 'purple',
+      href: '/admin/artikel'
+    },
+    {
+      title: 'Total Program',
+      value: loading ? '...' : (adminStats?.totalPrograms ?? 0).toString(),
+      change: '',
+      changeType: 'neutral',
+      icon: Layers,
+      color: 'orange',
+      href: '/admin/program'
+    },
+  ];
+
+  // Get recent activities from API
+  const recentActivities: Activity[] = adminStats?.recentActivities ?? [];
 
   const getColorClasses = (color: string) => {
     const colors: Record<string, { bg: string; text: string; iconBg: string }> = {

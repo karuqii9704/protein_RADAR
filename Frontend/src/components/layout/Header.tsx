@@ -1,10 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, LayoutDashboard, LogOut, User, ChevronDown } from 'lucide-react';
+import { getCurrentUser, logout, type User as UserType } from '@/lib/auth';
 
 const navLinks = [
   { href: '/', label: 'Beranda' },
@@ -16,13 +17,36 @@ const navLinks = [
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [currentUser, setCurrentUser] = useState<UserType | null>(null);
   const pathname = usePathname();
+  const userMenuRef = useRef<HTMLDivElement>(null);
+
+  // Check auth status on mount
+  useEffect(() => {
+    setCurrentUser(getCurrentUser());
+  }, []);
+
+  // Close user menu when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setIsUserMenuOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const isActiveLink = (href: string) => {
     if (href === '/') {
       return pathname === '/';
     }
     return pathname.startsWith(href);
+  };
+
+  const handleLogout = () => {
+    logout();
   };
 
   return (
@@ -64,13 +88,53 @@ export default function Header() {
           </nav>
 
           <div className="flex items-center gap-4">
-            {/* Admin Login Button */}
-            <Link 
-              href="/admin/login"
-              className="hidden sm:block px-6 py-2.5 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white rounded-lg transition-all font-medium shadow-md hover:shadow-lg"
-            >
-              Admin Login
-            </Link>
+            {/* User Menu or Admin Login Button */}
+            {currentUser ? (
+              <div className="relative hidden sm:block" ref={userMenuRef}>
+                <button
+                  onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-100 transition"
+                >
+                  <div className="w-9 h-9 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center shadow-md">
+                    <User className="w-5 h-5 text-white" />
+                  </div>
+                  <div className="text-left">
+                    <p className="text-sm font-semibold text-gray-900">{currentUser.name}</p>
+                    <p className="text-xs text-gray-500">{currentUser.role === 'SUPER_ADMIN' ? 'Super Admin' : currentUser.role === 'ADMIN' ? 'Admin' : 'Viewer'}</p>
+                  </div>
+                  <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${isUserMenuOpen ? 'rotate-180' : ''}`} />
+                </button>
+
+                {/* Dropdown Menu */}
+                {isUserMenuOpen && (
+                  <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-100 py-2 z-50">
+                    <Link
+                      href="/admin"
+                      onClick={() => setIsUserMenuOpen(false)}
+                      className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-green-50 hover:text-green-600 transition"
+                    >
+                      <LayoutDashboard className="w-5 h-5" />
+                      <span className="font-medium">Dashboard Admin</span>
+                    </Link>
+                    <div className="border-t border-gray-100 my-1"></div>
+                    <button
+                      onClick={handleLogout}
+                      className="flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 transition w-full"
+                    >
+                      <LogOut className="w-5 h-5" />
+                      <span className="font-medium">Logout</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <Link 
+                href="/admin/login"
+                className="hidden sm:block px-6 py-2.5 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white rounded-lg transition-all font-medium shadow-md hover:shadow-lg"
+              >
+                Admin Login
+              </Link>
+            )}
 
             {/* Mobile Menu Toggle */}
             <button
@@ -105,13 +169,46 @@ export default function Header() {
                   {link.label}
                 </Link>
               ))}
-              <Link 
-                href="/admin/login"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="mt-2 px-6 py-2.5 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white rounded-lg transition-all font-medium shadow-md hover:shadow-lg text-center"
-              >
-                Admin Login
-              </Link>
+              
+              {/* Mobile: User actions or Login */}
+              {currentUser ? (
+                <>
+                  <div className="border-t border-gray-100 my-2 pt-2">
+                    <div className="flex items-center gap-3 px-3 py-2 mb-2">
+                      <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center">
+                        <User className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-gray-900">{currentUser.name}</p>
+                        <p className="text-xs text-gray-500">{currentUser.email}</p>
+                      </div>
+                    </div>
+                    <Link 
+                      href="/admin"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="flex items-center gap-3 py-2.5 px-3 text-gray-700 hover:bg-green-50 hover:text-green-600 rounded-lg transition"
+                    >
+                      <LayoutDashboard className="w-5 h-5" />
+                      <span className="font-medium">Dashboard Admin</span>
+                    </Link>
+                    <button
+                      onClick={handleLogout}
+                      className="flex items-center gap-3 py-2.5 px-3 text-red-600 hover:bg-red-50 rounded-lg transition w-full mt-1"
+                    >
+                      <LogOut className="w-5 h-5" />
+                      <span className="font-medium">Logout</span>
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <Link 
+                  href="/admin/login"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="mt-2 px-6 py-2.5 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white rounded-lg transition-all font-medium shadow-md hover:shadow-lg text-center"
+                >
+                  Admin Login
+                </Link>
+              )}
             </nav>
           </div>
         )}

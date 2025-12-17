@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { 
   ArrowLeft, 
   Save, 
@@ -16,19 +17,48 @@ import {
   Link2,
   Quote
 } from 'lucide-react';
+import { apiPost } from '@/lib/api';
+import toast from 'react-hot-toast';
 
 export default function CreateArtikelPage() {
+  const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
-    category: '',
-    author: '',
     excerpt: '',
     content: '',
-    status: 'draft',
-    featuredImage: null as File | null
   });
 
-  const categories = ['Ibadah', 'Zakat', 'Adab', 'Sedekah', 'Akhlak', 'Fiqih', 'Tafsir'];
+  const handleSubmit = async (publish: boolean = false) => {
+    if (!formData.title || !formData.content) {
+      toast.error('Judul dan konten wajib diisi');
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const res = await apiPost('/api/admin/news', {
+        title: formData.title,
+        content: formData.content,
+        excerpt: formData.excerpt || formData.content.substring(0, 200),
+        category: 'ARTIKEL', // Always ARTIKEL for this page
+        isPublished: publish,
+      });
+
+      if (res.success) {
+        toast.success(publish ? 'Artikel berhasil dipublikasi' : 'Draft artikel berhasil disimpan');
+        router.push('/admin/artikel');
+      } else {
+        toast.error(res.error || 'Gagal menyimpan artikel');
+      }
+    } catch (error) {
+      toast.error('Gagal menyimpan artikel');
+      console.error('Submit error:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -54,13 +84,29 @@ export default function CreateArtikelPage() {
             <X className="w-5 h-5" />
             Batal
           </Link>
-          <button className="flex items-center gap-2 px-4 py-2.5 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition">
-            <Eye className="w-5 h-5" />
-            Preview
+          <button 
+            onClick={() => handleSubmit(false)}
+            disabled={isSubmitting}
+            className="flex items-center gap-2 px-4 py-2.5 bg-yellow-100 text-yellow-700 rounded-xl font-medium hover:bg-yellow-200 transition disabled:opacity-70"
+          >
+            Simpan Draft
           </button>
-          <button className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-green-600 to-green-500 text-white rounded-xl font-medium shadow-lg shadow-green-500/25 hover:shadow-xl transition">
-            <Save className="w-5 h-5" />
-            Simpan
+          <button 
+            onClick={() => handleSubmit(true)}
+            disabled={isSubmitting}
+            className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-green-600 to-green-500 text-white rounded-xl font-medium shadow-lg shadow-green-500/25 hover:shadow-xl transition disabled:opacity-70"
+          >
+            {isSubmitting ? (
+              <>
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                Menyimpan...
+              </>
+            ) : (
+              <>
+                <Save className="w-5 h-5" />
+                Publikasikan
+              </>
+            )}
           </button>
         </div>
       </div>
@@ -108,7 +154,7 @@ export default function CreateArtikelPage() {
             {/* Editor */}
             <textarea
               rows={20}
-              placeholder="Tulis artikel Anda di sini...
+              placeholder={`Tulis artikel Anda di sini...
 
 Gunakan format Markdown untuk styling:
 
@@ -122,7 +168,7 @@ Gunakan format Markdown untuk styling:
 
 > Quote / kutipan
 
-[Link text](url)"
+[Link text](url)`}
               value={formData.content}
               onChange={(e) => setFormData({ ...formData, content: e.target.value })}
               className="w-full p-6 bg-white border-none outline-none resize-none font-mono text-gray-700 leading-relaxed"
@@ -132,52 +178,18 @@ Gunakan format Markdown untuk styling:
 
         {/* Sidebar */}
         <div className="space-y-6">
-          {/* Publish Settings */}
+          {/* Info */}
           <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
             <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
               <BookOpen className="w-5 h-5 text-green-600" />
-              Pengaturan
+              Info Artikel
             </h2>
             <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Status
-                </label>
-                <select
-                  value={formData.status}
-                  onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                  className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                >
-                  <option value="draft">Draft</option>
-                  <option value="published">Published</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Kategori
-                </label>
-                <select
-                  value={formData.category}
-                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                  className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                >
-                  <option value="">Pilih Kategori</option>
-                  {categories.map((cat) => (
-                    <option key={cat} value={cat}>{cat}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Penulis
-                </label>
-                <input
-                  type="text"
-                  placeholder="Nama penulis..."
-                  value={formData.author}
-                  onChange={(e) => setFormData({ ...formData, author: e.target.value })}
-                  className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                />
+              <div className="p-4 bg-purple-50 rounded-xl">
+                <p className="text-sm font-medium text-purple-700">Kategori: Artikel</p>
+                <p className="text-xs text-purple-600 mt-1">
+                  Artikel akan otomatis masuk ke kategori Artikel Islami
+                </p>
               </div>
             </div>
           </div>
@@ -187,7 +199,7 @@ Gunakan format Markdown untuk styling:
             <h2 className="text-lg font-bold text-gray-900 mb-4">Ringkasan</h2>
             <textarea
               rows={4}
-              placeholder="Tulis ringkasan singkat artikel..."
+              placeholder="Tulis ringkasan singkat artikel (opsional, akan diambil dari konten jika kosong)..."
               value={formData.excerpt}
               onChange={(e) => setFormData({ ...formData, excerpt: e.target.value })}
               className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none text-sm"

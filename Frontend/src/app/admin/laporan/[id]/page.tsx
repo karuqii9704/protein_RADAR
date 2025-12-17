@@ -1,3 +1,6 @@
+'use client';
+
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { 
   ArrowLeft, 
@@ -10,37 +13,86 @@ import {
   TrendingUp,
   TrendingDown,
   Wallet,
-  Clock
+  Loader2
 } from 'lucide-react';
+import { apiGet } from '@/lib/api';
+
+interface Transaction {
+  id: string;
+  type: 'INCOME' | 'EXPENSE';
+  amount: number;
+  description: string;
+  donor?: string;
+  recipient?: string;
+  date: string;
+  category: { id: string; name: string };
+  createdBy: { id: string; name: string };
+}
+
+interface PaginatedResponse {
+  data: Transaction[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
 
 export default function LaporanDetailPage({ params }: { params: { id: string } }) {
-  // Mock data - in real app, fetch based on params.id
-  const laporan = {
-    id: params.id,
-    title: 'Laporan Keuangan November 2025',
-    period: 'November 2025',
-    description: 'Laporan keuangan bulanan Masjid Syamsul Ulum untuk periode November 2025. Mencakup semua pemasukan dari infaq, zakat, dan donasi serta pengeluaran operasional masjid.',
-    income: 45000000,
-    expense: 32000000,
-    balance: 13000000,
-    status: 'published',
-    createdAt: '2025-11-24',
-    updatedAt: '2025-11-25',
-    author: 'Admin Masjid'
-  };
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [summary, setSummary] = useState({ income: 0, expense: 0, balance: 0 });
 
-  const transactions = [
-    { id: 1, type: 'income', description: 'Infaq Jumat Minggu 1', category: 'Infaq', amount: 8500000, date: '2025-11-01' },
-    { id: 2, type: 'income', description: 'Infaq Jumat Minggu 2', category: 'Infaq', amount: 7200000, date: '2025-11-08' },
-    { id: 3, type: 'expense', description: 'Pembayaran Listrik PLN', category: 'Operasional', amount: 2500000, date: '2025-11-05' },
-    { id: 4, type: 'income', description: 'Zakat Bapak Ahmad', category: 'Zakat', amount: 5000000, date: '2025-11-10' },
-    { id: 5, type: 'expense', description: 'Pembayaran Air PDAM', category: 'Operasional', amount: 850000, date: '2025-11-10' },
-    { id: 6, type: 'income', description: 'Donasi Renovasi Toilet', category: 'Donasi', amount: 15000000, date: '2025-11-12' },
-    { id: 7, type: 'expense', description: 'Gaji Marbot (2 orang)', category: 'Gaji', amount: 4000000, date: '2025-11-15' },
-    { id: 8, type: 'income', description: 'Infaq Jumat Minggu 3', category: 'Infaq', amount: 9300000, date: '2025-11-15' },
-    { id: 9, type: 'expense', description: 'Pembelian Peralatan Kebersihan', category: 'Kebersihan', amount: 1500000, date: '2025-11-18' },
-    { id: 10, type: 'expense', description: 'Biaya Internet & Listrik Sound', category: 'Operasional', amount: 750000, date: '2025-11-20' },
-  ];
+  // Parse the ID (format: YYYY-MM)
+  const [year, month] = params.id.split('-').map(Number);
+  const periodDate = new Date(year, month - 1);
+  const periodLabel = periodDate.toLocaleString('id-ID', { month: 'long', year: 'numeric' });
+
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      setLoading(true);
+      try {
+        const res = await apiGet<PaginatedResponse>('/api/admin/transactions', {
+          month,
+          year,
+          limit: 100,
+        });
+
+        if (res.success && res.data) {
+          setTransactions(res.data.data);
+
+          // Calculate summary
+          let income = 0;
+          let expense = 0;
+          res.data.data.forEach((tx) => {
+            if (tx.type === 'INCOME') {
+              income += tx.amount;
+            } else {
+              expense += tx.amount;
+            }
+          });
+          setSummary({ income, expense, balance: income - expense });
+        }
+      } catch (error) {
+        console.error('Failed to fetch transactions:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (year && month) {
+      fetchTransactions();
+    }
+  }, [year, month]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="w-8 h-8 text-green-600 animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -55,14 +107,14 @@ export default function LaporanDetailPage({ params }: { params: { id: string } }
           </Link>
           <div>
             <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold text-gray-900">{laporan.title}</h1>
+              <h1 className="text-2xl font-bold text-gray-900">Laporan Keuangan {periodLabel}</h1>
               <span className="px-3 py-1 text-xs font-medium bg-green-100 text-green-700 rounded-full">
                 Published
               </span>
             </div>
             <p className="text-gray-500 mt-1 flex items-center gap-2">
               <Calendar className="w-4 h-4" />
-              {laporan.period}
+              {periodLabel}
             </p>
           </div>
         </div>
@@ -80,10 +132,6 @@ export default function LaporanDetailPage({ params }: { params: { id: string } }
             <Edit className="w-4 h-4" />
             Edit
           </Link>
-          <button className="flex items-center gap-2 px-4 py-2.5 bg-red-50 text-red-600 rounded-xl font-medium hover:bg-red-100 transition">
-            <Trash2 className="w-4 h-4" />
-            Hapus
-          </button>
         </div>
       </div>
 
@@ -96,8 +144,10 @@ export default function LaporanDetailPage({ params }: { params: { id: string } }
             </div>
             <span className="text-green-100 font-medium">Total Pemasukan</span>
           </div>
-          <p className="text-3xl font-bold">Rp {laporan.income.toLocaleString('id-ID')}</p>
-          <p className="text-green-100 text-sm mt-2">{transactions.filter(t => t.type === 'income').length} transaksi</p>
+          <p className="text-3xl font-bold">Rp {summary.income.toLocaleString('id-ID')}</p>
+          <p className="text-green-100 text-sm mt-2">
+            {transactions.filter(t => t.type === 'INCOME').length} transaksi
+          </p>
         </div>
 
         <div className="bg-gradient-to-br from-red-500 to-red-600 rounded-2xl p-6 text-white shadow-lg shadow-red-500/25">
@@ -107,8 +157,10 @@ export default function LaporanDetailPage({ params }: { params: { id: string } }
             </div>
             <span className="text-red-100 font-medium">Total Pengeluaran</span>
           </div>
-          <p className="text-3xl font-bold">Rp {laporan.expense.toLocaleString('id-ID')}</p>
-          <p className="text-red-100 text-sm mt-2">{transactions.filter(t => t.type === 'expense').length} transaksi</p>
+          <p className="text-3xl font-bold">Rp {summary.expense.toLocaleString('id-ID')}</p>
+          <p className="text-red-100 text-sm mt-2">
+            {transactions.filter(t => t.type === 'EXPENSE').length} transaksi
+          </p>
         </div>
 
         <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-6 text-white shadow-lg shadow-blue-500/25">
@@ -118,8 +170,10 @@ export default function LaporanDetailPage({ params }: { params: { id: string } }
             </div>
             <span className="text-blue-100 font-medium">Saldo Akhir</span>
           </div>
-          <p className="text-3xl font-bold">Rp {laporan.balance.toLocaleString('id-ID')}</p>
-          <p className="text-blue-100 text-sm mt-2">Surplus bulan ini</p>
+          <p className="text-3xl font-bold">Rp {summary.balance.toLocaleString('id-ID')}</p>
+          <p className="text-blue-100 text-sm mt-2">
+            {summary.balance >= 0 ? 'Surplus' : 'Defisit'} bulan ini
+          </p>
         </div>
       </div>
 
@@ -129,49 +183,66 @@ export default function LaporanDetailPage({ params }: { params: { id: string } }
           <div className="px-6 py-4 border-b border-gray-100">
             <h2 className="text-lg font-bold text-gray-900">Daftar Transaksi</h2>
           </div>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="bg-gray-50">
-                  <th className="text-left px-6 py-3 text-sm font-semibold text-gray-600">Deskripsi</th>
-                  <th className="text-left px-6 py-3 text-sm font-semibold text-gray-600">Kategori</th>
-                  <th className="text-left px-6 py-3 text-sm font-semibold text-gray-600">Tanggal</th>
-                  <th className="text-right px-6 py-3 text-sm font-semibold text-gray-600">Jumlah</th>
-                </tr>
-              </thead>
-              <tbody>
-                {transactions.map((tx) => (
-                  <tr key={tx.id} className="border-b border-gray-50 hover:bg-gray-50 transition">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className={`p-2 rounded-lg ${
-                          tx.type === 'income' ? 'bg-green-100' : 'bg-red-100'
-                        }`}>
-                          {tx.type === 'income' ? (
-                            <TrendingUp className="w-4 h-4 text-green-600" />
-                          ) : (
-                            <TrendingDown className="w-4 h-4 text-red-600" />
-                          )}
-                        </div>
-                        <span className="font-medium text-gray-900">{tx.description}</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded-lg">
-                        {tx.category}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-gray-600 text-sm">{tx.date}</td>
-                    <td className={`px-6 py-4 text-right font-bold ${
-                      tx.type === 'income' ? 'text-green-600' : 'text-red-600'
-                    }`}>
-                      {tx.type === 'income' ? '+' : '-'}Rp {tx.amount.toLocaleString('id-ID')}
-                    </td>
+          {transactions.length === 0 ? (
+            <div className="text-center py-12">
+              <FileText className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+              <p className="text-gray-500">Belum ada transaksi untuk periode ini</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="bg-gray-50">
+                    <th className="text-left px-6 py-3 text-sm font-semibold text-gray-600">Deskripsi</th>
+                    <th className="text-left px-6 py-3 text-sm font-semibold text-gray-600">Kategori</th>
+                    <th className="text-left px-6 py-3 text-sm font-semibold text-gray-600">Tanggal</th>
+                    <th className="text-right px-6 py-3 text-sm font-semibold text-gray-600">Jumlah</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {transactions.map((tx) => (
+                    <tr key={tx.id} className="border-b border-gray-50 hover:bg-gray-50 transition">
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-3">
+                          <div className={`p-2 rounded-lg ${
+                            tx.type === 'INCOME' ? 'bg-green-100' : 'bg-red-100'
+                          }`}>
+                            {tx.type === 'INCOME' ? (
+                              <TrendingUp className="w-4 h-4 text-green-600" />
+                            ) : (
+                              <TrendingDown className="w-4 h-4 text-red-600" />
+                            )}
+                          </div>
+                          <div>
+                            <span className="font-medium text-gray-900">{tx.description}</span>
+                            {tx.donor && (
+                              <p className="text-xs text-gray-500">Dari: {tx.donor}</p>
+                            )}
+                            {tx.recipient && (
+                              <p className="text-xs text-gray-500">Kepada: {tx.recipient}</p>
+                            )}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="px-2 py-1 text-xs font-medium bg-gray-100 text-gray-700 rounded-lg">
+                          {tx.category.name}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-gray-600 text-sm">
+                        {new Date(tx.date).toLocaleDateString('id-ID')}
+                      </td>
+                      <td className={`px-6 py-4 text-right font-bold ${
+                        tx.type === 'INCOME' ? 'text-green-600' : 'text-red-600'
+                      }`}>
+                        {tx.type === 'INCOME' ? '+' : '-'}Rp {tx.amount.toLocaleString('id-ID')}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
 
         {/* Info Sidebar */}
@@ -179,7 +250,10 @@ export default function LaporanDetailPage({ params }: { params: { id: string } }
           {/* Description */}
           <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
             <h3 className="text-lg font-bold text-gray-900 mb-3">Deskripsi</h3>
-            <p className="text-gray-600 text-sm leading-relaxed">{laporan.description}</p>
+            <p className="text-gray-600 text-sm leading-relaxed">
+              Laporan keuangan bulanan Masjid Syamsul &apos;Ulum untuk periode {periodLabel}. 
+              Mencakup semua pemasukan dari infaq, zakat, dan donasi serta pengeluaran operasional masjid.
+            </p>
           </div>
 
           {/* Meta Info */}
@@ -191,8 +265,8 @@ export default function LaporanDetailPage({ params }: { params: { id: string } }
                   <FileText className="w-4 h-4 text-gray-600" />
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Dibuat oleh</p>
-                  <p className="text-sm font-medium text-gray-900">{laporan.author}</p>
+                  <p className="text-xs text-gray-500">Periode</p>
+                  <p className="text-sm font-medium text-gray-900">{periodLabel}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
@@ -200,17 +274,8 @@ export default function LaporanDetailPage({ params }: { params: { id: string } }
                   <Calendar className="w-4 h-4 text-gray-600" />
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Tanggal Dibuat</p>
-                  <p className="text-sm font-medium text-gray-900">{laporan.createdAt}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-gray-100 rounded-lg">
-                  <Clock className="w-4 h-4 text-gray-600" />
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500">Terakhir Diupdate</p>
-                  <p className="text-sm font-medium text-gray-900">{laporan.updatedAt}</p>
+                  <p className="text-xs text-gray-500">Total Transaksi</p>
+                  <p className="text-sm font-medium text-gray-900">{transactions.length} transaksi</p>
                 </div>
               </div>
             </div>
