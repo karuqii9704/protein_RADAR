@@ -4,6 +4,8 @@ import { successResponse, errorResponse } from '@/utils/api-response';
 import { withAuth, isAuthError } from '@/middleware/auth';
 import { Role, TransactionType } from '@prisma/client';
 
+export const dynamic = 'force-dynamic';
+
 // GET /api/admin/transactions/[id] - Get transaction detail
 export async function GET(
   request: NextRequest,

@@ -4,6 +4,8 @@ import { successResponse, errorResponse } from '@/utils/api-response';
 import { withAuth, isAuthError } from '@/middleware/auth';
 import { Role } from '@prisma/client';
 
+export const dynamic = 'force-dynamic';
+
 // GET /api/admin/programs/[id] - Get program detail
 export async function GET(
   request: NextRequest,

@@ -4,6 +4,8 @@ import { successResponse, errorResponse, paginatedResponse, getPaginationParams 
 import { withAuth, isAuthError } from '@/middleware/auth';
 import { Role } from '@prisma/client';
 
+export const dynamic = 'force-dynamic';
+
 // Helper to generate slug
 function generateSlug(title: string): string {
   return title

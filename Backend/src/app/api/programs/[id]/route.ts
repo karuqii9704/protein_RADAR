@@ -2,6 +2,8 @@ import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { successResponse, errorResponse } from '@/utils/api-response';
 
+export const dynamic = 'force-dynamic';
+
 // GET /api/programs/[id] - Get program detail
 export async function GET(
   request: NextRequest,

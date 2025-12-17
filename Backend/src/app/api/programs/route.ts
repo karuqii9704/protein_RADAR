@@ -2,6 +2,8 @@ import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { successResponse, errorResponse, paginatedResponse, getPaginationParams } from '@/utils/api-response';
 
+export const dynamic = 'force-dynamic';
+
 // GET /api/programs - Get active donation programs
 export async function GET(request: NextRequest) {
   try {

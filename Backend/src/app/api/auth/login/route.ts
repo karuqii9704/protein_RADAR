@@ -4,6 +4,8 @@ import { prisma } from '@/lib/prisma';
 import { successResponse, errorResponse, ErrorMessages } from '@/utils/api-response';
 import { generateToken } from '@/middleware/auth';
 
+export const dynamic = 'force-dynamic';
+
 // OPTIONS handler for CORS preflight
 export async function OPTIONS() {
   return new NextResponse(null, {

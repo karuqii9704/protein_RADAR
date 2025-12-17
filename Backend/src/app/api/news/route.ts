@@ -3,6 +3,8 @@ import { prisma } from '@/lib/prisma';
 import { successResponse, errorResponse, paginatedResponse, getPaginationParams } from '@/utils/api-response';
 import { NewsCategory } from '@prisma/client';
 
+export const dynamic = 'force-dynamic';
+
 // GET /api/news - Get published news
 export async function GET(request: NextRequest) {
   try {

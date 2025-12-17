@@ -2,6 +2,8 @@ import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { successResponse, errorResponse } from '@/utils/api-response';
 
+export const dynamic = 'force-dynamic';
+
 // GET /api/news/[slug] - Get news detail by slug
 export async function GET(
   request: NextRequest,

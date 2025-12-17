@@ -4,6 +4,8 @@ import { successResponse, errorResponse, paginatedResponse, getPaginationParams 
 import { withAuth, isAuthError } from '@/middleware/auth';
 import { TransactionType, Role } from '@prisma/client';
 
+export const dynamic = 'force-dynamic';
+
 // GET /api/admin/transactions - Get all transactions with filters
 export async function GET(request: NextRequest) {
   try {

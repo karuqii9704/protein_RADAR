@@ -3,6 +3,8 @@ import { prisma } from '@/lib/prisma';
 import { successResponse, errorResponse } from '@/utils/api-response';
 import { withAuth, isAuthError } from '@/middleware/auth';
 
+export const dynamic = 'force-dynamic';
+
 // GET /api/auth/me - Get current authenticated user
 export async function GET(request: NextRequest) {
   try {
