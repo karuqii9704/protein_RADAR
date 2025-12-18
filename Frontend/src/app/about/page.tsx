@@ -11,17 +11,19 @@ import {
 } from 'lucide-react';
 
 export default function AboutPage() {
+  // TODO: Ganti dengan data pengurus DKM yang sebenarnya
   const teamMembers = [
-    { name: 'Dr. H. Ahmad Fauzi, M.A.', role: 'Ketua DKM', image: null },
-    { name: 'Ustadz Ridwan Kamil', role: 'Imam Besar', image: null },
-    { name: 'Ir. Budi Santoso, M.T.', role: 'Bendahara', image: null },
-    { name: 'Hj. Siti Fatimah, S.Pd.', role: 'Sekretaris', image: null },
+    { name: 'Ketua DKM', role: 'Ketua DKM', image: null },
+    { name: 'Imam Masjid', role: 'Imam Besar', image: null },
+    { name: 'Bendahara', role: 'Bendahara', image: null },
+    { name: 'Sekretaris', role: 'Sekretaris', image: null },
   ];
 
+  // TODO: Ganti dengan statistik yang sebenarnya
   const stats = [
-    { value: '15+', label: 'Tahun Berdiri', icon: Building2 },
-    { value: '5000+', label: 'Jamaah Aktif', icon: Users },
-    { value: '50+', label: 'Program Terlaksana', icon: Award },
+    { value: '10+', label: 'Tahun Berdiri', icon: Building2 },
+    { value: '1000+', label: 'Jamaah Aktif', icon: Users },
+    { value: '20+', label: 'Program Terlaksana', icon: Award },
     { value: '100%', label: 'Transparansi', icon: Target },
   ];
 

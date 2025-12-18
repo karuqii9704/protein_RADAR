@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { apiGet } from '@/lib/api';
 import type { ReportStats, Transaction } from '@/types';
+import * as XLSX from 'xlsx';
 
 interface MonthlyReport {
   id: string;
@@ -238,7 +239,36 @@ export default function LaporanPublicPage() {
                         {formatCurrency(report.balance)}
                       </p>
                     </div>
-                    <button className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition">
+                    <button 
+                      onClick={() => {
+                        // Create Excel workbook
+                        const wb = XLSX.utils.book_new();
+                        
+                        // Data for the sheet
+                        const data = [
+                          ['Laporan Keuangan Masjid Syamsul Ulum'],
+                          [`Periode: ${report.period}`],
+                          [],
+                          ['Jenis', 'Jumlah (Rp)'],
+                          ['Pemasukan', report.income],
+                          ['Pengeluaran', report.expense],
+                          ['Saldo', report.balance],
+                        ];
+                        
+                        // Create worksheet and add to workbook
+                        const ws = XLSX.utils.aoa_to_sheet(data);
+                        
+                        // Set column widths
+                        ws['!cols'] = [{ wch: 20 }, { wch: 20 }];
+                        
+                        XLSX.utils.book_append_sheet(wb, ws, 'Laporan');
+                        
+                        // Download file
+                        XLSX.writeFile(wb, `laporan-${report.year}-${String(report.month).padStart(2, '0')}.xlsx`);
+                      }}
+                      className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition"
+                      title="Download Laporan Excel"
+                    >
                       <Download className="w-5 h-5" />
                     </button>
                   </div>
