@@ -1,23 +1,85 @@
 'use client';
 
 import { Bell, Search, User, Menu } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { apiGet } from '@/lib/api';
+import { logout } from '@/lib/auth';
+import { useRouter } from 'next/navigation';
 
 interface AdminHeaderProps {
   onMenuClick?: () => void;
 }
 
+interface Notification {
+  id: string;
+  title: string;
+  time: string;
+  unread: boolean;
+}
+
+interface RecentActivity {
+  id: string;
+  type: string;
+  title: string;
+  createdAt: string;
+}
+
 export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
+  const router = useRouter();
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const notifications = [
-    { id: 1, title: 'Laporan baru ditambahkan', time: '5 menit lalu', unread: true },
-    { id: 2, title: 'Berita berhasil dipublikasi', time: '1 jam lalu', unread: true },
-    { id: 3, title: 'Artikel draft tersimpan', time: '2 jam lalu', unread: false },
-  ];
+  // Fetch notifications dynamically
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        // Fetch recent activities from admin dashboard API
+        const res = await apiGet<{ recentActivities: RecentActivity[] }>('/api/admin/dashboard/stats');
+        if (res.success && res.data?.recentActivities) {
+          const mapped = res.data.recentActivities.slice(0, 5).map((activity, index) => ({
+            id: activity.id || String(index),
+            title: activity.title,
+            time: formatTimeAgo(activity.createdAt),
+            unread: index < 2, // First 2 are unread
+          }));
+          setNotifications(mapped);
+        }
+      } catch (error) {
+        console.error('Failed to fetch notifications:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchNotifications();
+  }, []);
+
+  // Format time ago
+  const formatTimeAgo = (dateStr: string) => {
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffMins < 60) return `${diffMins} menit lalu`;
+    if (diffHours < 24) return `${diffHours} jam lalu`;
+    return `${diffDays} hari lalu`;
+  };
 
   const unreadCount = notifications.filter(n => n.unread).length;
+
+  const handleMarkAllRead = () => {
+    setNotifications(prev => prev.map(n => ({ ...n, unread: false })));
+  };
+
+  const handleLogout = async () => {
+    logout();
+    router.push('/admin/login');
+  };
 
   return (
     <header className="bg-white border-b border-gray-200 px-6 py-4 sticky top-0 z-40">
@@ -65,33 +127,47 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
             {/* Notifications Dropdown */}
             {showNotifications && (
               <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden z-50">
-                <div className="p-4 border-b border-gray-100">
+                <div className="p-4 border-b border-gray-100 flex items-center justify-between">
                   <h3 className="font-semibold text-gray-900">Notifikasi</h3>
+                  {unreadCount > 0 && (
+                    <button 
+                      onClick={handleMarkAllRead}
+                      className="text-xs text-green-600 hover:text-green-700"
+                    >
+                      Tandai dibaca
+                    </button>
+                  )}
                 </div>
                 <div className="max-h-64 overflow-y-auto">
-                  {notifications.map((notif) => (
-                    <div
-                      key={notif.id}
-                      className={`p-4 border-b border-gray-50 hover:bg-gray-50 cursor-pointer transition ${
-                        notif.unread ? 'bg-green-50/50' : ''
-                      }`}
-                    >
-                      <div className="flex items-start gap-3">
-                        {notif.unread && (
-                          <span className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></span>
-                        )}
-                        <div className={notif.unread ? '' : 'ml-5'}>
-                          <p className="text-sm text-gray-900 font-medium">{notif.title}</p>
-                          <p className="text-xs text-gray-500 mt-1">{notif.time}</p>
+                  {loading ? (
+                    <div className="p-4 text-center text-gray-500 text-sm">Memuat...</div>
+                  ) : notifications.length === 0 ? (
+                    <div className="p-4 text-center text-gray-500 text-sm">Tidak ada notifikasi</div>
+                  ) : (
+                    notifications.map((notif) => (
+                      <div
+                        key={notif.id}
+                        className={`p-4 border-b border-gray-50 hover:bg-gray-50 cursor-pointer transition ${
+                          notif.unread ? 'bg-green-50/50' : ''
+                        }`}
+                        onClick={() => {
+                          setNotifications(prev => 
+                            prev.map(n => n.id === notif.id ? { ...n, unread: false } : n)
+                          );
+                        }}
+                      >
+                        <div className="flex items-start gap-3">
+                          {notif.unread && (
+                            <span className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></span>
+                          )}
+                          <div className={notif.unread ? '' : 'ml-5'}>
+                            <p className="text-sm text-gray-900 font-medium">{notif.title}</p>
+                            <p className="text-xs text-gray-500 mt-1">{notif.time}</p>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
-                <div className="p-3 border-t border-gray-100">
-                  <button className="w-full text-center text-sm text-green-600 font-medium hover:text-green-700">
-                    Lihat Semua Notifikasi
-                  </button>
+                    ))
+                  )}
                 </div>
               </div>
             )}
@@ -132,7 +208,10 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
                   <button className="w-full px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-50 transition">
                     Pengaturan
                   </button>
-                  <button className="w-full px-4 py-2.5 text-left text-sm text-red-600 hover:bg-red-50 transition">
+                  <button 
+                    onClick={handleLogout}
+                    className="w-full px-4 py-2.5 text-left text-sm text-red-600 hover:bg-red-50 transition"
+                  >
                     Logout
                   </button>
                 </div>

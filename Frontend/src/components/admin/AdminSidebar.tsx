@@ -10,11 +10,13 @@ import {
   HandHeart,
   Settings,
   LogOut,
-  ChevronLeft,
-  ChevronRight,
   Home,
+  X,
 } from "lucide-react";
-import { useState } from "react";
+
+interface AdminSidebarProps {
+  onClose?: () => void;
+}
 
 const menuItems = [
   {
@@ -50,9 +52,8 @@ const menuItems = [
   },
 ];
 
-export default function AdminSidebar() {
+export default function AdminSidebar({ onClose }: AdminSidebarProps) {
   const pathname = usePathname();
-  const [collapsed, setCollapsed] = useState(false);
 
   const isActive = (href: string, exact?: boolean) => {
     if (exact) {
@@ -62,26 +63,29 @@ export default function AdminSidebar() {
   };
 
   return (
-    <aside
-      className={`${
-        collapsed ? "w-20" : "w-64"
-      } bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 min-h-screen flex flex-col transition-all duration-300 shadow-2xl`}
-    >
+    <aside className="w-64 bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 min-h-screen flex flex-col shadow-2xl">
       {/* Logo Section */}
-      <div className="p-6 border-b border-slate-700/50">
+      <div className="p-6 border-b border-slate-700/50 flex items-center justify-between">
         <Link href="/admin" className="flex items-center gap-3">
           <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg">
             <span className="text-white font-bold text-lg">M</span>
           </div>
-          {!collapsed && (
-            <div className="overflow-hidden">
-              <h1 className="text-white font-bold text-lg leading-tight">
-                Admin Panel
-              </h1>
-              <p className="text-slate-400 text-xs">Masjid Syamsul 'Ulum</p>
-            </div>
-          )}
+          <div className="overflow-hidden">
+            <h1 className="text-white font-bold text-lg leading-tight">
+              Admin Panel
+            </h1>
+            <p className="text-slate-400 text-xs">Masjid Syamsul 'Ulum</p>
+          </div>
         </Link>
+        {/* Close button for mobile */}
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="lg:hidden p-2 text-slate-400 hover:text-white hover:bg-slate-700/50 rounded-lg transition"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        )}
       </div>
 
       {/* Navigation */}
@@ -99,14 +103,13 @@ export default function AdminSidebar() {
                   ? "bg-gradient-to-r from-green-600 to-green-500 text-white shadow-lg shadow-green-500/25"
                   : "text-slate-400 hover:bg-slate-700/50 hover:text-white"
               }`}
-              title={collapsed ? item.label : undefined}
             >
               <Icon
                 className={`w-5 h-5 flex-shrink-0 ${
                   active ? "text-white" : "group-hover:text-green-400"
                 }`}
               />
-              {!collapsed && <span className="font-medium">{item.label}</span>}
+              <span className="font-medium">{item.label}</span>
             </Link>
           );
         })}
@@ -118,36 +121,17 @@ export default function AdminSidebar() {
         <Link
           href="/"
           className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-slate-700/50 hover:text-white transition-all"
-          title={collapsed ? "Kembali ke Website" : undefined}
         >
           <Home className="w-5 h-5 flex-shrink-0" />
-          {!collapsed && (
-            <span className="font-medium">Kembali ke Website</span>
-          )}
+          <span className="font-medium">Kembali ke Website</span>
         </Link>
 
         {/* Logout */}
         <button
           className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-red-500/10 hover:text-red-400 transition-all"
-          title={collapsed ? "Logout" : undefined}
         >
           <LogOut className="w-5 h-5 flex-shrink-0" />
-          {!collapsed && <span className="font-medium">Logout</span>}
-        </button>
-
-        {/* Collapse Toggle */}
-        <button
-          onClick={() => setCollapsed(!collapsed)}
-          className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-slate-500 hover:bg-slate-700/50 hover:text-white transition-all"
-        >
-          {collapsed ? (
-            <ChevronRight className="w-5 h-5" />
-          ) : (
-            <>
-              <ChevronLeft className="w-5 h-5" />
-              <span className="text-sm">Collapse</span>
-            </>
-          )}
+          <span className="font-medium">Logout</span>
         </button>
       </div>
     </aside>

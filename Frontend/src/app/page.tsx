@@ -229,9 +229,12 @@ export default function HomePage() {
                         <Calendar className="w-4 h-4 inline mr-1" />
                         {program.daysLeft ?? 0} hari lagi
                       </span>
-                      <button className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-lg transition">
+                      <Link 
+                        href={`/programs/${program.slug}`}
+                        className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-lg transition"
+                      >
                         Donasi
-                      </button>
+                      </Link>
                     </div>
                   </div>
                 </div>
