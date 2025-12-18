@@ -264,33 +264,60 @@ export default function LaporanPublicPage() {
           </div>
         </div>
 
-        {/* Pie Charts Section */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          {/* Income Pie Chart */}
-          <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Pemasukan per Kategori</h2>
-            <CategoryPieChart 
-              data={stats?.incomeByCategory || []} 
-              loading={loading} 
-              type="income"
-            />
-          </div>
-
-          {/* Expense Pie Chart */}
-          <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Pengeluaran per Kategori</h2>
-            <CategoryPieChart 
-              data={stats?.expenseByCategory || []} 
-              loading={loading} 
-              type="expense"
-            />
-          </div>
-        </div>
-
-        {/* Monthly Comparison Chart */}
+        {/* Monthly Comparison Bar Chart - First */}
         <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 mb-8">
           <h2 className="text-xl font-bold text-gray-900 mb-6">Perbandingan 6 Bulan Terakhir</h2>
           <MonthlyComparisonChart month={selectedMonth} year={selectedYear} />
+        </div>
+
+        {/* Pie Charts Section with Month Filter */}
+        <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 mb-8">
+          <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+            <h2 className="text-xl font-bold text-gray-900">Kategori Pemasukan & Pengeluaran</h2>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-gray-600">Periode:</span>
+              <select
+                value={selectedMonth}
+                onChange={(e) => setSelectedMonth(Number(e.target.value))}
+                className="px-3 py-1.5 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+              >
+                {months.map((m) => (
+                  <option key={m.value} value={m.value}>{m.label}</option>
+                ))}
+              </select>
+              <select
+                value={selectedYear}
+                onChange={(e) => setSelectedYear(Number(e.target.value))}
+                className="px-3 py-1.5 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+              >
+                {years.map((y) => (
+                  <option key={y} value={y}>{y}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Income Pie Chart */}
+            <div className="border border-gray-100 rounded-xl p-4">
+              <h3 className="text-lg font-semibold text-gray-800 mb-3 text-center">Pemasukan</h3>
+              <CategoryPieChart 
+                data={stats?.incomeByCategory || []} 
+                loading={loading} 
+                type="income"
+              />
+            </div>
+
+            {/* Expense Pie Chart */}
+            <div className="border border-gray-100 rounded-xl p-4">
+              <h3 className="text-lg font-semibold text-gray-800 mb-3 text-center">Pengeluaran</h3>
+              <CategoryPieChart 
+                data={stats?.expenseByCategory || []} 
+                loading={loading} 
+                type="expense"
+              />
+            </div>
+          </div>
         </div>
 
         {/* Monthly Reports List */}
