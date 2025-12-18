@@ -12,6 +12,7 @@ import {
   LogOut,
   Home,
   X,
+  Users,
 } from "lucide-react";
 
 interface AdminSidebarProps {
@@ -44,6 +45,11 @@ const menuItems = [
     href: "/admin/program",
     label: "Program",
     icon: HandHeart,
+  },
+  {
+    href: "/admin/users",
+    label: "Kelola Admin",
+    icon: Users,
   },
   {
     href: "/admin/settings",
