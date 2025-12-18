@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { apiGet } from '@/lib/api';
+import type { News } from '@/types';
 
 interface Slide {
   id: string;
@@ -16,7 +17,7 @@ interface Slide {
   order: number;
 }
 
-// Default slides when no data from API
+// Default slide when no data from API
 const defaultSlides: Slide[] = [
   {
     id: 'default-1',
@@ -38,9 +39,29 @@ export default function HeroCarousel() {
   useEffect(() => {
     const fetchSlides = async () => {
       try {
-        const res = await apiGet<Slide[]>('/api/slides');
-        if (res.success && res.data && res.data.length > 0) {
-          setSlides(res.data);
+        // First try to fetch slides from slides API
+        const slidesRes = await apiGet<Slide[]>('/api/slides');
+        if (slidesRes.success && slidesRes.data && slidesRes.data.length > 0) {
+          setSlides(slidesRes.data);
+          setLoading(false);
+          return;
+        }
+
+        // Fallback: Fetch latest published news/articles and convert to slides
+        const newsRes = await apiGet<News[]>('/api/news', { limit: 5 });
+        if (newsRes.success && newsRes.data && newsRes.data.length > 0) {
+          const newsSlides: Slide[] = newsRes.data.map((item, index) => ({
+            id: item.id,
+            title: item.title,
+            description: item.excerpt || null,
+            image: item.image || null,
+            linkType: 'news',
+            linkId: item.slug,
+            linkUrl: null,
+            order: index,
+          }));
+          // Add default slide at the beginning
+          setSlides([defaultSlides[0], ...newsSlides]);
         }
       } catch (error) {
         console.error('Failed to fetch slides:', error);
@@ -118,9 +139,19 @@ export default function HeroCarousel() {
           
           {/* Content */}
           <div className="absolute bottom-0 left-0 right-0 p-8 text-white">
+            {link && (
+              <span className="inline-block px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-sm mb-3">
+                {slide.linkType === 'news' ? 'Berita Terbaru' : slide.linkType === 'artikel' ? 'Artikel' : 'Highlight'}
+              </span>
+            )}
             <h2 className="text-4xl font-bold mb-3">{slide.title}</h2>
             {slide.description && (
-              <p className="text-xl text-white/90">{slide.description}</p>
+              <p className="text-xl text-white/90 line-clamp-2">{slide.description}</p>
+            )}
+            {link && (
+              <span className="inline-flex items-center gap-2 mt-4 text-white/80 hover:text-white">
+                Baca selengkapnya →
+              </span>
             )}
           </div>
         </div>
