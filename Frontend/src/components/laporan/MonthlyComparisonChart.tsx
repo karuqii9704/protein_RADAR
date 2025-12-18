@@ -23,10 +23,16 @@ export default function MonthlyComparisonChart({ month, year }: MonthlyCompariso
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Try to fetch from reports API
-        const res = await apiGet<{ monthlyData: MonthlyData[] }>('/api/reports/stats', { month, year });
-        if (res.success && res.data?.monthlyData && res.data.monthlyData.length > 0) {
-          setData(res.data.monthlyData);
+        // Fetch from reports API
+        const res = await apiGet<{ monthlyComparison: Array<{ month: string; income: number; expense: number }> }>('/api/reports/stats', { month, year });
+        if (res.success && res.data?.monthlyComparison && res.data.monthlyComparison.length > 0) {
+          // Map API response to chart data format
+          const chartData = res.data.monthlyComparison.map(item => ({
+            month: item.month,
+            pemasukan: item.income,
+            pengeluaran: item.expense,
+          }));
+          setData(chartData);
         }
       } catch (error) {
         console.error('Failed to fetch monthly data:', error);

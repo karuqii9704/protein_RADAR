@@ -13,6 +13,13 @@ import {
 import { apiGet } from '@/lib/api';
 import type { ReportStats, Transaction } from '@/types';
 import * as XLSX from 'xlsx';
+import dynamic from 'next/dynamic';
+
+// Dynamic import for chart to avoid SSR issues
+const MonthlyComparisonChart = dynamic(
+  () => import('@/components/laporan/MonthlyComparisonChart'),
+  { ssr: false, loading: () => <div className="h-[300px] animate-pulse bg-gray-100 rounded-xl" /> }
+);
 
 interface MonthlyReport {
   id: string;
@@ -111,6 +118,12 @@ export default function LaporanPublicPage() {
             </div>
             <p className="text-sm text-gray-500">Tersedia</p>
           </div>
+        </div>
+
+        {/* Charts Section */}
+        <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 mb-12">
+          <h2 className="text-xl font-bold text-gray-900 mb-6">Perbandingan 6 Bulan Terakhir</h2>
+          <MonthlyComparisonChart month={new Date().getMonth() + 1} year={new Date().getFullYear()} />
         </div>
 
         {/* Category Breakdown */}
@@ -240,26 +253,51 @@ export default function LaporanPublicPage() {
                       </p>
                     </div>
                     <button 
-                      onClick={() => {
+                      onClick={async () => {
                         // Create Excel workbook
                         const wb = XLSX.utils.book_new();
                         
-                        // Data for the sheet
-                        const data = [
+                        // Fetch detailed stats for this month
+                        let incomeDetails: Array<{name: string; amount: number}> = [];
+                        let expenseDetails: Array<{name: string; amount: number}> = [];
+                        try {
+                          const detailRes = await apiGet<ReportStats>('/api/reports/stats', { 
+                            month: report.month, 
+                            year: report.year 
+                          });
+                          if (detailRes.success && detailRes.data) {
+                            incomeDetails = detailRes.data.incomeByCategory || [];
+                            expenseDetails = detailRes.data.expenseByCategory || [];
+                          }
+                        } catch (e) {
+                          console.error('Failed to fetch details:', e);
+                        }
+                        
+                        // Summary sheet data
+                        const summaryData = [
                           ['Laporan Keuangan Masjid Syamsul Ulum'],
                           [`Periode: ${report.period}`],
                           [],
+                          ['RINGKASAN'],
                           ['Jenis', 'Jumlah (Rp)'],
-                          ['Pemasukan', report.income],
-                          ['Pengeluaran', report.expense],
+                          ['Total Pemasukan', report.income],
+                          ['Total Pengeluaran', report.expense],
                           ['Saldo', report.balance],
+                          [],
+                          ['PEMASUKAN PER KATEGORI'],
+                          ['Kategori', 'Jumlah (Rp)'],
+                          ...incomeDetails.map(c => [c.name, c.amount]),
+                          [],
+                          ['PENGELUARAN PER KATEGORI'],
+                          ['Kategori', 'Jumlah (Rp)'],
+                          ...expenseDetails.map(c => [c.name, c.amount]),
                         ];
                         
                         // Create worksheet and add to workbook
-                        const ws = XLSX.utils.aoa_to_sheet(data);
+                        const ws = XLSX.utils.aoa_to_sheet(summaryData);
                         
                         // Set column widths
-                        ws['!cols'] = [{ wch: 20 }, { wch: 20 }];
+                        ws['!cols'] = [{ wch: 30 }, { wch: 20 }];
                         
                         XLSX.utils.book_append_sheet(wb, ws, 'Laporan');
                         
