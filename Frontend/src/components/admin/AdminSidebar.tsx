@@ -15,12 +15,23 @@ import {
   Users,
   Image,
 } from "lucide-react";
+import { getCurrentUser } from "@/lib/auth";
 
 interface AdminSidebarProps {
   onClose?: () => void;
 }
 
-const menuItems = [
+type UserRole = 'SUPER_ADMIN' | 'ADMIN' | 'VIEWER';
+
+interface MenuItem {
+  href: string;
+  label: string;
+  icon: typeof LayoutDashboard;
+  exact?: boolean;
+  allowedRoles?: UserRole[];
+}
+
+const menuItems: MenuItem[] = [
   {
     href: "/admin",
     label: "Dashboard",
@@ -31,6 +42,7 @@ const menuItems = [
     href: "/admin/laporan",
     label: "Laporan Keuangan",
     icon: FileText,
+    allowedRoles: ['SUPER_ADMIN'], // Only SUPER_ADMIN can access
   },
   {
     href: "/admin/berita",
@@ -56,6 +68,7 @@ const menuItems = [
     href: "/admin/users",
     label: "Kelola Admin",
     icon: Users,
+    allowedRoles: ['SUPER_ADMIN'], // Only SUPER_ADMIN can access
   },
   {
     href: "/admin/settings",
@@ -66,6 +79,8 @@ const menuItems = [
 
 export default function AdminSidebar({ onClose }: AdminSidebarProps) {
   const pathname = usePathname();
+  const currentUser = getCurrentUser();
+  const userRole = currentUser?.role as UserRole | undefined;
 
   const isActive = (href: string, exact?: boolean) => {
     if (exact) {
@@ -73,6 +88,16 @@ export default function AdminSidebar({ onClose }: AdminSidebarProps) {
     }
     return pathname.startsWith(href);
   };
+
+  // Filter menu items based on user role
+  const filteredMenuItems = menuItems.filter((item) => {
+    // If no allowedRoles specified, show to everyone
+    if (!item.allowedRoles) return true;
+    // If user has no role, don't show restricted items
+    if (!userRole) return false;
+    // Check if user role is in allowedRoles
+    return item.allowedRoles.includes(userRole);
+  });
 
   return (
     <aside className="w-64 bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 min-h-screen flex flex-col shadow-2xl">
@@ -102,7 +127,7 @@ export default function AdminSidebar({ onClose }: AdminSidebarProps) {
 
       {/* Navigation */}
       <nav className="flex-1 p-4 space-y-2">
-        {menuItems.map((item) => {
+        {filteredMenuItems.map((item) => {
           const Icon = item.icon;
           const active = isActive(item.href, item.exact);
 
