@@ -185,13 +185,6 @@ export default function NewsDetailPage() {
               </div>
             </div>
 
-            {/* Excerpt */}
-            {news.excerpt && (
-              <p className="text-xl text-gray-600 font-medium mt-8 mb-6 leading-relaxed">
-                {news.excerpt}
-              </p>
-            )}
-
             {/* Article Content */}
             <div 
               className="prose prose-lg max-w-none mt-8 prose-headings:text-gray-900 prose-p:text-gray-600 prose-a:text-green-600 prose-strong:text-gray-900"
