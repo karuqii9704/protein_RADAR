@@ -125,7 +125,7 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return successResponse(user, 'User berhasil dibuat', 201);
+    return successResponse(user, 'User berhasil dibuat');
   } catch (error) {
     console.error('Admin user create error:', error);
     return errorResponse('Failed to create user', 500);
