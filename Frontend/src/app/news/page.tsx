@@ -8,6 +8,7 @@ import {
   Calendar,
   Eye
 } from 'lucide-react';
+import Image from 'next/image';
 import { apiGet } from '@/lib/api';
 import type { News } from '@/types';
 
@@ -90,8 +91,18 @@ export default function NewsPage() {
                 className="group bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-2xl transition-all transform hover:-translate-y-2"
               >
                 {/* Image */}
-                <div className="h-48 bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center overflow-hidden">
-                  <Newspaper className="w-16 h-16 text-gray-400 group-hover:scale-110 transition-transform" />
+                <div className="relative h-48 bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center overflow-hidden">
+                  {item.image ? (
+                    <Image 
+                      src={item.image} 
+                      alt={item.title} 
+                      fill 
+                      className="object-cover group-hover:scale-110 transition-transform"
+                      unoptimized={item.image.startsWith('data:') || item.image.startsWith('http')}
+                    />
+                  ) : (
+                    <Newspaper className="w-16 h-16 text-gray-400 group-hover:scale-110 transition-transform" />
+                  )}
                 </div>
 
                 {/* Content */}

@@ -11,6 +11,7 @@ import {
   Newspaper,
   ChevronRight
 } from 'lucide-react';
+import Image from 'next/image';
 import HeroCarousel from '@/components/dashboard/HeroCarousel';
 import CategoryButtons from '@/components/dashboard/CategoryButtons';
 import { apiGet } from '@/lib/api';
@@ -358,8 +359,18 @@ export default function HomePage() {
                   href={`/news/${item.slug}`}
                   className="group bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-2xl transition-all transform hover:-translate-y-2"
                 >
-                  <div className="h-48 bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center overflow-hidden">
-                    <Newspaper className="w-20 h-20 text-gray-400 group-hover:scale-110 transition-transform" />
+                  <div className="relative h-48 bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center overflow-hidden">
+                    {item.image ? (
+                      <Image 
+                        src={item.image} 
+                        alt={item.title} 
+                        fill 
+                        className="object-cover group-hover:scale-110 transition-transform"
+                        unoptimized={item.image.startsWith('data:') || item.image.startsWith('http')} 
+                      />
+                    ) : (
+                      <Newspaper className="w-20 h-20 text-gray-400 group-hover:scale-110 transition-transform" />
+                    )}
                   </div>
                   <div className="p-6">
                     <div className="flex items-center gap-2 mb-3">
