@@ -1,24 +1,31 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
 import { 
   Download, 
   TrendingUp, 
   TrendingDown,
-  ChevronRight,
   FileText,
-  Calendar
+  Calendar,
+  ChevronLeft,
+  ChevronRight,
+  Filter,
+  ArrowUpDown
 } from 'lucide-react';
 import { apiGet } from '@/lib/api';
-import type { ReportStats, Transaction } from '@/types';
+import type { ReportStats } from '@/types';
 import * as XLSX from 'xlsx';
 import dynamic from 'next/dynamic';
 
-// Dynamic import for chart to avoid SSR issues
+// Dynamic imports for charts to avoid SSR issues
 const MonthlyComparisonChart = dynamic(
   () => import('@/components/laporan/MonthlyComparisonChart'),
   { ssr: false, loading: () => <div className="h-[300px] animate-pulse bg-gray-100 rounded-xl" /> }
+);
+
+const CategoryPieChart = dynamic(
+  () => import('@/components/laporan/CategoryPieChart'),
+  { ssr: false, loading: () => <div className="h-[250px] animate-pulse bg-gray-100 rounded-xl" /> }
 );
 
 interface MonthlyReport {
@@ -36,12 +43,38 @@ export default function LaporanPublicPage() {
   const [stats, setStats] = useState<ReportStats | null>(null);
   const [reports, setReports] = useState<MonthlyReport[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  // Filter states
+  const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth() + 1);
+  const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
+  const [itemsPerPage, setItemsPerPage] = useState<number>(5);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
+
+  // Available years (last 5 years)
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: 5 }, (_, i) => currentYear - i);
+  const months = [
+    { value: 1, label: 'Januari' },
+    { value: 2, label: 'Februari' },
+    { value: 3, label: 'Maret' },
+    { value: 4, label: 'April' },
+    { value: 5, label: 'Mei' },
+    { value: 6, label: 'Juni' },
+    { value: 7, label: 'Juli' },
+    { value: 8, label: 'Agustus' },
+    { value: 9, label: 'September' },
+    { value: 10, label: 'Oktober' },
+    { value: 11, label: 'November' },
+    { value: 12, label: 'Desember' },
+  ];
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
       try {
         const [statsRes, reportsRes] = await Promise.all([
-          apiGet<ReportStats>('/api/reports/stats'),
+          apiGet<ReportStats>('/api/reports/stats', { month: selectedMonth, year: selectedYear }),
           apiGet<MonthlyReport[]>('/api/reports'),
         ]);
 
@@ -55,10 +88,66 @@ export default function LaporanPublicPage() {
     };
 
     fetchData();
-  }, []);
+  }, [selectedMonth, selectedYear]);
+
+  // Sort and paginate reports
+  const sortedReports = [...reports].sort((a, b) => {
+    const dateA = new Date(a.year, a.month - 1);
+    const dateB = new Date(b.year, b.month - 1);
+    return sortOrder === 'newest' ? dateB.getTime() - dateA.getTime() : dateA.getTime() - dateB.getTime();
+  });
+
+  const totalPages = Math.ceil(sortedReports.length / itemsPerPage);
+  const paginatedReports = sortedReports.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   const formatCurrency = (amount: number) => {
     return `Rp ${amount.toLocaleString('id-ID')}`;
+  };
+
+  const handleDownloadExcel = async (report: MonthlyReport) => {
+    const wb = XLSX.utils.book_new();
+    
+    let incomeDetails: Array<{name: string; amount: number}> = [];
+    let expenseDetails: Array<{name: string; amount: number}> = [];
+    try {
+      const detailRes = await apiGet<ReportStats>('/api/reports/stats', { 
+        month: report.month, 
+        year: report.year 
+      });
+      if (detailRes.success && detailRes.data) {
+        incomeDetails = detailRes.data.incomeByCategory || [];
+        expenseDetails = detailRes.data.expenseByCategory || [];
+      }
+    } catch (e) {
+      console.error('Failed to fetch details:', e);
+    }
+    
+    const summaryData = [
+      ['Laporan Keuangan Masjid Syamsul Ulum'],
+      [`Periode: ${report.period}`],
+      [],
+      ['RINGKASAN'],
+      ['Jenis', 'Jumlah (Rp)'],
+      ['Total Pemasukan', report.income],
+      ['Total Pengeluaran', report.expense],
+      ['Saldo', report.balance],
+      [],
+      ['PEMASUKAN PER KATEGORI'],
+      ['Kategori', 'Jumlah (Rp)'],
+      ...incomeDetails.map(c => [c.name, c.amount]),
+      [],
+      ['PENGELUARAN PER KATEGORI'],
+      ['Kategori', 'Jumlah (Rp)'],
+      ...expenseDetails.map(c => [c.name, c.amount]),
+    ];
+    
+    const ws = XLSX.utils.aoa_to_sheet(summaryData);
+    ws['!cols'] = [{ wch: 30 }, { wch: 20 }];
+    XLSX.utils.book_append_sheet(wb, ws, 'Laporan');
+    XLSX.writeFile(wb, `laporan-${report.year}-${String(report.month).padStart(2, '0')}.xlsx`);
   };
 
   return (
@@ -72,8 +161,63 @@ export default function LaporanPublicPage() {
           </p>
         </div>
 
+        {/* Filter Controls */}
+        <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 mb-8">
+          <div className="flex flex-wrap items-center gap-4">
+            <div className="flex items-center gap-2">
+              <Filter className="w-5 h-5 text-gray-500" />
+              <span className="font-medium text-gray-700">Filter:</span>
+            </div>
+            
+            {/* Month Selector */}
+            <select
+              value={selectedMonth}
+              onChange={(e) => { setSelectedMonth(Number(e.target.value)); setCurrentPage(1); }}
+              className="px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500"
+            >
+              {months.map((m) => (
+                <option key={m.value} value={m.value}>{m.label}</option>
+              ))}
+            </select>
+
+            {/* Year Selector */}
+            <select
+              value={selectedYear}
+              onChange={(e) => { setSelectedYear(Number(e.target.value)); setCurrentPage(1); }}
+              className="px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500"
+            >
+              {years.map((y) => (
+                <option key={y} value={y}>{y}</option>
+              ))}
+            </select>
+
+            <div className="flex-1" />
+
+            {/* Sort */}
+            <button
+              onClick={() => setSortOrder(prev => prev === 'newest' ? 'oldest' : 'newest')}
+              className="flex items-center gap-2 px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl hover:bg-gray-100 transition"
+            >
+              <ArrowUpDown className="w-4 h-4" />
+              {sortOrder === 'newest' ? 'Terbaru' : 'Terlama'}
+            </button>
+
+            {/* Items per page */}
+            <select
+              value={itemsPerPage}
+              onChange={(e) => { setItemsPerPage(Number(e.target.value)); setCurrentPage(1); }}
+              className="px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500"
+            >
+              <option value={5}>5 per halaman</option>
+              <option value={10}>10 per halaman</option>
+              <option value={15}>15 per halaman</option>
+              <option value={20}>20 per halaman</option>
+            </select>
+          </div>
+        </div>
+
         {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
             <div className="flex items-center gap-4 mb-4">
               <div className="p-4 bg-gradient-to-br from-green-500 to-green-600 rounded-xl shadow-lg">
@@ -86,7 +230,7 @@ export default function LaporanPublicPage() {
                 </p>
               </div>
             </div>
-            <p className="text-sm text-gray-500">{stats?.period?.label ?? 'Bulan ini'}</p>
+            <p className="text-sm text-gray-500">{stats?.period?.label ?? `${months.find(m => m.value === selectedMonth)?.label} ${selectedYear}`}</p>
           </div>
 
           <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
@@ -101,7 +245,7 @@ export default function LaporanPublicPage() {
                 </p>
               </div>
             </div>
-            <p className="text-sm text-gray-500">{stats?.period?.label ?? 'Bulan ini'}</p>
+            <p className="text-sm text-gray-500">{stats?.period?.label ?? `${months.find(m => m.value === selectedMonth)?.label} ${selectedYear}`}</p>
           </div>
 
           <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
@@ -120,100 +264,44 @@ export default function LaporanPublicPage() {
           </div>
         </div>
 
-        {/* Charts Section */}
-        <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 mb-12">
-          <h2 className="text-xl font-bold text-gray-900 mb-6">Perbandingan 6 Bulan Terakhir</h2>
-          <MonthlyComparisonChart month={new Date().getMonth() + 1} year={new Date().getFullYear()} />
+        {/* Pie Charts Section */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          {/* Income Pie Chart */}
+          <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+            <h2 className="text-xl font-bold text-gray-900 mb-4">Pemasukan per Kategori</h2>
+            <CategoryPieChart 
+              data={stats?.incomeByCategory || []} 
+              loading={loading} 
+              type="income"
+            />
+          </div>
+
+          {/* Expense Pie Chart */}
+          <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+            <h2 className="text-xl font-bold text-gray-900 mb-4">Pengeluaran per Kategori</h2>
+            <CategoryPieChart 
+              data={stats?.expenseByCategory || []} 
+              loading={loading} 
+              type="expense"
+            />
+          </div>
         </div>
 
-        {/* Category Breakdown */}
-        {stats && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-            {/* Income by Category */}
-            <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
-              <h2 className="text-xl font-bold text-gray-900 mb-6">Pemasukan per Kategori</h2>
-              <div className="space-y-4">
-                {loading ? (
-                  [...Array(4)].map((_, i) => (
-                    <div key={i} className="animate-pulse">
-                      <div className="h-4 bg-gray-200 rounded w-1/3 mb-2"></div>
-                      <div className="h-3 bg-gray-100 rounded-full"></div>
-                    </div>
-                  ))
-                ) : stats.incomeByCategory?.length > 0 ? (
-                  stats.incomeByCategory.map((cat) => {
-                    const percentage = stats.summary.totalIncome > 0 
-                      ? (cat.amount / stats.summary.totalIncome) * 100 
-                      : 0;
-                    return (
-                      <div key={cat.categoryId}>
-                        <div className="flex justify-between mb-2">
-                          <span className="text-sm font-medium text-gray-700">{cat.name}</span>
-                          <span className="text-sm font-bold text-gray-900">{formatCurrency(cat.amount)}</span>
-                        </div>
-                        <div className="w-full bg-gray-100 rounded-full h-2">
-                          <div 
-                            className="h-2 rounded-full transition-all"
-                            style={{ 
-                              width: `${percentage}%`,
-                              backgroundColor: cat.color 
-                            }}
-                          ></div>
-                        </div>
-                      </div>
-                    );
-                  })
-                ) : (
-                  <p className="text-gray-500 text-center py-4">Belum ada data</p>
-                )}
-              </div>
-            </div>
+        {/* Monthly Comparison Chart */}
+        <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 mb-8">
+          <h2 className="text-xl font-bold text-gray-900 mb-6">Perbandingan 6 Bulan Terakhir</h2>
+          <MonthlyComparisonChart month={selectedMonth} year={selectedYear} />
+        </div>
 
-            {/* Expense by Category */}
-            <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
-              <h2 className="text-xl font-bold text-gray-900 mb-6">Pengeluaran per Kategori</h2>
-              <div className="space-y-4">
-                {loading ? (
-                  [...Array(4)].map((_, i) => (
-                    <div key={i} className="animate-pulse">
-                      <div className="h-4 bg-gray-200 rounded w-1/3 mb-2"></div>
-                      <div className="h-3 bg-gray-100 rounded-full"></div>
-                    </div>
-                  ))
-                ) : stats.expenseByCategory?.length > 0 ? (
-                  stats.expenseByCategory.map((cat) => {
-                    const percentage = stats.summary.totalExpense > 0 
-                      ? (cat.amount / stats.summary.totalExpense) * 100 
-                      : 0;
-                    return (
-                      <div key={cat.categoryId}>
-                        <div className="flex justify-between mb-2">
-                          <span className="text-sm font-medium text-gray-700">{cat.name}</span>
-                          <span className="text-sm font-bold text-gray-900">{formatCurrency(cat.amount)}</span>
-                        </div>
-                        <div className="w-full bg-gray-100 rounded-full h-2">
-                          <div 
-                            className="h-2 rounded-full transition-all"
-                            style={{ 
-                              width: `${percentage}%`,
-                              backgroundColor: cat.color 
-                            }}
-                          ></div>
-                        </div>
-                      </div>
-                    );
-                  })
-                ) : (
-                  <p className="text-gray-500 text-center py-4">Belum ada data</p>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Monthly Reports */}
+        {/* Monthly Reports List */}
         <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
-          <h2 className="text-xl font-bold text-gray-900 mb-6">Laporan Bulanan</h2>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-bold text-gray-900">Laporan Bulanan</h2>
+            <span className="text-sm text-gray-500">
+              Menampilkan {paginatedReports.length} dari {sortedReports.length} laporan
+            </span>
+          </div>
+
           <div className="space-y-4">
             {loading ? (
               [...Array(3)].map((_, i) => (
@@ -222,8 +310,8 @@ export default function LaporanPublicPage() {
                   <div className="h-4 bg-gray-100 rounded w-1/2"></div>
                 </div>
               ))
-            ) : reports.length > 0 ? (
-              reports.map((report) => (
+            ) : paginatedReports.length > 0 ? (
+              paginatedReports.map((report) => (
                 <div 
                   key={report.id}
                   className="flex items-center justify-between p-5 bg-gray-50 hover:bg-gray-100 rounded-xl transition"
@@ -238,11 +326,11 @@ export default function LaporanPublicPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-8">
-                    <div className="text-right">
+                    <div className="text-right hidden sm:block">
                       <p className="text-sm text-gray-500">Pemasukan</p>
                       <p className="font-bold text-green-600">{formatCurrency(report.income)}</p>
                     </div>
-                    <div className="text-right">
+                    <div className="text-right hidden sm:block">
                       <p className="text-sm text-gray-500">Pengeluaran</p>
                       <p className="font-bold text-red-600">{formatCurrency(report.expense)}</p>
                     </div>
@@ -253,57 +341,7 @@ export default function LaporanPublicPage() {
                       </p>
                     </div>
                     <button 
-                      onClick={async () => {
-                        // Create Excel workbook
-                        const wb = XLSX.utils.book_new();
-                        
-                        // Fetch detailed stats for this month
-                        let incomeDetails: Array<{name: string; amount: number}> = [];
-                        let expenseDetails: Array<{name: string; amount: number}> = [];
-                        try {
-                          const detailRes = await apiGet<ReportStats>('/api/reports/stats', { 
-                            month: report.month, 
-                            year: report.year 
-                          });
-                          if (detailRes.success && detailRes.data) {
-                            incomeDetails = detailRes.data.incomeByCategory || [];
-                            expenseDetails = detailRes.data.expenseByCategory || [];
-                          }
-                        } catch (e) {
-                          console.error('Failed to fetch details:', e);
-                        }
-                        
-                        // Summary sheet data
-                        const summaryData = [
-                          ['Laporan Keuangan Masjid Syamsul Ulum'],
-                          [`Periode: ${report.period}`],
-                          [],
-                          ['RINGKASAN'],
-                          ['Jenis', 'Jumlah (Rp)'],
-                          ['Total Pemasukan', report.income],
-                          ['Total Pengeluaran', report.expense],
-                          ['Saldo', report.balance],
-                          [],
-                          ['PEMASUKAN PER KATEGORI'],
-                          ['Kategori', 'Jumlah (Rp)'],
-                          ...incomeDetails.map(c => [c.name, c.amount]),
-                          [],
-                          ['PENGELUARAN PER KATEGORI'],
-                          ['Kategori', 'Jumlah (Rp)'],
-                          ...expenseDetails.map(c => [c.name, c.amount]),
-                        ];
-                        
-                        // Create worksheet and add to workbook
-                        const ws = XLSX.utils.aoa_to_sheet(summaryData);
-                        
-                        // Set column widths
-                        ws['!cols'] = [{ wch: 30 }, { wch: 20 }];
-                        
-                        XLSX.utils.book_append_sheet(wb, ws, 'Laporan');
-                        
-                        // Download file
-                        XLSX.writeFile(wb, `laporan-${report.year}-${String(report.month).padStart(2, '0')}.xlsx`);
-                      }}
+                      onClick={() => handleDownloadExcel(report)}
                       className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition"
                       title="Download Laporan Excel"
                     >
@@ -316,6 +354,53 @@ export default function LaporanPublicPage() {
               <p className="text-center py-8 text-gray-500">Belum ada laporan bulanan</p>
             )}
           </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-2 mt-6 pt-6 border-t border-gray-100">
+              <button
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition disabled:opacity-50"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+              
+              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                let pageNum = i + 1;
+                if (totalPages > 5) {
+                  if (currentPage <= 3) {
+                    pageNum = i + 1;
+                  } else if (currentPage >= totalPages - 2) {
+                    pageNum = totalPages - 4 + i;
+                  } else {
+                    pageNum = currentPage - 2 + i;
+                  }
+                }
+                return (
+                  <button
+                    key={pageNum}
+                    onClick={() => setCurrentPage(pageNum)}
+                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition ${
+                      currentPage === pageNum 
+                        ? 'bg-green-600 text-white' 
+                        : 'text-gray-600 hover:bg-gray-100'
+                    }`}
+                  >
+                    {pageNum}
+                  </button>
+                );
+              })}
+              
+              <button
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                className="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition disabled:opacity-50"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>
