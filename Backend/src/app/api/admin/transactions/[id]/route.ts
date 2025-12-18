@@ -12,7 +12,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const authResult = await withAuth(request, [Role.SUPER_ADMIN, Role.ADMIN]);
+    const authResult = await withAuth(request, [Role.SUPER_ADMIN]);
     if (isAuthError(authResult)) {
       return authResult;
     }
@@ -62,7 +62,7 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const authResult = await withAuth(request, [Role.SUPER_ADMIN, Role.ADMIN]);
+    const authResult = await withAuth(request, [Role.SUPER_ADMIN]);
     if (isAuthError(authResult)) {
       return authResult;
     }
@@ -117,7 +117,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const authResult = await withAuth(request, [Role.SUPER_ADMIN, Role.ADMIN]);
+    const authResult = await withAuth(request, [Role.SUPER_ADMIN]);
     if (isAuthError(authResult)) {
       return authResult;
     }

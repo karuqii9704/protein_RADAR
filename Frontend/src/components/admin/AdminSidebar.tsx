@@ -13,6 +13,7 @@ import {
   Home,
   X,
   Users,
+  Image,
 } from "lucide-react";
 
 interface AdminSidebarProps {
@@ -45,6 +46,11 @@ const menuItems = [
     href: "/admin/program",
     label: "Program",
     icon: HandHeart,
+  },
+  {
+    href: "/admin/slides",
+    label: "Carousel",
+    icon: Image,
   },
   {
     href: "/admin/users",

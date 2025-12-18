@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic';
 export async function GET(request: NextRequest) {
   try {
     // Authenticate request
-    const authResult = await withAuth(request, [Role.SUPER_ADMIN, Role.ADMIN]);
+    const authResult = await withAuth(request, [Role.SUPER_ADMIN]);
     if (isAuthError(authResult)) {
       return authResult;
     }
@@ -95,7 +95,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     // Authenticate request
-    const authResult = await withAuth(request, [Role.SUPER_ADMIN, Role.ADMIN]);
+    const authResult = await withAuth(request, [Role.SUPER_ADMIN]);
     if (isAuthError(authResult)) {
       return authResult;
     }
