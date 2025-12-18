@@ -59,11 +59,11 @@ export default function ArtikelListPage() {
         params.search = searchQuery;
       }
 
-      const res = await apiGet<PaginatedResponse>('/api/admin/artikel', params);
+      const res = await apiGet<Article[]>('/api/admin/artikel', params);
       if (res.success && res.data) {
-        setArticles(res.data.data);
-        setTotalPages(res.data.pagination.totalPages);
-        setTotal(res.data.pagination.total);
+        setArticles(res.data);
+        setTotalPages(res.meta?.totalPages ?? 1);
+        setTotal(res.meta?.total ?? 0);
       }
     } catch (error) {
       console.error('Failed to fetch articles:', error);
