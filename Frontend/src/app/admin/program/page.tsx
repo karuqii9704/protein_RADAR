@@ -61,11 +61,11 @@ export default function ProgramListPage() {
         limit: 10,
       };
 
-      const res = await apiGet<PaginatedResponse>('/api/admin/programs', params);
+      const res = await apiGet<Program[]>('/api/admin/programs', params);
       if (res.success && res.data) {
-        setPrograms(res.data.data);
-        setTotalPages(res.data.pagination.totalPages);
-        setTotal(res.data.pagination.total);
+        setPrograms(res.data);
+        setTotalPages(res.meta?.totalPages ?? 1);
+        setTotal(res.meta?.total ?? 0);
       }
     } catch (error) {
       console.error('Failed to fetch programs:', error);
