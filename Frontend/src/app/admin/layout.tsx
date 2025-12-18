@@ -75,19 +75,19 @@ export default function AdminLayout({
 
   return (
     <div className="flex min-h-screen bg-gray-50">
-      {/* Mobile Sidebar Overlay */}
+      {/* Sidebar Overlay */}
       {sidebarOpen && (
         <div 
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          className="fixed inset-0 bg-black/50 z-40"
           onClick={() => setSidebarOpen(false)}
         />
       )}
       
       {/* Sidebar */}
       <div className={`
-        fixed inset-y-0 left-0 z-50 lg:static lg:z-auto
+        fixed inset-y-0 left-0 z-50
         transform transition-transform duration-300 ease-in-out
-        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+        ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
         <AdminSidebar onClose={() => setSidebarOpen(false)} />
       </div>
