@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic';
 // GET /api/admin/users - Get all users
 export async function GET(request: NextRequest) {
   try {
-    const authResult = await withAuth(request, [Role.SUPER_ADMIN]);
+    const authResult = await withAuth(request, [Role.SUPER_ADMIN, Role.ADMIN]);
     if (isAuthError(authResult)) {
       return authResult;
     }
@@ -74,7 +74,7 @@ export async function GET(request: NextRequest) {
 // POST /api/admin/users - Create new user
 export async function POST(request: NextRequest) {
   try {
-    const authResult = await withAuth(request, [Role.SUPER_ADMIN]);
+    const authResult = await withAuth(request, [Role.SUPER_ADMIN, Role.ADMIN]);
     if (isAuthError(authResult)) {
       return authResult;
     }

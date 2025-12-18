@@ -14,7 +14,7 @@ interface RouteParams {
 // GET /api/admin/users/[id] - Get single user
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
-    const authResult = await withAuth(request, [Role.SUPER_ADMIN]);
+    const authResult = await withAuth(request, [Role.SUPER_ADMIN, Role.ADMIN]);
     if (isAuthError(authResult)) {
       return authResult;
     }
@@ -49,7 +49,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 // PUT /api/admin/users/[id] - Update user
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   try {
-    const authResult = await withAuth(request, [Role.SUPER_ADMIN]);
+    const authResult = await withAuth(request, [Role.SUPER_ADMIN, Role.ADMIN]);
     if (isAuthError(authResult)) {
       return authResult;
     }
@@ -119,7 +119,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
 // DELETE /api/admin/users/[id] - Deactivate user (soft delete)
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
-    const authResult = await withAuth(request, [Role.SUPER_ADMIN]);
+    const authResult = await withAuth(request, [Role.SUPER_ADMIN, Role.ADMIN]);
     if (isAuthError(authResult)) {
       return authResult;
     }

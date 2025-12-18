@@ -86,10 +86,10 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
       <div className="flex items-center justify-between">
         {/* Left Section */}
         <div className="flex items-center gap-4">
-          {/* Menu Toggle - Mobile Only */}
+          {/* Menu Toggle */}
           <button
             onClick={onMenuClick}
-            className="lg:hidden p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition"
+            className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition"
           >
             <Menu className="w-6 h-6" />
           </button>

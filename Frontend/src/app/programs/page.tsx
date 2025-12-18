@@ -66,9 +66,10 @@ export default function ProgramsPage() {
             ))
           ) : programs.length > 0 ? (
             programs.map((program) => (
-              <div 
+              <Link 
                 key={program.id}
-                className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-2xl transition-all transform hover:-translate-y-2 group"
+                href={`/programs/${program.slug}`}
+                className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-2xl transition-all transform hover:-translate-y-2 group block"
               >
                 {/* Image */}
                 <div className="h-48 bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white relative overflow-hidden">
@@ -125,16 +126,13 @@ export default function ProgramsPage() {
                       <Calendar className="w-4 h-4" />
                       {program.daysLeft !== null ? `${program.daysLeft} hari lagi` : 'Tanpa batas waktu'}
                     </span>
-                    <Link 
-                      href={`/programs/${program.id}`}
-                      className="flex items-center gap-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-lg transition"
-                    >
+                    <span className="flex items-center gap-1 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-lg transition">
                       Donasi
                       <ChevronRight className="w-4 h-4" />
-                    </Link>
+                    </span>
                   </div>
                 </div>
-              </div>
+              </Link>
             ))
           ) : (
             <div className="col-span-3 text-center py-16">
