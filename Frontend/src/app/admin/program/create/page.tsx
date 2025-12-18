@@ -1,13 +1,17 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { 
   ArrowLeft, 
   Save,
   Loader2,
-  HandHeart
+  HandHeart,
+  Upload,
+  X,
+  Image as ImageIcon
 } from 'lucide-react';
 import { apiPost } from '@/lib/api';
 import toast from 'react-hot-toast';
@@ -15,6 +19,8 @@ import toast from 'react-hot-toast';
 export default function CreateProgramPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -32,6 +38,40 @@ export default function CreateProgramPage() {
       ...prev,
       [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
     }));
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error('File harus berupa gambar');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Ukuran file maksimal 5MB');
+      return;
+    }
+
+    // Convert to base64 for preview and storage
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64String = reader.result as string;
+      setImagePreview(base64String);
+      setFormData(prev => ({ ...prev, image: base64String }));
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const removeImage = () => {
+    setImagePreview(null);
+    setFormData(prev => ({ ...prev, image: '' }));
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -132,23 +172,68 @@ export default function CreateProgramPage() {
                   className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                   required
                   min="0"
+                  max="1000000000000"
                 />
               </div>
+              <p className="mt-1 text-xs text-gray-500">Maksimal Rp 1.000.000.000.000 (1 Triliun)</p>
             </div>
 
-            {/* Image URL */}
+            {/* Image Upload */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                URL Gambar (Opsional)
+                Gambar Program
               </label>
+              
+              {imagePreview ? (
+                <div className="relative w-full h-48 rounded-xl overflow-hidden border border-gray-200">
+                  <Image
+                    src={imagePreview}
+                    alt="Preview"
+                    fill
+                    className="object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={removeImage}
+                    className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-full hover:bg-red-600 transition"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              ) : (
+                <div
+                  onClick={() => fileInputRef.current?.click()}
+                  className="w-full h-48 border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-green-500 hover:bg-green-50 transition"
+                >
+                  <Upload className="w-10 h-10 text-gray-400 mb-2" />
+                  <p className="text-sm text-gray-500">Klik untuk upload gambar</p>
+                  <p className="text-xs text-gray-400 mt-1">PNG, JPG, JPEG (Max 5MB)</p>
+                </div>
+              )}
+              
               <input
-                type="url"
-                name="image"
-                value={formData.image}
-                onChange={handleChange}
-                placeholder="https://example.com/image.jpg"
-                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="hidden"
               />
+
+              {/* Or use URL */}
+              <div className="mt-3">
+                <p className="text-xs text-gray-500 mb-2">Atau gunakan URL gambar:</p>
+                <input
+                  type="url"
+                  name="image"
+                  value={formData.image.startsWith('data:') ? '' : formData.image}
+                  onChange={(e) => {
+                    setFormData(prev => ({ ...prev, image: e.target.value }));
+                    setImagePreview(null);
+                  }}
+                  placeholder="https://example.com/image.jpg"
+                  className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                />
+              </div>
             </div>
           </div>
 
@@ -162,6 +247,11 @@ export default function CreateProgramPage() {
                 </div>
                 <span className="text-sm font-medium text-green-700">Preview</span>
               </div>
+              {imagePreview && (
+                <div className="relative w-full h-24 rounded-lg overflow-hidden mb-3">
+                  <Image src={imagePreview} alt="Preview" fill className="object-cover" />
+                </div>
+              )}
               <h3 className="font-bold text-gray-900 mb-2">
                 {formData.title || 'Judul Program'}
               </h3>
