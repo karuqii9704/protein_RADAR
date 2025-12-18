@@ -15,7 +15,7 @@ export default function AdminLayout({
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthed, setIsAuthed] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true); // Default open
   
   // Login page should not have admin sidebar/header or auth check
   const isLoginPage = pathname === '/admin/login';
@@ -47,11 +47,6 @@ export default function AdminLayout({
     checkAuth();
   }, [isLoginPage, router]);
 
-  // Close sidebar when route changes
-  useEffect(() => {
-    setSidebarOpen(false);
-  }, [pathname]);
-
   if (isLoginPage) {
     return <>{children}</>;
   }
@@ -75,17 +70,24 @@ export default function AdminLayout({
 
   return (
     <div className="flex min-h-screen bg-gray-50">
-      {/* Sidebar Overlay */}
+      {/* Sidebar - Static on desktop */}
+      <div className={`
+        hidden lg:block flex-shrink-0
+      `}>
+        <AdminSidebar />
+      </div>
+
+      {/* Mobile Sidebar Overlay */}
       {sidebarOpen && (
         <div 
-          className="fixed inset-0 bg-black/50 z-40"
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
       
-      {/* Sidebar */}
+      {/* Mobile Sidebar */}
       <div className={`
-        fixed inset-y-0 left-0 z-50
+        lg:hidden fixed inset-y-0 left-0 z-50
         transform transition-transform duration-300 ease-in-out
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
@@ -93,7 +95,7 @@ export default function AdminLayout({
       </div>
       
       {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col min-w-0">
         <AdminHeader onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
         <main className="flex-1 overflow-auto p-6">
           {children}

@@ -115,11 +115,12 @@ export default function HeroCarousel() {
 
   const renderSlideContent = (slide: Slide, index: number) => {
     const link = getSlideLink(slide);
+    const isActive = index === currentSlide;
     
     const content = (
       <div
-        className={`absolute inset-0 transition-opacity duration-700 ${
-          index === currentSlide ? 'opacity-100' : 'opacity-0'
+        className={`absolute inset-0 transition-all duration-700 ${
+          isActive ? 'opacity-100 visible z-10' : 'opacity-0 invisible z-0'
         }`}
       >
         <div className="relative w-full h-full bg-gradient-to-br from-green-600 to-green-800">
