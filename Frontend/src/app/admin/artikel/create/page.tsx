@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { 
@@ -8,26 +8,59 @@ import {
   Save, 
   X, 
   Upload,
-  Image,
   BookOpen,
   Eye,
   Bold,
   Italic,
   List,
   Link2,
-  Quote
+  Quote,
+  Loader2, // Added Loader2
+  Image as ImageIcon // Aliased Image icon
 } from 'lucide-react';
 import { apiPost } from '@/lib/api';
 import toast from 'react-hot-toast';
+import Image from 'next/image'; // Added Next.js Image component
 
 export default function CreateArtikelPage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loading, setLoading] = useState(false); // Added loading state
+  const [imagePreview, setImagePreview] = useState<string | null>(null); // Added imagePreview state
+  const fileInputRef = useRef<HTMLInputElement>(null); // Added fileInputRef
   const [formData, setFormData] = useState({
     title: '',
     excerpt: '',
     content: '',
+    image: '', // Added image field to formData
   });
+
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) { // Max 5MB
+      toast.error('Ukuran gambar maksimal 5MB');
+      return;
+    }
+
+    setLoading(true);
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result as string);
+      setFormData(prev => ({ ...prev, image: reader.result as string })); // Store base64
+      setLoading(false);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const removeImage = () => {
+    setImagePreview(null);
+    setFormData(prev => ({ ...prev, image: '' }));
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
 
   const handleSubmit = async (publish: boolean = false) => {
     if (!formData.title || !formData.content) {
@@ -44,6 +77,7 @@ export default function CreateArtikelPage() {
         excerpt: formData.excerpt || formData.content.substring(0, 200),
         category: 'ARTIKEL', // Always ARTIKEL for this page
         isPublished: publish,
+        image: formData.image, // Include image in submission
       });
 
       if (res.success) {
@@ -147,7 +181,7 @@ export default function CreateArtikelPage() {
               </button>
               <div className="w-px h-6 bg-gray-300 mx-2"></div>
               <button className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-200 rounded-lg transition">
-                <Image className="w-5 h-5" />
+                <ImageIcon className="w-5 h-5" /> {/* Used aliased Image icon */}
               </button>
             </div>
 
@@ -194,6 +228,68 @@ Gunakan format Markdown untuk styling:
             </div>
           </div>
 
+          {/* Image Upload */}
+          <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
+            <h2 className="text-lg font-bold text-gray-900 mb-4">Gambar Utama</h2>
+            
+            <div className="space-y-4">
+              {imagePreview ? (
+                <div className="relative w-full h-48 rounded-xl overflow-hidden border border-gray-200">
+                  <Image
+                    src={imagePreview}
+                    alt="Preview"
+                    fill
+                    className="object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={removeImage}
+                    className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-full hover:bg-red-600 transition"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              ) : (
+                <div
+                  onClick={() => fileInputRef.current?.click()}
+                  className="w-full h-48 border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-green-500 hover:bg-green-50 transition"
+                >
+                  {loading ? (
+                    <Loader2 className="w-10 h-10 text-gray-400 animate-spin" />
+                  ) : (
+                    <Upload className="w-10 h-10 text-gray-400 mb-2" />
+                  )}
+                  <p className="text-sm text-gray-500">Klik untuk upload gambar</p>
+                  <p className="text-xs text-gray-400 mt-1">PNG, JPG, JPEG (Max 5MB)</p>
+                </div>
+              )}
+              
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="hidden"
+              />
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Atau gunakan URL Gambar
+                </label>
+                <input
+                  type="url"
+                  value={formData.image.startsWith('data:') ? '' : formData.image} // Display URL if not base64
+                  onChange={(e) => {
+                    setFormData(prev => ({ ...prev, image: e.target.value }));
+                    setImagePreview(null); // Clear preview if URL is entered
+                  }}
+                  placeholder="https://example.com/image.jpg"
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500"
+                />
+              </div>
+            </div>
+          </div>
+
           {/* Excerpt */}
           <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
             <h2 className="text-lg font-bold text-gray-900 mb-4">Ringkasan</h2>
@@ -206,17 +302,7 @@ Gunakan format Markdown untuk styling:
             />
           </div>
 
-          {/* Featured Image */}
-          <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
-            <h2 className="text-lg font-bold text-gray-900 mb-4">Gambar Utama</h2>
-            <div className="border-2 border-dashed border-gray-200 rounded-xl p-6 text-center hover:border-green-400 transition cursor-pointer">
-              <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center mx-auto mb-3">
-                <Upload className="w-6 h-6 text-gray-400" />
-              </div>
-              <p className="text-sm font-medium text-gray-700 mb-1">Upload gambar</p>
-              <p className="text-xs text-gray-500">Max 2MB</p>
-            </div>
-          </div>
+
 
           {/* SEO Preview */}
           <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm">

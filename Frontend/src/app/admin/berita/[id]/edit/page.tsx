@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { 
@@ -8,13 +8,14 @@ import {
   Save,
   X,
   Upload,
-  Image,
+  Image as ImageIcon,
   FileText,
   Eye,
   Loader2
 } from 'lucide-react';
 import { apiGet, apiPut } from '@/lib/api';
 import toast from 'react-hot-toast';
+import Image from 'next/image';
 
 interface Berita {
   id: string;
@@ -33,6 +34,8 @@ export default function EditBeritaPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [preview, setPreview] = useState(false);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
     title: '',
     category: '',
@@ -63,6 +66,7 @@ export default function EditBeritaPage() {
             image: b.image || '',
             isPublished: b.isPublished,
           });
+          if (b.image) setImagePreview(b.image);
         } else {
           toast.error('Berita tidak ditemukan');
           router.push('/admin/berita');
@@ -79,6 +83,37 @@ export default function EditBeritaPage() {
       fetchBerita();
     }
   }, [params.id, router]);
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('File harus berupa gambar');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Ukuran file maksimal 5MB');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64String = reader.result as string;
+      setImagePreview(base64String);
+      setFormData(prev => ({ ...prev, image: base64String }));
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const removeImage = () => {
+    setImagePreview(null);
+    setFormData(prev => ({ ...prev, image: '' }));
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
 
   const handleSubmit = async (publish: boolean = false) => {
     if (!formData.title || !formData.content || !formData.category) {
@@ -255,37 +290,63 @@ export default function EditBeritaPage() {
           {/* Featured Image */}
           <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
             <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-              <Image className="w-5 h-5 text-green-600" />
+              <ImageIcon className="w-5 h-5 text-green-600" />
               Gambar Utama
             </h2>
             <div className="space-y-4">
+              {imagePreview ? (
+                <div className="relative w-full h-48 rounded-xl overflow-hidden border border-gray-200">
+                  <Image
+                    src={imagePreview}
+                    alt="Preview"
+                    fill
+                    className="object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={removeImage}
+                    className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-full hover:bg-red-600 transition"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              ) : (
+                <div
+                  onClick={() => fileInputRef.current?.click()}
+                  className="w-full h-48 border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-green-500 hover:bg-green-50 transition"
+                >
+                  <Upload className="w-10 h-10 text-gray-400 mb-2" />
+                  <p className="text-sm text-gray-500">Klik untuk upload gambar</p>
+                  <p className="text-xs text-gray-400 mt-1">PNG, JPG, JPEG (Max 5MB)</p>
+                </div>
+              )}
+              
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="hidden"
+              />
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  URL Gambar
+                  Atau gunakan URL Gambar
                 </label>
                 <input
                   type="url"
                   placeholder="https://example.com/image.jpg"
-                  value={formData.image}
-                  onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+                  value={formData.image.startsWith('data:') ? '' : formData.image}
+                  onChange={(e) => {
+                    setFormData(prev => ({ ...prev, image: e.target.value }));
+                    setImagePreview(null);
+                  }}
                   className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 />
                 <p className="text-xs text-gray-500 mt-2">
                   Masukkan URL gambar dari internet
                 </p>
               </div>
-              {formData.image && (
-                <div className="border border-gray-200 rounded-xl overflow-hidden">
-                  <img 
-                    src={formData.image} 
-                    alt="Preview" 
-                    className="w-full h-32 object-cover"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).style.display = 'none';
-                    }}
-                  />
-                </div>
-              )}
             </div>
           </div>
 
@@ -304,7 +365,7 @@ export default function EditBeritaPage() {
                     }}
                   />
                 ) : (
-                  <Image className="w-10 h-10 text-gray-400" />
+                  <ImageIcon className="w-10 h-10 text-gray-400" />
                 )}
               </div>
               <div className="p-4">
