@@ -4,7 +4,7 @@ import { successResponse, errorResponse } from '@/utils/api-response';
 
 export const dynamic = 'force-dynamic';
 
-// GET /api/programs/[id] - Get program detail
+// GET /api/programs/[id] - Get program detail by ID or slug
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -12,8 +12,11 @@ export async function GET(
   try {
     const { id } = await params;
 
-    const program = await prisma.program.findUnique({
-      where: { id },
+    // Check if id is a UUID or a slug
+    const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+
+    const program = await prisma.program.findFirst({
+      where: isUUID ? { id } : { slug: id },
       include: {
         _count: {
           select: { donations: true },

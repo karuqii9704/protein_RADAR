@@ -15,11 +15,17 @@ import type { News } from '@/types';
 export default function NewsPage() {
   const [news, setNews] = useState<News[]>([]);
   const [loading, setLoading] = useState(true);
+  const [categoryFilter, setCategoryFilter] = useState<string>('');
 
   useEffect(() => {
     const fetchNews = async () => {
+      setLoading(true);
       try {
-        const res = await apiGet<News[]>('/api/news', { limit: 20 });
+        const params: Record<string, string | number> = { limit: 20 };
+        if (categoryFilter) {
+          params.category = categoryFilter;
+        }
+        const res = await apiGet<News[]>('/api/news', params);
         if (res.success && res.data) {
           setNews(res.data);
         }
@@ -31,7 +37,7 @@ export default function NewsPage() {
     };
 
     fetchNews();
-  }, []);
+  }, [categoryFilter]);
 
   const getCategoryColor = (category: string) => {
     const colors: Record<string, string> = {
@@ -56,17 +62,55 @@ export default function NewsPage() {
 
         {/* Categories Filter */}
         <div className="flex flex-wrap justify-center gap-3 mb-8">
-          <button className="px-4 py-2 bg-green-600 text-white rounded-full font-medium">
+          <button 
+            onClick={() => setCategoryFilter('')}
+            className={`px-4 py-2 rounded-full font-medium transition ${
+              categoryFilter === '' 
+                ? 'bg-green-600 text-white' 
+                : 'bg-white text-gray-700 border border-gray-200 hover:border-green-300 hover:text-green-600'
+            }`}
+          >
             Semua
           </button>
-          <button className="px-4 py-2 bg-white text-gray-700 rounded-full font-medium border border-gray-200 hover:border-green-300 hover:text-green-600 transition">
+          <button 
+            onClick={() => setCategoryFilter('KEGIATAN')}
+            className={`px-4 py-2 rounded-full font-medium transition ${
+              categoryFilter === 'KEGIATAN' 
+                ? 'bg-green-600 text-white' 
+                : 'bg-white text-gray-700 border border-gray-200 hover:border-green-300 hover:text-green-600'
+            }`}
+          >
             Kegiatan
           </button>
-          <button className="px-4 py-2 bg-white text-gray-700 rounded-full font-medium border border-gray-200 hover:border-green-300 hover:text-green-600 transition">
+          <button 
+            onClick={() => setCategoryFilter('PENGUMUMAN')}
+            className={`px-4 py-2 rounded-full font-medium transition ${
+              categoryFilter === 'PENGUMUMAN' 
+                ? 'bg-green-600 text-white' 
+                : 'bg-white text-gray-700 border border-gray-200 hover:border-green-300 hover:text-green-600'
+            }`}
+          >
             Pengumuman
           </button>
-          <button className="px-4 py-2 bg-white text-gray-700 rounded-full font-medium border border-gray-200 hover:border-green-300 hover:text-green-600 transition">
+          <button 
+            onClick={() => setCategoryFilter('ARTIKEL')}
+            className={`px-4 py-2 rounded-full font-medium transition ${
+              categoryFilter === 'ARTIKEL' 
+                ? 'bg-green-600 text-white' 
+                : 'bg-white text-gray-700 border border-gray-200 hover:border-green-300 hover:text-green-600'
+            }`}
+          >
             Artikel
+          </button>
+          <button 
+            onClick={() => setCategoryFilter('LAPORAN')}
+            className={`px-4 py-2 rounded-full font-medium transition ${
+              categoryFilter === 'LAPORAN' 
+                ? 'bg-green-600 text-white' 
+                : 'bg-white text-gray-700 border border-gray-200 hover:border-green-300 hover:text-green-600'
+            }`}
+          >
+            Laporan
           </button>
         </div>
 

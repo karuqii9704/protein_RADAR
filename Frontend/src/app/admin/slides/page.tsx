@@ -11,8 +11,7 @@ import {
   ChevronUp,
   ChevronDown,
   Eye,
-  EyeOff,
-  GripVertical
+  EyeOff
 } from 'lucide-react';
 import { apiGet, apiPut, apiDelete } from '@/lib/api';
 import toast from 'react-hot-toast';
