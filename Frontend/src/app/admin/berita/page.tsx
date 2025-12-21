@@ -10,7 +10,10 @@ import {
   Trash2,
   Newspaper,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  CheckSquare,
+  Square,
+  X
 } from 'lucide-react';
 import { apiGet, apiDelete } from '@/lib/api';
 import type { News } from '@/types';
@@ -24,6 +27,10 @@ export default function BeritaListPage() {
   const [total, setTotal] = useState(0);
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
+  
+  // Multi-select state
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const fetchNews = async () => {
     setLoading(true);
@@ -37,6 +44,7 @@ export default function BeritaListPage() {
         setNews(res.data);
         setTotal(res.meta?.total ?? 0);
         setTotalPages(res.meta?.totalPages ?? 1);
+        setSelectedIds(new Set());
       }
     } catch (error) {
       console.error('Failed to fetch news:', error);
@@ -70,6 +78,64 @@ export default function BeritaListPage() {
     } catch (error) {
       toast.error('Gagal menghapus berita');
     }
+  };
+
+  // Multi-select handlers
+  const handleSelectAll = () => {
+    if (selectedIds.size === news.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(news.map(n => n.id)));
+    }
+  };
+
+  const handleSelectOne = (id: string) => {
+    const newSelected = new Set(selectedIds);
+    if (newSelected.has(id)) {
+      newSelected.delete(id);
+    } else {
+      newSelected.add(id);
+    }
+    setSelectedIds(newSelected);
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedIds.size === 0) return;
+    
+    if (!confirm(`Apakah Anda yakin ingin menghapus ${selectedIds.size} berita yang dipilih?`)) return;
+
+    setIsDeleting(true);
+    let successCount = 0;
+    let failCount = 0;
+
+    for (const id of selectedIds) {
+      try {
+        const res = await apiDelete(`/api/admin/berita/${id}`);
+        if (res.success) {
+          successCount++;
+        } else {
+          failCount++;
+        }
+      } catch {
+        failCount++;
+      }
+    }
+
+    setIsDeleting(false);
+    
+    if (successCount > 0) {
+      toast.success(`${successCount} berita berhasil dihapus`);
+    }
+    if (failCount > 0) {
+      toast.error(`${failCount} berita gagal dihapus`);
+    }
+    
+    setSelectedIds(new Set());
+    fetchNews();
+  };
+
+  const clearSelection = () => {
+    setSelectedIds(new Set());
   };
 
   const getCategoryColor = (category: string) => {
@@ -160,6 +226,57 @@ export default function BeritaListPage() {
         </form>
       </div>
 
+      {/* Bulk Action Bar */}
+      {selectedIds.size > 0 && (
+        <div className="bg-gradient-to-r from-green-600 to-green-500 rounded-xl p-4 flex items-center justify-between shadow-lg">
+          <div className="flex items-center gap-3 text-white">
+            <CheckSquare className="w-5 h-5" />
+            <span className="font-medium">{selectedIds.size} berita dipilih</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={clearSelection}
+              className="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg transition flex items-center gap-2"
+            >
+              <X className="w-4 h-4" />
+              Batal
+            </button>
+            <button
+              onClick={handleBulkDelete}
+              disabled={isDeleting}
+              className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition flex items-center gap-2 disabled:opacity-50"
+            >
+              <Trash2 className="w-4 h-4" />
+              {isDeleting ? 'Menghapus...' : 'Hapus Terpilih'}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Select All Row */}
+      {news.length > 0 && !loading && (
+        <div className="flex items-center gap-3 bg-white rounded-xl p-3 border border-gray-100 shadow-sm">
+          <button
+            onClick={handleSelectAll}
+            className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded-lg transition"
+          >
+            {selectedIds.size === news.length ? (
+              <CheckSquare className="w-5 h-5 text-green-600" />
+            ) : (
+              <Square className="w-5 h-5 text-gray-400" />
+            )}
+            <span className="text-sm font-medium text-gray-700">
+              {selectedIds.size === news.length ? 'Batal Pilih Semua' : 'Pilih Semua'}
+            </span>
+          </button>
+          {selectedIds.size > 0 && (
+            <span className="text-sm text-gray-500">
+              ({selectedIds.size} dari {news.length} dipilih)
+            </span>
+          )}
+        </div>
+      )}
+
       {/* News Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {loading ? (
@@ -183,7 +300,24 @@ export default function BeritaListPage() {
           </div>
         ) : (
           news.map((item) => (
-            <div key={item.id} className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden hover:shadow-lg transition group">
+            <div 
+              key={item.id} 
+              className={`bg-white rounded-xl border shadow-sm overflow-hidden hover:shadow-lg transition group relative ${
+                selectedIds.has(item.id) ? 'border-green-500 ring-2 ring-green-200' : 'border-gray-100'
+              }`}
+            >
+              {/* Selection Checkbox */}
+              <button
+                onClick={() => handleSelectOne(item.id)}
+                className="absolute top-3 left-3 z-10 p-1.5 bg-white/90 hover:bg-white rounded-lg shadow-md transition"
+              >
+                {selectedIds.has(item.id) ? (
+                  <CheckSquare className="w-5 h-5 text-green-600" />
+                ) : (
+                  <Square className="w-5 h-5 text-gray-400" />
+                )}
+              </button>
+              
               {/* Image placeholder */}
               <div className="h-40 bg-gradient-to-br from-green-100 to-green-200 flex items-center justify-center">
                 <Newspaper className="w-12 h-12 text-green-400" />

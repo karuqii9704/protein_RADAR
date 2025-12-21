@@ -13,7 +13,10 @@ import {
   ShieldCheck,
   Eye,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  CheckSquare,
+  Square,
+  X
 } from 'lucide-react';
 import { apiGet, apiDelete } from '@/lib/api';
 import toast from 'react-hot-toast';
@@ -36,6 +39,10 @@ export default function AdminUsersPage() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
+  
+  // Multi-select state
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -49,6 +56,7 @@ export default function AdminUsersPage() {
         setUsers(res.data);
         setTotalPages(res.meta?.totalPages ?? 1);
         setTotal(res.meta?.total ?? 0);
+        setSelectedIds(new Set());
       }
     } catch (error) {
       console.error('Failed to fetch users:', error);
@@ -76,6 +84,64 @@ export default function AdminUsersPage() {
     } catch (error) {
       toast.error('Gagal menonaktifkan user');
     }
+  };
+
+  // Multi-select handlers
+  const handleSelectAll = () => {
+    if (selectedIds.size === users.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(users.map(u => u.id)));
+    }
+  };
+
+  const handleSelectOne = (id: string) => {
+    const newSelected = new Set(selectedIds);
+    if (newSelected.has(id)) {
+      newSelected.delete(id);
+    } else {
+      newSelected.add(id);
+    }
+    setSelectedIds(newSelected);
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedIds.size === 0) return;
+    
+    if (!confirm(`Apakah Anda yakin ingin menonaktifkan ${selectedIds.size} user yang dipilih?`)) return;
+
+    setIsDeleting(true);
+    let successCount = 0;
+    let failCount = 0;
+
+    for (const id of selectedIds) {
+      try {
+        const res = await apiDelete(`/api/admin/users/${id}`);
+        if (res.success) {
+          successCount++;
+        } else {
+          failCount++;
+        }
+      } catch {
+        failCount++;
+      }
+    }
+
+    setIsDeleting(false);
+    
+    if (successCount > 0) {
+      toast.success(`${successCount} user berhasil dinonaktifkan`);
+    }
+    if (failCount > 0) {
+      toast.error(`${failCount} user gagal dinonaktifkan`);
+    }
+    
+    setSelectedIds(new Set());
+    fetchUsers();
+  };
+
+  const clearSelection = () => {
+    setSelectedIds(new Set());
   };
 
   const getRoleIcon = (role: string) => {
@@ -162,12 +228,52 @@ export default function AdminUsersPage() {
         </div>
       </div>
 
+      {/* Bulk Action Bar */}
+      {selectedIds.size > 0 && (
+        <div className="bg-gradient-to-r from-green-600 to-green-500 rounded-xl p-4 flex items-center justify-between shadow-lg">
+          <div className="flex items-center gap-3 text-white">
+            <CheckSquare className="w-5 h-5" />
+            <span className="font-medium">{selectedIds.size} user dipilih</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={clearSelection}
+              className="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg transition flex items-center gap-2"
+            >
+              <X className="w-4 h-4" />
+              Batal
+            </button>
+            <button
+              onClick={handleBulkDelete}
+              disabled={isDeleting}
+              className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition flex items-center gap-2 disabled:opacity-50"
+            >
+              <Trash2 className="w-4 h-4" />
+              {isDeleting ? 'Menonaktifkan...' : 'Nonaktifkan Terpilih'}
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Users Table */}
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50 border-b border-gray-100">
               <tr>
+                <th className="px-4 py-4 w-12">
+                  <button
+                    onClick={handleSelectAll}
+                    className="p-1 hover:bg-gray-200 rounded transition"
+                    title={selectedIds.size === users.length ? "Batal pilih semua" : "Pilih semua"}
+                  >
+                    {selectedIds.size === users.length && users.length > 0 ? (
+                      <CheckSquare className="w-5 h-5 text-green-600" />
+                    ) : (
+                      <Square className="w-5 h-5 text-gray-400" />
+                    )}
+                  </button>
+                </th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">User</th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Role</th>
                 <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase">Status</th>
@@ -196,7 +302,24 @@ export default function AdminUsersPage() {
                 ))
               ) : users.length > 0 ? (
                 users.map((user) => (
-                  <tr key={user.id} className="hover:bg-gray-50 transition">
+                  <tr 
+                    key={user.id} 
+                    className={`hover:bg-gray-50 transition ${
+                      selectedIds.has(user.id) ? 'bg-green-50' : ''
+                    }`}
+                  >
+                    <td className="px-4 py-4">
+                      <button
+                        onClick={() => handleSelectOne(user.id)}
+                        className="p-1 hover:bg-gray-200 rounded transition"
+                      >
+                        {selectedIds.has(user.id) ? (
+                          <CheckSquare className="w-5 h-5 text-green-600" />
+                        ) : (
+                          <Square className="w-5 h-5 text-gray-400" />
+                        )}
+                      </button>
+                    </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center text-white font-semibold">

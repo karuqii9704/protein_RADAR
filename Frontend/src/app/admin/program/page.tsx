@@ -14,7 +14,10 @@ import {
   Users,
   ChevronLeft,
   ChevronRight,
-  Loader2
+  Loader2,
+  CheckSquare,
+  Square,
+  X
 } from 'lucide-react';
 import { apiGet, apiDelete } from '@/lib/api';
 import toast from 'react-hot-toast';
@@ -52,6 +55,10 @@ export default function ProgramListPage() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
+  
+  // Multi-select state
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const fetchPrograms = async () => {
     setLoading(true);
@@ -66,6 +73,7 @@ export default function ProgramListPage() {
         setPrograms(res.data);
         setTotalPages(res.meta?.totalPages ?? 1);
         setTotal(res.meta?.total ?? 0);
+        setSelectedIds(new Set());
       }
     } catch (error) {
       console.error('Failed to fetch programs:', error);
@@ -98,6 +106,64 @@ export default function ProgramListPage() {
     } catch (error) {
       toast.error('Gagal menghapus program');
     }
+  };
+
+  // Multi-select handlers
+  const handleSelectAll = () => {
+    if (selectedIds.size === programs.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(programs.map(p => p.id)));
+    }
+  };
+
+  const handleSelectOne = (id: string) => {
+    const newSelected = new Set(selectedIds);
+    if (newSelected.has(id)) {
+      newSelected.delete(id);
+    } else {
+      newSelected.add(id);
+    }
+    setSelectedIds(newSelected);
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedIds.size === 0) return;
+    
+    if (!confirm(`Apakah Anda yakin ingin menghapus ${selectedIds.size} program yang dipilih?`)) return;
+
+    setIsDeleting(true);
+    let successCount = 0;
+    let failCount = 0;
+
+    for (const id of selectedIds) {
+      try {
+        const res = await apiDelete(`/api/admin/programs/${id}`);
+        if (res.success) {
+          successCount++;
+        } else {
+          failCount++;
+        }
+      } catch {
+        failCount++;
+      }
+    }
+
+    setIsDeleting(false);
+    
+    if (successCount > 0) {
+      toast.success(`${successCount} program berhasil dihapus`);
+    }
+    if (failCount > 0) {
+      toast.error(`${failCount} program gagal dihapus`);
+    }
+    
+    setSelectedIds(new Set());
+    fetchPrograms();
+  };
+
+  const clearSelection = () => {
+    setSelectedIds(new Set());
   };
 
   const formatCurrency = (amount: number) => {
@@ -199,6 +265,57 @@ export default function ProgramListPage() {
         </div>
       </div>
 
+      {/* Bulk Action Bar */}
+      {selectedIds.size > 0 && (
+        <div className="bg-gradient-to-r from-green-600 to-green-500 rounded-xl p-4 flex items-center justify-between shadow-lg">
+          <div className="flex items-center gap-3 text-white">
+            <CheckSquare className="w-5 h-5" />
+            <span className="font-medium">{selectedIds.size} program dipilih</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={clearSelection}
+              className="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-lg transition flex items-center gap-2"
+            >
+              <X className="w-4 h-4" />
+              Batal
+            </button>
+            <button
+              onClick={handleBulkDelete}
+              disabled={isDeleting}
+              className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition flex items-center gap-2 disabled:opacity-50"
+            >
+              <Trash2 className="w-4 h-4" />
+              {isDeleting ? 'Menghapus...' : 'Hapus Terpilih'}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Select All Row */}
+      {programs.length > 0 && !loading && (
+        <div className="flex items-center gap-3 bg-white rounded-xl p-3 border border-gray-100 shadow-sm">
+          <button
+            onClick={handleSelectAll}
+            className="flex items-center gap-2 px-3 py-2 hover:bg-gray-100 rounded-lg transition"
+          >
+            {selectedIds.size === programs.length ? (
+              <CheckSquare className="w-5 h-5 text-green-600" />
+            ) : (
+              <Square className="w-5 h-5 text-gray-400" />
+            )}
+            <span className="text-sm font-medium text-gray-700">
+              {selectedIds.size === programs.length ? 'Batal Pilih Semua' : 'Pilih Semua'}
+            </span>
+          </button>
+          {selectedIds.size > 0 && (
+            <span className="text-sm text-gray-500">
+              ({selectedIds.size} dari {programs.length} dipilih)
+            </span>
+          )}
+        </div>
+      )}
+
       {/* Program List */}
       <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
         {loading ? (
@@ -223,9 +340,23 @@ export default function ProgramListPage() {
             {programs.map((program) => (
               <div
                 key={program.id}
-                className="p-5 hover:bg-gray-50 transition"
+                className={`p-5 hover:bg-gray-50 transition ${
+                  selectedIds.has(program.id) ? 'bg-green-50' : ''
+                }`}
               >
                 <div className="flex flex-col md:flex-row md:items-center gap-4">
+                  {/* Checkbox */}
+                  <button
+                    onClick={() => handleSelectOne(program.id)}
+                    className="flex-shrink-0 p-1.5 hover:bg-gray-200 rounded-lg transition"
+                  >
+                    {selectedIds.has(program.id) ? (
+                      <CheckSquare className="w-6 h-6 text-green-600" />
+                    ) : (
+                      <Square className="w-6 h-6 text-gray-400" />
+                    )}
+                  </button>
+                  
                   {/* Icon */}
                   <div className="flex-shrink-0">
                     <div className="w-16 h-16 bg-gradient-to-br from-green-100 to-green-200 rounded-xl flex items-center justify-center">
