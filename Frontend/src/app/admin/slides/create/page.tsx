@@ -56,13 +56,20 @@ export default function CreateSlidePage() {
         else if (formData.linkType === 'program') endpoint = '/api/programs';
 
         if (endpoint) {
+          console.log('Fetching content from:', endpoint);
           const res = await apiGet<ContentOption[]>(endpoint, { limit: 50 });
+          console.log('API response:', res);
           if (res.success && res.data) {
+            console.log('Content options loaded:', res.data);
             setContentOptions(res.data);
+          } else {
+            console.warn('Failed to load content:', res.error);
+            toast.error(`Gagal memuat daftar ${formData.linkType}`);
           }
         }
       } catch (error) {
         console.error('Failed to fetch content:', error);
+        toast.error('Gagal memuat daftar konten');
       } finally {
         setLoadingContent(false);
       }

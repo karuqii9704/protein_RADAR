@@ -69,10 +69,10 @@ export default function AdminLayout({
   }
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex h-screen bg-gray-50 overflow-hidden">
       {/* Sidebar - Static on desktop */}
       <div className={`
-        hidden lg:block flex-shrink-0 transition-all duration-300 ease-in-out overflow-hidden
+        hidden lg:block flex-shrink-0 transition-all duration-300 ease-in-out overflow-hidden h-screen overflow-y-auto
         ${sidebarOpen ? 'w-64' : 'w-0'}
       `}>
         <AdminSidebar />

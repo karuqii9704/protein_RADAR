@@ -100,7 +100,7 @@ export default function AdminSidebar({ onClose }: AdminSidebarProps) {
   });
 
   return (
-    <aside className="w-64 bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 min-h-screen flex flex-col shadow-2xl">
+    <aside className="w-64 bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 h-full sticky top-0 flex flex-col shadow-2xl">
       {/* Logo Section */}
       <div className="p-6 border-b border-slate-700/50 flex items-center justify-between">
         <Link href="/admin" className="flex items-center gap-3">
