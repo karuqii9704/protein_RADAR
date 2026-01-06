@@ -15,6 +15,7 @@ import Image from 'next/image';
 import HeroCarousel from '@/components/dashboard/HeroCarousel';
 import CategoryButtons from '@/components/dashboard/CategoryButtons';
 import { apiGet } from '@/lib/api';
+import { formatCurrency } from '@/lib/currency';
 import type { DashboardStats, Program, Transaction, News } from '@/types';
 
 export default function HomePage() {
@@ -48,14 +49,6 @@ export default function HomePage() {
 
     fetchData();
   }, []);
-
-  // Format currency helper
-  const formatCurrency = (amount: number) => {
-    if (amount >= 1000000) {
-      return `Rp ${(amount / 1000000).toFixed(1)}M`;
-    }
-    return `Rp ${amount.toLocaleString('id-ID')}`;
-  };
 
   return (
     <div className="bg-gradient-to-b from-white via-green-50/30 to-white">

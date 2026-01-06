@@ -16,6 +16,7 @@ import {
   Filter
 } from 'lucide-react';
 import { apiGet, apiPost } from '@/lib/api';
+import { formatCurrency } from '@/lib/currency';
 import toast from 'react-hot-toast';
 
 interface Donation {
@@ -171,10 +172,6 @@ export default function AdminDonationPage() {
     setSelectedDonation(null);
     setShowRejectForm(false);
     setRejectReason('');
-  };
-
-  const formatCurrency = (amount: number) => {
-    return `Rp ${amount.toLocaleString('id-ID')}`;
   };
 
   const formatDate = (dateString: string) => {
