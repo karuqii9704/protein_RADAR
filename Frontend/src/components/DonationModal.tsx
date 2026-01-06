@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { X, Upload, Loader2, CheckCircle, Image as ImageIcon } from 'lucide-react';
+import { X, Upload, Loader2, CheckCircle, Image as ImageIcon, FileText } from 'lucide-react';
 import { apiPost } from '@/lib/api';
+import { formatInputNumber, parseInputNumber } from '@/lib/currency';
 import toast from 'react-hot-toast';
 
 interface DonationModalProps {
@@ -10,9 +11,10 @@ interface DonationModalProps {
   onClose: () => void;
   programId: string;
   programTitle: string;
+  programQris?: string | null; // QRIS image URL for this program
 }
 
-export default function DonationModal({ isOpen, onClose, programId, programTitle }: DonationModalProps) {
+export default function DonationModal({ isOpen, onClose, programId, programTitle, programQris }: DonationModalProps) {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [formData, setFormData] = useState({
@@ -25,7 +27,18 @@ export default function DonationModal({ isOpen, onClose, programId, programTitle
   });
   const [paymentProof, setPaymentProof] = useState<string | null>(null);
   const [paymentProofFile, setPaymentProofFile] = useState<File | null>(null);
+  const [isPdf, setIsPdf] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Handle amount input with thousand separator formatting
+  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const rawValue = e.target.value;
+    const formatted = formatInputNumber(rawValue);
+    setFormData(prev => ({
+      ...prev,
+      amount: formatted,
+    }));
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
@@ -49,7 +62,12 @@ export default function DonationModal({ isOpen, onClose, programId, programTitle
         toast.error('Ukuran file maksimal 5MB');
         return;
       }
+      
+      // Check if PDF
+      const isPdfFile = file.type === 'application/pdf';
+      setIsPdf(isPdfFile);
       setPaymentProofFile(file);
+      
       const reader = new FileReader();
       reader.onload = () => {
         setPaymentProof(reader.result as string);
@@ -61,10 +79,14 @@ export default function DonationModal({ isOpen, onClose, programId, programTitle
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validation
-    const amount = parseFloat(formData.amount);
+    // Validation - parse formatted amount back to number
+    const amount = parseInputNumber(formData.amount);
     if (!amount || amount <= 0) {
       toast.error('Nominal donasi wajib diisi');
+      return;
+    }
+    if (amount < 1000) {
+      toast.error('Nominal donasi minimal Rp 1.000');
       return;
     }
     if (!paymentProof) {
@@ -110,9 +132,13 @@ export default function DonationModal({ isOpen, onClose, programId, programTitle
     });
     setPaymentProof(null);
     setPaymentProofFile(null);
+    setIsPdf(false);
     setSuccess(false);
     onClose();
   };
+
+  // Determine which QRIS to show - program specific or fallback
+  const qrisUrl = programQris || '/qris.png';
 
   if (!isOpen) return null;
 
@@ -169,7 +195,7 @@ export default function DonationModal({ isOpen, onClose, programId, programTitle
                 <div className="bg-white rounded-lg p-4 inline-block shadow-sm">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img 
-                    src="/qris.png" 
+                    src={qrisUrl} 
                     alt="QRIS Payment"
                     className="w-48 h-48 mx-auto object-contain"
                     onError={(e) => {
@@ -182,7 +208,7 @@ export default function DonationModal({ isOpen, onClose, programId, programTitle
                 </p>
               </div>
 
-              {/* Amount */}
+              {/* Amount with thousand separator */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Nominal Donasi <span className="text-red-500">*</span>
@@ -190,12 +216,12 @@ export default function DonationModal({ isOpen, onClose, programId, programTitle
                 <div className="relative">
                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">Rp</span>
                   <input
-                    type="number"
+                    type="text"
+                    inputMode="numeric"
                     name="amount"
                     value={formData.amount}
-                    onChange={handleInputChange}
+                    onChange={handleAmountChange}
                     placeholder="0"
-                    min="1000"
                     required
                     className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-lg"
                   />
@@ -205,7 +231,7 @@ export default function DonationModal({ isOpen, onClose, programId, programTitle
                     <button
                       key={amt}
                       type="button"
-                      onClick={() => setFormData(prev => ({ ...prev, amount: amt.toString() }))}
+                      onClick={() => setFormData(prev => ({ ...prev, amount: formatInputNumber(amt.toString()) }))}
                       className="px-3 py-1.5 bg-green-50 text-green-700 text-sm rounded-lg hover:bg-green-100 transition"
                     >
                       {(amt / 1000).toLocaleString('id-ID')}rb
@@ -288,7 +314,7 @@ export default function DonationModal({ isOpen, onClose, programId, programTitle
                 />
               </div>
 
-              {/* Payment Proof Upload */}
+              {/* Payment Proof Upload - Updated to accept PDF */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Bukti Pembayaran <span className="text-red-500">*</span>
@@ -296,32 +322,44 @@ export default function DonationModal({ isOpen, onClose, programId, programTitle
                 <input
                   ref={fileInputRef}
                   type="file"
-                  accept="image/*"
+                  accept="image/jpeg,image/png,image/jpg,application/pdf"
                   onChange={handleFileChange}
                   className="hidden"
                 />
                 {paymentProof ? (
                   <div className="relative rounded-xl overflow-hidden border border-gray-200">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img 
-                      src={paymentProof} 
-                      alt="Bukti Pembayaran" 
-                      className="w-full h-48 object-contain bg-gray-50"
-                    />
+                    {isPdf ? (
+                      // PDF Preview
+                      <div className="w-full h-48 bg-gray-50 flex flex-col items-center justify-center">
+                        <FileText className="w-16 h-16 text-red-500 mb-2" />
+                        <p className="text-sm text-gray-600">{paymentProofFile?.name}</p>
+                      </div>
+                    ) : (
+                      // Image Preview
+                      <>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img 
+                          src={paymentProof} 
+                          alt="Bukti Pembayaran" 
+                          className="w-full h-48 object-contain bg-gray-50"
+                        />
+                        <div className="absolute bottom-2 left-2 px-3 py-1 bg-black/60 text-white text-sm rounded-lg">
+                          {paymentProofFile?.name}
+                        </div>
+                      </>
+                    )}
                     <button
                       type="button"
                       onClick={() => {
                         setPaymentProof(null);
                         setPaymentProofFile(null);
+                        setIsPdf(false);
                         if (fileInputRef.current) fileInputRef.current.value = '';
                       }}
                       className="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
                     >
                       <X className="w-4 h-4" />
                     </button>
-                    <div className="absolute bottom-2 left-2 px-3 py-1 bg-black/60 text-white text-sm rounded-lg">
-                      {paymentProofFile?.name}
-                    </div>
                   </div>
                 ) : (
                   <button
@@ -336,7 +374,7 @@ export default function DonationModal({ isOpen, onClose, programId, programTitle
                       Klik untuk upload bukti pembayaran
                     </p>
                     <p className="text-gray-400 text-sm mt-1">
-                      JPG, PNG, atau GIF (max 5MB)
+                      JPG, PNG, atau PDF (max 5MB)
                     </p>
                   </button>
                 )}

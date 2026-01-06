@@ -278,6 +278,7 @@ export default function ProgramDetailPage() {
           onClose={() => setIsDonationModalOpen(false)}
           programId={program.id}
           programTitle={program.title}
+          programQris={(program as unknown as { qris?: string }).qris}
         />
       )}
     </div>

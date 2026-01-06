@@ -112,6 +112,7 @@ model Program {
   target        Decimal       @db.Decimal(15, 2)
   collected     Decimal       @default(0) @db.Decimal(15, 2)
   image         String?
+  qris          String?       // QRIS image URL for this program
   startDate     DateTime      @default(now())
   endDate       DateTime?
   isActive      Boolean       @default(true)

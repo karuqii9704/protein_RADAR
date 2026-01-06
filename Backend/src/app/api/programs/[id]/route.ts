@@ -64,6 +64,7 @@ export async function GET(
       slug: program.slug,
       description: program.description,
       image: program.image,
+      qris: program.qris,
       collected,
       target,
       progress,

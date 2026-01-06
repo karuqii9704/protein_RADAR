@@ -56,6 +56,7 @@ export async function GET(request: NextRequest) {
       collected: Number(p.collected),
       progress: Number(p.target) > 0 ? Math.round((Number(p.collected) / Number(p.target)) * 100) : 0,
       image: p.image,
+      qris: p.qris,
       isActive: p.isActive,
       isFeatured: p.isFeatured,
       startDate: p.startDate.toISOString().split('T')[0],
@@ -80,7 +81,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { title, description, target, image, isActive, isFeatured, startDate, endDate } = body;
+    const { title, description, target, image, qris, isActive, isFeatured, startDate, endDate } = body;
 
     if (!title || !description || !target) {
       return errorResponse('Title, description, and target are required', 400);
@@ -100,6 +101,7 @@ export async function POST(request: NextRequest) {
         description,
         target,
         image,
+        qris,
         isActive: isActive ?? true,
         isFeatured: isFeatured ?? false,
         startDate: startDate ? new Date(startDate) : new Date(),

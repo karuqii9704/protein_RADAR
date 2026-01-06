@@ -183,8 +183,18 @@ export default function HomePage() {
             ) : programs.length > 0 ? (
               programs.map((program) => (
                 <div key={program.id} className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-2xl transition-all transform hover:-translate-y-2">
-                  <div className="h-48 bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white">
-                    <HandHeart className="w-20 h-20 opacity-50" />
+                  <div className="relative h-48 bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white overflow-hidden">
+                    {program.image ? (
+                      <Image
+                        src={program.image}
+                        alt={program.title}
+                        fill
+                        className="object-cover"
+                        unoptimized={program.image.startsWith('data:') || program.image.startsWith('http')}
+                      />
+                    ) : (
+                      <HandHeart className="w-20 h-20 opacity-50" />
+                    )}
                   </div>
                   <div className="p-6">
                     <h4 className="text-xl font-bold text-gray-900 mb-3">{program.title}</h4>

@@ -20,12 +20,15 @@ export default function CreateProgramPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [qrisPreview, setQrisPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const qrisInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
     target: '',
     image: '',
+    qris: '',
     startDate: new Date().toISOString().split('T')[0],
     endDate: '',
     isActive: true,
@@ -71,6 +74,37 @@ export default function CreateProgramPage() {
     setFormData(prev => ({ ...prev, image: '' }));
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
+    }
+  };
+
+  const handleQrisUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('File QRIS harus berupa gambar');
+      return;
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error('Ukuran file QRIS maksimal 2MB');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64String = reader.result as string;
+      setQrisPreview(base64String);
+      setFormData(prev => ({ ...prev, qris: base64String }));
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const removeQris = () => {
+    setQrisPreview(null);
+    setFormData(prev => ({ ...prev, qris: '' }));
+    if (qrisInputRef.current) {
+      qrisInputRef.current.value = '';
     }
   };
 
@@ -234,6 +268,51 @@ export default function CreateProgramPage() {
                   className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 />
               </div>
+            </div>
+
+            {/* QRIS Upload */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Gambar QRIS <span className="text-gray-400">(opsional)</span>
+              </label>
+              <p className="text-xs text-gray-500 mb-2">
+                Upload QRIS khusus untuk program ini. Jika tidak diisi, akan menggunakan QRIS default masjid.
+              </p>
+              
+              {qrisPreview ? (
+                <div className="relative w-full max-w-xs h-48 rounded-xl overflow-hidden border border-gray-200 bg-white">
+                  <Image
+                    src={qrisPreview}
+                    alt="QRIS Preview"
+                    fill
+                    className="object-contain p-2"
+                  />
+                  <button
+                    type="button"
+                    onClick={removeQris}
+                    className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-full hover:bg-red-600 transition"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              ) : (
+                <div
+                  onClick={() => qrisInputRef.current?.click()}
+                  className="w-full max-w-xs h-48 border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-green-500 hover:bg-green-50 transition"
+                >
+                  <Upload className="w-8 h-8 text-gray-400 mb-2" />
+                  <p className="text-sm text-gray-500">Upload QRIS</p>
+                  <p className="text-xs text-gray-400 mt-1">PNG, JPG (Max 2MB)</p>
+                </div>
+              )}
+              
+              <input
+                ref={qrisInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleQrisUpload}
+                className="hidden"
+              />
             </div>
           </div>
 

@@ -30,6 +30,7 @@ export interface Program {
   slug: string;
   description: string;
   image?: string;
+  qris?: string; // QRIS image URL for this program
   target: number;
   collected: number;
   progress: number;

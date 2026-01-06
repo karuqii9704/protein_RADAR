@@ -61,6 +61,7 @@ export async function GET(request: NextRequest) {
         slug: p.slug,
         description: p.description,
         image: p.image,
+        qris: p.qris,
         collected,
         target,
         progress,
