@@ -1,7 +1,29 @@
 import axios from 'axios';
 
 // API Base URL from environment
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+// If NEXT_PUBLIC_API_URL is not set or points to the same domain, use relative URLs
+const getApiUrl = () => {
+  const envUrl = process.env.NEXT_PUBLIC_API_URL;
+  
+  // If no env URL set, use relative path (same origin)
+  if (!envUrl) return '';
+  
+  // In browser, check if API is on same domain
+  if (typeof window !== 'undefined') {
+    try {
+      const apiDomain = new URL(envUrl).hostname;
+      const currentDomain = window.location.hostname;
+      // If same domain, use relative path to avoid CORS issues
+      if (apiDomain === currentDomain) return '';
+    } catch {
+      // If URL parsing fails, use the env URL as-is
+    }
+  }
+  
+  return envUrl;
+};
+
+const API_URL = getApiUrl();
 
 // Create axios instance with defaults
 export const api = axios.create({

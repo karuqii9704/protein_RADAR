@@ -13,7 +13,8 @@ export const metadata: Metadata = {
   title: 'Dashboard Masjid Syamsul Ulum',
   description: 'Sistem Manajemen Keuangan Masjid Syamsul Ulum Telkom University',
   icons: {
-    icon: '/favicon.ico',
+    icon: '/icon-masjid.png',
+    apple: '/icon-masjid.png',
   },
 };
 

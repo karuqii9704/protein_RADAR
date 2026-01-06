@@ -14,6 +14,7 @@ import {
   X,
   Users,
   Image,
+  BadgeCheck,
 } from "lucide-react";
 import { getCurrentUser } from "@/lib/auth";
 
@@ -58,6 +59,11 @@ const menuItems: MenuItem[] = [
     href: "/admin/program",
     label: "Program",
     icon: HandHeart,
+  },
+  {
+    href: "/admin/donasi",
+    label: "Verifikasi Donasi",
+    icon: BadgeCheck,
   },
   {
     href: "/admin/slides",

@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { apiGet } from '@/lib/api';
 import type { Program } from '@/types';
+import DonationModal from '@/components/DonationModal';
 
 export default function ProgramDetailPage() {
   const params = useParams();
@@ -26,6 +27,7 @@ export default function ProgramDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentUrl, setCurrentUrl] = useState('');
+  const [isDonationModalOpen, setIsDonationModalOpen] = useState(false);
 
   useEffect(() => {
     // Set URL after mount to avoid SSR issues
@@ -219,6 +221,7 @@ export default function ProgramDetailPage() {
             {/* CTA Button */}
             <div className="flex flex-col sm:flex-row items-center gap-4">
               <button 
+                onClick={() => setIsDonationModalOpen(true)}
                 className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-green-600 to-green-500 text-white rounded-xl font-bold text-lg shadow-lg shadow-green-500/25 hover:shadow-xl hover:from-green-700 hover:to-green-600 transition-all"
               >
                 <HandHeart className="w-5 h-5 inline mr-2" />
@@ -267,6 +270,16 @@ export default function ProgramDetailPage() {
           </Link>
         </div>
       </div>
+
+      {/* Donation Modal */}
+      {program && (
+        <DonationModal
+          isOpen={isDonationModalOpen}
+          onClose={() => setIsDonationModalOpen(false)}
+          programId={program.id}
+          programTitle={program.title}
+        />
+      )}
     </div>
   );
 }

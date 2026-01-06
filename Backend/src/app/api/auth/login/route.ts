@@ -8,10 +8,12 @@ export const dynamic = 'force-dynamic';
 
 // OPTIONS handler for CORS preflight
 export async function OPTIONS() {
+  const allowedOrigins = process.env.ALLOWED_ORIGINS || process.env.FRONTEND_URL || 'http://localhost:3001';
+  
   return new NextResponse(null, {
     status: 200,
     headers: {
-      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Origin': allowedOrigins.split(',')[0],
       'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type, Authorization',
     },
@@ -23,8 +25,6 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { email, password } = body;
-
-    console.log('Login attempt for:', email);
 
     // Validate input
     if (!email || !password) {
@@ -45,8 +45,6 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    console.log('User found:', user ? 'Yes' : 'No');
-
     if (!user) {
       return errorResponse(ErrorMessages.INVALID_CREDENTIALS, 401);
     }
@@ -58,7 +56,6 @@ export async function POST(request: NextRequest) {
 
     // Verify password
     const isPasswordValid = await bcrypt.compare(password, user.password);
-    console.log('Password valid:', isPasswordValid);
     
     if (!isPasswordValid) {
       return errorResponse(ErrorMessages.INVALID_CREDENTIALS, 401);
@@ -70,8 +67,6 @@ export async function POST(request: NextRequest) {
       email: user.email,
       role: user.role,
     });
-
-    console.log('Login successful for:', email);
 
     return successResponse({
       token,

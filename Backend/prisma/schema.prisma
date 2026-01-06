@@ -141,6 +141,8 @@ model Donation {
   isAnonymous   Boolean       @default(false)
   status        DonationStatus @default(PENDING)
   paymentMethod String?
+  paymentProof  String?       // URL bukti pembayaran
+  rejectReason  String?       // Alasan penolakan jika ditolak
   
   // Relations
   program       Program       @relation(fields: [programId], references: [id])
