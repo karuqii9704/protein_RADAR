@@ -42,6 +42,8 @@ export async function GET(
       content: news.content,
       excerpt: news.excerpt,
       image: news.image,
+      attachment: news.attachment,
+      attachmentName: news.attachmentName,
       category: news.category,
       publishedAt: news.publishedAt?.toISOString() || null,
       viewCount: news.viewCount + 1,

@@ -178,6 +178,8 @@ model News {
   content       String        @db.Text
   excerpt       String?
   image         String?
+  attachment    String?       // File attachment URL (PDF, Excel, etc)
+  attachmentName String?      // Original filename for display
   category      NewsCategory
   isPublished   Boolean       @default(false)
   publishedAt   DateTime?

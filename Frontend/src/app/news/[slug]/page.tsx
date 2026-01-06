@@ -11,13 +11,17 @@ import {
   Share2,
   Facebook,
   Twitter,
-  Newspaper
+  Newspaper,
+  FileText,
+  Download
 } from 'lucide-react';
 import { apiGet } from '@/lib/api';
 import type { News } from '@/types';
 
 interface NewsDetail extends News {
   content: string;
+  attachment?: string;
+  attachmentName?: string;
   author: {
     id: string;
     name: string;
@@ -198,6 +202,24 @@ export default function NewsDetailPage() {
               className="prose prose-lg max-w-none mt-8 prose-headings:text-gray-900 prose-p:text-gray-600 prose-a:text-green-600 prose-strong:text-gray-900"
               dangerouslySetInnerHTML={{ __html: news.content || '' }}
             />
+
+            {/* Attachment Download */}
+            {news.attachment && (
+              <div className="mt-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200">
+                <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
+                  <FileText className="w-5 h-5 text-blue-600" />
+                  Lampiran Dokumen
+                </h3>
+                <a
+                  href={news.attachment}
+                  download={news.attachmentName || 'lampiran'}
+                  className="inline-flex items-center gap-3 px-6 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition shadow-lg shadow-blue-500/25"
+                >
+                  <Download className="w-5 h-5" />
+                  <span>Unduh {news.attachmentName || 'Dokumen'}</span>
+                </a>
+              </div>
+            )}
 
             {/* Share Buttons */}
             <div className="mt-12 pt-8 border-t border-gray-100">

@@ -73,6 +73,8 @@ export async function GET(request: NextRequest) {
       slug: n.slug,
       excerpt: n.excerpt,
       image: n.image,
+      attachment: n.attachment,
+      attachmentName: n.attachmentName,
       category: n.category,
       isPublished: n.isPublished,
       publishedAt: n.publishedAt?.toISOString() || null,
@@ -98,7 +100,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { title, content, excerpt, image, category, isPublished } = body;
+    const { title, content, excerpt, image, attachment, attachmentName, category, isPublished } = body;
 
     // Validate required fields
     if (!title || !content || !category) {
@@ -123,6 +125,8 @@ export async function POST(request: NextRequest) {
         content,
         excerpt: excerpt || content.substring(0, 200),
         image,
+        attachment,
+        attachmentName,
         category,
         isPublished: isPublished || false,
         publishedAt: isPublished ? new Date() : null,

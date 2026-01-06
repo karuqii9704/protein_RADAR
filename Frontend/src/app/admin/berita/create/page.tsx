@@ -23,12 +23,15 @@ export default function CreateBeritaPage() {
   const [loading, setLoading] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const attachmentInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState({
     title: '',
     category: '',
     excerpt: '',
     content: '',
     image: '',
+    attachment: '',
+    attachmentName: '',
     isPublished: false
   });
 
@@ -74,6 +77,48 @@ export default function CreateBeritaPage() {
     }
   };
 
+  const handleAttachmentUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type (PDF, Excel, Word)
+    const allowedTypes = [
+      'application/pdf',
+      'application/vnd.ms-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    ];
+    
+    if (!allowedTypes.includes(file.type)) {
+      toast.error('Format file tidak didukung. Gunakan PDF, Excel, atau Word.');
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error('Ukuran file maksimal 10MB');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64String = reader.result as string;
+      setFormData(prev => ({ 
+        ...prev, 
+        attachment: base64String,
+        attachmentName: file.name
+      }));
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const removeAttachment = () => {
+    setFormData(prev => ({ ...prev, attachment: '', attachmentName: '' }));
+    if (attachmentInputRef.current) {
+      attachmentInputRef.current.value = '';
+    }
+  };
+
   const handleSubmit = async (publish: boolean = false) => {
     // Validate
     if (!formData.title || !formData.content || !formData.category) {
@@ -90,6 +135,8 @@ export default function CreateBeritaPage() {
         excerpt: formData.excerpt || formData.content.substring(0, 200),
         category: formData.category,
         image: formData.image,
+        attachment: formData.attachment || null,
+        attachmentName: formData.attachmentName || null,
         isPublished: publish,
       });
 
@@ -305,6 +352,52 @@ export default function CreateBeritaPage() {
             </div>
           </div>
 
+          {/* File Attachment */}
+          <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
+            <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <FileText className="w-5 h-5 text-blue-600" />
+              Lampiran File
+            </h2>
+            <p className="text-sm text-gray-500 mb-4">
+              Lampirkan dokumen pendukung seperti laporan keuangan (PDF/Excel)
+            </p>
+            
+            {formData.attachment ? (
+              <div className="flex items-center gap-3 p-4 bg-blue-50 border border-blue-200 rounded-xl">
+                <div className="p-2 bg-blue-500 rounded-lg">
+                  <FileText className="w-5 h-5 text-white" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-gray-900 truncate">{formData.attachmentName}</p>
+                  <p className="text-xs text-gray-500">Siap diupload</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={removeAttachment}
+                  className="p-1.5 text-red-500 hover:bg-red-100 rounded-lg transition"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
+              <div
+                onClick={() => attachmentInputRef.current?.click()}
+                className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition"
+              >
+                <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                <p className="text-sm text-gray-500">Klik untuk upload file</p>
+                <p className="text-xs text-gray-400 mt-1">PDF, Excel, Word (Max 10MB)</p>
+              </div>
+            )}
+            
+            <input
+              ref={attachmentInputRef}
+              type="file"
+              accept=".pdf,.xls,.xlsx,.doc,.docx,application/pdf,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+              onChange={handleAttachmentUpload}
+              className="hidden"
+            />
+          </div>
           {/* Preview Card */}
           <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
             <h2 className="text-lg font-bold text-gray-900 mb-4">Preview Card</h2>
