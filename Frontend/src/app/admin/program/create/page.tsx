@@ -130,8 +130,16 @@ export default function CreateProgramPage() {
       } else {
         toast.error(res.error || 'Gagal membuat program');
       }
-    } catch (error) {
-      toast.error('Gagal membuat program');
+    } catch (error: unknown) {
+      console.error('Create program error:', error);
+      // Handle axios error with response
+      if (error && typeof error === 'object' && 'response' in error) {
+        const axiosError = error as { response?: { data?: { error?: string; message?: string } } };
+        const errorMsg = axiosError.response?.data?.error || axiosError.response?.data?.message || 'Gagal membuat program';
+        toast.error(errorMsg);
+      } else {
+        toast.error('Gagal membuat program');
+      }
     } finally {
       setLoading(false);
     }
