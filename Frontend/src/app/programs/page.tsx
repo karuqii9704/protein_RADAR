@@ -107,7 +107,7 @@ export default function ProgramsPage() {
                       <p className="text-xs text-gray-500 mb-1 flex items-center gap-1">
                         <Target className="w-3 h-3" /> Target
                       </p>
-                      <p className="text-sm font-bold text-gray-900">{formatCurrency(program.target)}</p>
+                      <p className="text-sm font-bold text-gray-900">Rp {program.target.toLocaleString('id-ID')}</p>
                     </div>
                     <div>
                       <p className="text-xs text-gray-500 mb-1 flex items-center gap-1">

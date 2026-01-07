@@ -217,22 +217,26 @@ export default function HomePage() {
                       <div>
                         <p className="text-xs text-gray-500 mb-1">Terkumpul</p>
                         <p className="text-sm font-bold text-gray-900">
-                          {formatCurrency(program.collected)}
+                          Rp {program.collected.toLocaleString('id-ID')}
                         </p>
                       </div>
                       <div>
                         <p className="text-xs text-gray-500 mb-1">Target</p>
                         <p className="text-sm font-bold text-gray-900">
-                          {formatCurrency(program.target)}
+                          Rp {program.target.toLocaleString('id-ID')}
                         </p>
                       </div>
                     </div>
 
                     <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                      <span className="text-xs text-gray-500">
-                        <Calendar className="w-4 h-4 inline mr-1" />
-                        {program.daysLeft ?? 0} hari lagi
-                      </span>
+                      {program.daysLeft !== null ? (
+                        <span className="text-xs text-gray-500">
+                          <Calendar className="w-4 h-4 inline mr-1" />
+                          {program.daysLeft} hari lagi
+                        </span>
+                      ) : (
+                        <span className="text-xs text-gray-500">Tanpa batas waktu</span>
+                      )}
                       <Link 
                         href={`/programs/${program.slug}`}
                         className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-sm font-semibold rounded-lg transition"
