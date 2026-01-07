@@ -37,7 +37,11 @@ export async function GET(request: NextRequest) {
         take: limit,
         include: {
           _count: {
-            select: { donations: true },
+            select: { 
+              donations: {
+                where: { status: 'VERIFIED' }
+              }
+            },
           },
         },
       }),

@@ -34,9 +34,6 @@ export default function ProgramsPage() {
   }, []);
 
   const formatCurrency = (amount: number) => {
-    if (amount >= 1000000) {
-      return `Rp ${(amount / 1000000).toFixed(1)}M`;
-    }
     return `Rp ${amount.toLocaleString('id-ID')}`;
   };
 

@@ -1,21 +1,21 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { 
-  FileText, 
-  Newspaper, 
-  BookOpen, 
-  TrendingUp, 
+import { useEffect, useState } from "react";
+import {
+  FileText,
+  Newspaper,
+  BookOpen,
+  TrendingUp,
   TrendingDown,
   Layers,
   Calendar,
   Plus,
   ArrowUpRight,
-  ArrowDownRight
-} from 'lucide-react';
-import Link from 'next/link';
-import { apiGet } from '@/lib/api';
-import type { DashboardStats } from '@/types';
+  ArrowDownRight,
+} from "lucide-react";
+import Link from "next/link";
+import { apiGet } from "@/lib/api";
+import type { DashboardStats } from "@/types";
 
 interface AdminStatsResponse {
   totalTransactions: number;
@@ -35,7 +35,9 @@ interface Activity {
 }
 
 export default function AdminDashboard() {
-  const [dashboardStats, setDashboardStats] = useState<DashboardStats | null>(null);
+  const [dashboardStats, setDashboardStats] = useState<DashboardStats | null>(
+    null
+  );
   const [adminStats, setAdminStats] = useState<AdminStatsResponse | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -43,10 +45,10 @@ export default function AdminDashboard() {
     const fetchStats = async () => {
       try {
         const [dashRes, adminRes] = await Promise.all([
-          apiGet<DashboardStats>('/api/dashboard/stats'),
-          apiGet<AdminStatsResponse>('/api/admin/stats'),
+          apiGet<DashboardStats>("/api/dashboard/stats"),
+          apiGet<AdminStatsResponse>("/api/admin/stats"),
         ]);
-        
+
         if (dashRes.success && dashRes.data) {
           setDashboardStats(dashRes.data);
         }
@@ -54,7 +56,7 @@ export default function AdminDashboard() {
           setAdminStats(adminRes.data);
         }
       } catch (error) {
-        console.error('Failed to fetch stats:', error);
+        console.error("Failed to fetch stats:", error);
       } finally {
         setLoading(false);
       }
@@ -66,40 +68,40 @@ export default function AdminDashboard() {
   // Build stats array from API data
   const stats = [
     {
-      title: 'Total Transaksi',
-      value: loading ? '...' : (adminStats?.totalTransactions ?? 0).toString(),
-      change: '',
-      changeType: 'neutral',
+      title: "Total Transaksi",
+      value: loading ? "..." : (adminStats?.totalTransactions ?? 0).toString(),
+      change: "",
+      changeType: "neutral",
       icon: FileText,
-      color: 'blue',
-      href: '/admin/laporan'
+      color: "blue",
+      href: "/admin/laporan",
     },
     {
-      title: 'Total Berita',
-      value: loading ? '...' : (adminStats?.totalNews ?? 0).toString(),
-      change: '',
-      changeType: 'neutral',
+      title: "Total Berita",
+      value: loading ? "..." : (adminStats?.totalNews ?? 0).toString(),
+      change: "",
+      changeType: "neutral",
       icon: Newspaper,
-      color: 'green',
-      href: '/admin/berita'
+      color: "green",
+      href: "/admin/berita",
     },
     {
-      title: 'Total Artikel',
-      value: loading ? '...' : (adminStats?.totalArticles ?? 0).toString(),
-      change: '',
-      changeType: 'neutral',
+      title: "Total Artikel",
+      value: loading ? "..." : (adminStats?.totalArticles ?? 0).toString(),
+      change: "",
+      changeType: "neutral",
       icon: BookOpen,
-      color: 'purple',
-      href: '/admin/artikel'
+      color: "purple",
+      href: "/admin/artikel",
     },
     {
-      title: 'Total Program',
-      value: loading ? '...' : (adminStats?.totalPrograms ?? 0).toString(),
-      change: '',
-      changeType: 'neutral',
+      title: "Total Program",
+      value: loading ? "..." : (adminStats?.totalPrograms ?? 0).toString(),
+      change: "",
+      changeType: "neutral",
       icon: Layers,
-      color: 'orange',
-      href: '/admin/program'
+      color: "orange",
+      href: "/admin/program",
     },
   ];
 
@@ -107,29 +109,47 @@ export default function AdminDashboard() {
   const recentActivities: Activity[] = adminStats?.recentActivities ?? [];
 
   const getColorClasses = (color: string) => {
-    const colors: Record<string, { bg: string; text: string; iconBg: string }> = {
-      blue: { bg: 'bg-blue-50', text: 'text-blue-600', iconBg: 'from-blue-500 to-blue-600' },
-      green: { bg: 'bg-green-50', text: 'text-green-600', iconBg: 'from-green-500 to-green-600' },
-      purple: { bg: 'bg-purple-50', text: 'text-purple-600', iconBg: 'from-purple-500 to-purple-600' },
-      orange: { bg: 'bg-orange-50', text: 'text-orange-600', iconBg: 'from-orange-500 to-orange-600' },
-    };
+    const colors: Record<string, { bg: string; text: string; iconBg: string }> =
+      {
+        blue: {
+          bg: "bg-blue-50",
+          text: "text-blue-600",
+          iconBg: "from-blue-500 to-blue-600",
+        },
+        green: {
+          bg: "bg-green-50",
+          text: "text-green-600",
+          iconBg: "from-green-500 to-green-600",
+        },
+        purple: {
+          bg: "bg-purple-50",
+          text: "text-purple-600",
+          iconBg: "from-purple-500 to-purple-600",
+        },
+        orange: {
+          bg: "bg-orange-50",
+          text: "text-orange-600",
+          iconBg: "from-orange-500 to-orange-600",
+        },
+      };
     return colors[color] || colors.blue;
   };
 
   const getActivityIcon = (type: string) => {
     switch (type) {
-      case 'laporan': return <FileText className="w-4 h-4 text-blue-500" />;
-      case 'berita': return <Newspaper className="w-4 h-4 text-green-500" />;
-      case 'artikel': return <BookOpen className="w-4 h-4 text-purple-500" />;
-      default: return <Calendar className="w-4 h-4 text-gray-500" />;
+      case "laporan":
+        return <FileText className="w-4 h-4 text-blue-500" />;
+      case "berita":
+        return <Newspaper className="w-4 h-4 text-green-500" />;
+      case "artikel":
+        return <BookOpen className="w-4 h-4 text-purple-500" />;
+      default:
+        return <Calendar className="w-4 h-4 text-gray-500" />;
     }
   };
 
   const formatCurrency = (amount: number) => {
-    if (amount >= 1000000) {
-      return `Rp ${(amount / 1000000).toFixed(1)}M`;
-    }
-    return `Rp ${amount.toLocaleString('id-ID')}`;
+    return `Rp ${amount.toLocaleString("id-ID")}`;
   };
 
   return (
@@ -138,7 +158,9 @@ export default function AdminDashboard() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-gray-500 mt-1">Selamat datang di Admin Panel Masjid Syamsul &apos;Ulum</p>
+          <p className="text-gray-500 mt-1">
+            Selamat datang di Admin Panel Masjid Syamsul &apos;Ulum
+          </p>
         </div>
         <div className="flex gap-3">
           <Link
@@ -156,7 +178,7 @@ export default function AdminDashboard() {
         {stats.map((stat) => {
           const Icon = stat.icon;
           const colors = getColorClasses(stat.color);
-          
+
           return (
             <Link
               key={stat.title}
@@ -164,13 +186,19 @@ export default function AdminDashboard() {
               className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-lg hover:border-gray-200 transition-all group"
             >
               <div className="flex items-start justify-between mb-4">
-                <div className={`p-3 rounded-xl bg-gradient-to-br ${colors.iconBg} shadow-lg`}>
+                <div
+                  className={`p-3 rounded-xl bg-gradient-to-br ${colors.iconBg} shadow-lg`}
+                >
                   <Icon className="w-6 h-6 text-white" />
                 </div>
-                <span className={`flex items-center gap-1 text-sm font-medium ${
-                  stat.changeType === 'increase' ? 'text-green-600' : 'text-red-600'
-                }`}>
-                  {stat.changeType === 'increase' ? (
+                <span
+                  className={`flex items-center gap-1 text-sm font-medium ${
+                    stat.changeType === "increase"
+                      ? "text-green-600"
+                      : "text-red-600"
+                  }`}
+                >
+                  {stat.changeType === "increase" ? (
                     <ArrowUpRight className="w-4 h-4" />
                   ) : (
                     <ArrowDownRight className="w-4 h-4" />
@@ -178,8 +206,12 @@ export default function AdminDashboard() {
                   {stat.change}
                 </span>
               </div>
-              <h3 className="text-sm font-medium text-gray-500 mb-1">{stat.title}</h3>
-              <p className="text-3xl font-bold text-gray-900 group-hover:text-green-600 transition">{stat.value}</p>
+              <h3 className="text-sm font-medium text-gray-500 mb-1">
+                {stat.title}
+              </h3>
+              <p className="text-3xl font-bold text-gray-900 group-hover:text-green-600 transition">
+                {stat.value}
+              </p>
             </Link>
           );
         })}
@@ -189,7 +221,9 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Financial Summary */}
         <div className="lg:col-span-2 bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-          <h2 className="text-lg font-bold text-gray-900 mb-6">Ringkasan Keuangan</h2>
+          <h2 className="text-lg font-bold text-gray-900 mb-6">
+            Ringkasan Keuangan
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {/* Income */}
             <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-5">
@@ -197,12 +231,18 @@ export default function AdminDashboard() {
                 <div className="p-2 bg-green-500 rounded-lg">
                   <TrendingUp className="w-5 h-5 text-white" />
                 </div>
-                <span className="text-sm font-medium text-green-700">Pemasukan</span>
+                <span className="text-sm font-medium text-green-700">
+                  Pemasukan
+                </span>
               </div>
               <p className="text-2xl font-bold text-gray-900">
-                {loading ? '...' : formatCurrency(dashboardStats?.totalIncome ?? 0)}
+                {loading
+                  ? "..."
+                  : formatCurrency(dashboardStats?.totalIncome ?? 0)}
               </p>
-              <p className="text-xs text-green-600 mt-1">{dashboardStats?.period?.label ?? 'Bulan ini'}</p>
+              <p className="text-xs text-green-600 mt-1">
+                {dashboardStats?.period?.label ?? "Bulan ini"}
+              </p>
             </div>
 
             {/* Expense */}
@@ -211,12 +251,18 @@ export default function AdminDashboard() {
                 <div className="p-2 bg-red-500 rounded-lg">
                   <TrendingDown className="w-5 h-5 text-white" />
                 </div>
-                <span className="text-sm font-medium text-red-700">Pengeluaran</span>
+                <span className="text-sm font-medium text-red-700">
+                  Pengeluaran
+                </span>
               </div>
               <p className="text-2xl font-bold text-gray-900">
-                {loading ? '...' : formatCurrency(dashboardStats?.totalExpense ?? 0)}
+                {loading
+                  ? "..."
+                  : formatCurrency(dashboardStats?.totalExpense ?? 0)}
               </p>
-              <p className="text-xs text-red-600 mt-1">{dashboardStats?.period?.label ?? 'Bulan ini'}</p>
+              <p className="text-xs text-red-600 mt-1">
+                {dashboardStats?.period?.label ?? "Bulan ini"}
+              </p>
             </div>
 
             {/* Balance */}
@@ -228,7 +274,7 @@ export default function AdminDashboard() {
                 <span className="text-sm font-medium text-blue-700">Saldo</span>
               </div>
               <p className="text-2xl font-bold text-gray-900">
-                {loading ? '...' : formatCurrency(dashboardStats?.balance ?? 0)}
+                {loading ? "..." : formatCurrency(dashboardStats?.balance ?? 0)}
               </p>
               <p className="text-xs text-blue-600 mt-1">Tersedia</p>
             </div>
@@ -247,8 +293,12 @@ export default function AdminDashboard() {
                 <FileText className="w-5 h-5 text-white" />
               </div>
               <div>
-                <p className="font-medium text-gray-900 group-hover:text-blue-600">Tambah Laporan</p>
-                <p className="text-xs text-gray-500">Buat laporan keuangan baru</p>
+                <p className="font-medium text-gray-900 group-hover:text-blue-600">
+                  Tambah Laporan
+                </p>
+                <p className="text-xs text-gray-500">
+                  Buat laporan keuangan baru
+                </p>
               </div>
             </Link>
             <Link
@@ -259,7 +309,9 @@ export default function AdminDashboard() {
                 <Newspaper className="w-5 h-5 text-white" />
               </div>
               <div>
-                <p className="font-medium text-gray-900 group-hover:text-green-600">Tambah Berita</p>
+                <p className="font-medium text-gray-900 group-hover:text-green-600">
+                  Tambah Berita
+                </p>
                 <p className="text-xs text-gray-500">Posting berita terbaru</p>
               </div>
             </Link>
@@ -271,7 +323,9 @@ export default function AdminDashboard() {
                 <BookOpen className="w-5 h-5 text-white" />
               </div>
               <div>
-                <p className="font-medium text-gray-900 group-hover:text-purple-600">Tambah Artikel</p>
+                <p className="font-medium text-gray-900 group-hover:text-purple-600">
+                  Tambah Artikel
+                </p>
                 <p className="text-xs text-gray-500">Tulis artikel baru</p>
               </div>
             </Link>
@@ -297,7 +351,9 @@ export default function AdminDashboard() {
                 {getActivityIcon(activity.type)}
               </div>
               <div className="flex-1">
-                <p className="text-sm font-medium text-gray-900">{activity.action}</p>
+                <p className="text-sm font-medium text-gray-900">
+                  {activity.action}
+                </p>
                 <p className="text-xs text-gray-500 mt-1">
                   oleh {activity.user} · {activity.time}
                 </p>

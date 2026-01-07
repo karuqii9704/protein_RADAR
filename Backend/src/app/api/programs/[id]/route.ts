@@ -19,7 +19,11 @@ export async function GET(
       where: isUUID ? { id } : { slug: id },
       include: {
         _count: {
-          select: { donations: true },
+          select: { 
+            donations: {
+              where: { status: 'VERIFIED' }
+            }
+          },
         },
         donations: {
           where: { status: 'VERIFIED' },
