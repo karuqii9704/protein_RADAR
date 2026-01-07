@@ -99,9 +99,9 @@ export async function POST(request: NextRequest) {
         title,
         slug,
         description,
-        target,
-        image,
-        qris,
+        target: target, // Prisma handles number to Decimal conversion
+        image: image || null,
+        qris: qris || null,
         isActive: isActive ?? true,
         isFeatured: isFeatured ?? false,
         startDate: startDate ? new Date(startDate) : new Date(),
@@ -116,6 +116,7 @@ export async function POST(request: NextRequest) {
     }, 'Program created successfully');
   } catch (error) {
     console.error('Create program error:', error);
-    return errorResponse('Failed to create program', 500);
+    const errorMessage = error instanceof Error ? error.message : 'Failed to create program';
+    return errorResponse(errorMessage, 500);
   }
 }
