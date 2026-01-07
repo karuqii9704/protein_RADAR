@@ -6,6 +6,15 @@ import { Role } from '@prisma/client';
 
 export const dynamic = 'force-dynamic';
 
+// Config for body size (10MB for base64 images)
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: '10mb',
+    },
+  },
+};
+
 // Helper to generate slug
 function generateSlug(title: string): string {
   return title
@@ -75,12 +84,24 @@ export async function GET(request: NextRequest) {
 // POST /api/admin/programs - Create program
 export async function POST(request: NextRequest) {
   try {
+    console.log('POST /api/admin/programs - Starting request');
+    
     const authResult = await withAuth(request, [Role.SUPER_ADMIN, Role.ADMIN]);
     if (isAuthError(authResult)) {
+      console.log('POST /api/admin/programs - Auth failed');
       return authResult;
     }
+    console.log('POST /api/admin/programs - Auth passed');
 
-    const body = await request.json();
+    let body;
+    try {
+      body = await request.json();
+      console.log('POST /api/admin/programs - Body parsed, title:', body?.title);
+    } catch (parseError) {
+      console.error('POST /api/admin/programs - Body parse error:', parseError);
+      return errorResponse('Invalid JSON body or body too large', 400);
+    }
+    
     const { title, description, target, image, qris, isActive, isFeatured, startDate, endDate } = body;
 
     if (!title || !description || !target) {
