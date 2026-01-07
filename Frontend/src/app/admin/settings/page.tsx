@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import Image from 'next/image';
 import { 
-  Settings, 
   User, 
   Building, 
   CreditCard, 
@@ -12,19 +12,101 @@ import {
   Upload,
   Mail,
   Phone,
-  MapPin
+  MapPin,
+  X,
+  Loader2,
+  QrCode
 } from 'lucide-react';
+import { apiGet, apiPut } from '@/lib/api';
+import toast from 'react-hot-toast';
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState('profile');
+  const [qrisPreview, setQrisPreview] = useState<string | null>(null);
+  const [qrisLoading, setQrisLoading] = useState(false);
+  const [savingQris, setSavingQris] = useState(false);
+  const qrisInputRef = useRef<HTMLInputElement>(null);
 
   const tabs = [
     { id: 'profile', label: 'Profil Masjid', icon: Building },
     { id: 'account', label: 'Akun Admin', icon: User },
-    { id: 'bank', label: 'Rekening Bank', icon: CreditCard },
+    { id: 'bank', label: 'Rekening & QRIS', icon: CreditCard },
     { id: 'notifications', label: 'Notifikasi', icon: Bell },
     { id: 'security', label: 'Keamanan', icon: Shield },
   ];
+
+  // Fetch default QRIS on mount
+  useEffect(() => {
+    if (activeTab === 'bank') {
+      fetchDefaultQris();
+    }
+  }, [activeTab]);
+
+  const fetchDefaultQris = async () => {
+    setQrisLoading(true);
+    try {
+      const res = await apiGet<{ default_qris?: string }>('/api/admin/settings', { key: 'default_qris' });
+      if (res.success && res.data) {
+        const setting = res.data as unknown as { value?: string };
+        if (setting?.value) {
+          setQrisPreview(setting.value);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch QRIS:', error);
+    } finally {
+      setQrisLoading(false);
+    }
+  };
+
+  const handleQrisUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('File harus berupa gambar');
+      return;
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error('Ukuran file maksimal 2MB');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setQrisPreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const removeQris = () => {
+    setQrisPreview(null);
+    if (qrisInputRef.current) {
+      qrisInputRef.current.value = '';
+    }
+  };
+
+  const saveQris = async () => {
+    setSavingQris(true);
+    try {
+      const res = await apiPut('/api/admin/settings', {
+        key: 'default_qris',
+        value: qrisPreview || '',
+      });
+
+      if (res.success) {
+        toast.success('QRIS default berhasil disimpan');
+      } else {
+        toast.error(res.error || 'Gagal menyimpan QRIS');
+      }
+    } catch (error) {
+      console.error('Save QRIS error:', error);
+      toast.error('Gagal menyimpan QRIS');
+    } finally {
+      setSavingQris(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -206,28 +288,102 @@ export default function SettingsPage() {
             </div>
           )}
 
-          {/* Bank Settings */}
+          {/* Bank & QRIS Settings */}
           {activeTab === 'bank' && (
-            <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
-              <h2 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
-                <CreditCard className="w-5 h-5 text-green-600" />
-                Rekening Bank
-              </h2>
+            <div className="space-y-6">
+              {/* Bank Account */}
+              <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
+                <h2 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
+                  <CreditCard className="w-5 h-5 text-green-600" />
+                  Rekening Bank
+                </h2>
 
-              <div className="space-y-4">
-                {/* Existing Account */}
-                <div className="p-5 bg-gradient-to-br from-green-50 to-green-100 rounded-xl border border-green-200">
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="text-sm font-medium text-green-700">Rekening Utama</span>
-                    <span className="px-2 py-1 text-xs font-medium bg-green-200 text-green-800 rounded-full">Aktif</span>
+                <div className="space-y-4">
+                  {/* Existing Account */}
+                  <div className="p-5 bg-gradient-to-br from-green-50 to-green-100 rounded-xl border border-green-200">
+                    <div className="flex items-center justify-between mb-4">
+                      <span className="text-sm font-medium text-green-700">Rekening Utama</span>
+                      <span className="px-2 py-1 text-xs font-medium bg-green-200 text-green-800 rounded-full">Aktif</span>
+                    </div>
+                    <p className="font-bold text-gray-900 text-lg mb-1">Bank Syariah Indonesia (BSI)</p>
+                    <p className="text-gray-600">7123456789 - Masjid Syamsul Ulum</p>
                   </div>
-                  <p className="font-bold text-gray-900 text-lg mb-1">Bank Syariah Indonesia (BSI)</p>
-                  <p className="text-gray-600">7123456789 - Masjid Syamsul Ulum</p>
-                </div>
 
-                <button className="w-full py-3 border-2 border-dashed border-gray-300 rounded-xl text-gray-500 hover:border-green-400 hover:text-green-600 transition">
-                  + Tambah Rekening Baru
-                </button>
+                  <button className="w-full py-3 border-2 border-dashed border-gray-300 rounded-xl text-gray-500 hover:border-green-400 hover:text-green-600 transition">
+                    + Tambah Rekening Baru
+                  </button>
+                </div>
+              </div>
+
+              {/* QRIS Default */}
+              <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
+                <h2 className="text-lg font-bold text-gray-900 mb-2 flex items-center gap-2">
+                  <QrCode className="w-5 h-5 text-green-600" />
+                  QRIS Default
+                </h2>
+                <p className="text-sm text-gray-500 mb-6">
+                  QRIS ini akan digunakan untuk program donasi yang tidak memiliki QRIS khusus.
+                </p>
+
+                {qrisLoading ? (
+                  <div className="flex items-center justify-center py-12">
+                    <Loader2 className="w-8 h-8 text-green-600 animate-spin" />
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {qrisPreview ? (
+                      <div className="relative w-full max-w-sm mx-auto">
+                        <div className="relative aspect-square rounded-xl overflow-hidden border-2 border-green-200 bg-white p-4">
+                          <Image
+                            src={qrisPreview}
+                            alt="QRIS Default"
+                            fill
+                            className="object-contain"
+                          />
+                        </div>
+                        <button
+                          type="button"
+                          onClick={removeQris}
+                          className="absolute -top-2 -right-2 p-1.5 bg-red-500 text-white rounded-full hover:bg-red-600 transition shadow-lg"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ) : (
+                      <div
+                        onClick={() => qrisInputRef.current?.click()}
+                        className="w-full max-w-sm mx-auto aspect-square border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-green-500 hover:bg-green-50 transition"
+                      >
+                        <QrCode className="w-16 h-16 text-gray-300 mb-4" />
+                        <p className="text-gray-500 font-medium">Upload QRIS</p>
+                        <p className="text-xs text-gray-400 mt-1">PNG, JPG (Max 2MB)</p>
+                      </div>
+                    )}
+
+                    <input
+                      ref={qrisInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleQrisUpload}
+                      className="hidden"
+                    />
+
+                    <div className="flex justify-center pt-4">
+                      <button
+                        onClick={saveQris}
+                        disabled={savingQris}
+                        className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-green-600 to-green-500 text-white rounded-xl font-medium shadow-lg shadow-green-500/25 hover:shadow-xl transition disabled:opacity-50"
+                      >
+                        {savingQris ? (
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                        ) : (
+                          <Save className="w-5 h-5" />
+                        )}
+                        Simpan QRIS
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           )}

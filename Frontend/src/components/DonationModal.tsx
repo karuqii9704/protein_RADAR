@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { X, Upload, Loader2, CheckCircle, Image as ImageIcon, FileText } from 'lucide-react';
-import { apiPost } from '@/lib/api';
+import { apiPost, apiGet } from '@/lib/api';
 import { formatInputNumber, parseInputNumber } from '@/lib/currency';
 import toast from 'react-hot-toast';
 
@@ -17,6 +17,7 @@ interface DonationModalProps {
 export default function DonationModal({ isOpen, onClose, programId, programTitle, programQris }: DonationModalProps) {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [defaultQris, setDefaultQris] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     amount: '',
     donorName: '',
@@ -29,6 +30,24 @@ export default function DonationModal({ isOpen, onClose, programId, programTitle
   const [paymentProofFile, setPaymentProofFile] = useState<File | null>(null);
   const [isPdf, setIsPdf] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Fetch default QRIS from API
+  useEffect(() => {
+    if (isOpen && !programQris) {
+      fetchDefaultQris();
+    }
+  }, [isOpen, programQris]);
+
+  const fetchDefaultQris = async () => {
+    try {
+      const res = await apiGet<{ qris: string | null }>('/api/settings/qris');
+      if (res.success && res.data?.qris) {
+        setDefaultQris(res.data.qris);
+      }
+    } catch (error) {
+      console.error('Failed to fetch default QRIS:', error);
+    }
+  };
 
   // Handle amount input with thousand separator formatting
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -137,8 +156,8 @@ export default function DonationModal({ isOpen, onClose, programId, programTitle
     onClose();
   };
 
-  // Determine which QRIS to show - program specific or fallback
-  const qrisUrl = programQris || '/qris.png';
+  // Determine which QRIS to show - program specific, default from API, or static fallback
+  const qrisUrl = programQris || defaultQris || '/qris.png';
 
   if (!isOpen) return null;
 
