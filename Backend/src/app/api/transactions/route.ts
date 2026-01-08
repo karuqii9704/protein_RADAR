@@ -14,11 +14,14 @@ export async function GET(request: NextRequest) {
     // Optional filters
     const type = searchParams.get('type') as TransactionType | null;
     const categoryId = searchParams.get('categoryId');
+    const month = searchParams.get('month');
+    const year = searchParams.get('year');
 
     // Build where clause
     const where: {
       type?: TransactionType;
       categoryId?: string;
+      date?: { gte: Date; lte: Date };
     } = {};
 
     if (type && Object.values(TransactionType).includes(type)) {
@@ -26,6 +29,15 @@ export async function GET(request: NextRequest) {
     }
     if (categoryId) {
       where.categoryId = categoryId;
+    }
+    
+    // Add month/year filter for reports export
+    if (month && year) {
+      const monthNum = parseInt(month);
+      const yearNum = parseInt(year);
+      const startDate = new Date(yearNum, monthNum - 1, 1);
+      const endDate = new Date(yearNum, monthNum, 0, 23, 59, 59);
+      where.date = { gte: startDate, lte: endDate };
     }
 
     // Get transactions
@@ -59,15 +71,18 @@ export async function GET(request: NextRequest) {
     // Format transactions for frontend
     const formattedTransactions = transactions.map((t) => ({
       id: t.id,
-      type: t.type.toLowerCase(),
+      type: t.type, // Keep uppercase for Excel export
       amount: Number(t.amount),
       description: t.description,
       donor: t.donor,
       recipient: t.recipient,
       date: t.date.toISOString().split('T')[0],
-      category: t.category.name,
-      categoryColor: t.category.color,
-      categoryIcon: t.category.icon,
+      category: { 
+        id: t.category.id,
+        name: t.category.name,
+        color: t.category.color,
+        icon: t.category.icon,
+      },
     }));
 
     return paginatedResponse(formattedTransactions, total, page, limit);

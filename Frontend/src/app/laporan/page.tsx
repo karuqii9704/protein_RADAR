@@ -110,24 +110,54 @@ export default function LaporanPublicPage() {
   const handleDownloadExcel = async (report: MonthlyReport) => {
     const wb = XLSX.utils.book_new();
     
+    // Fetch detailed stats
     let incomeDetails: Array<{name: string; amount: number}> = [];
     let expenseDetails: Array<{name: string; amount: number}> = [];
+    
+    // Fetch individual transactions for this period
+    interface TransactionDetail {
+      id: string;
+      type: string;
+      amount: number;
+      description: string;
+      date: string;
+      donor?: string;
+      recipient?: string;
+      category?: { name: string };
+    }
+    
+    let transactions: TransactionDetail[] = [];
+    
     try {
-      const detailRes = await apiGet<ReportStats>('/api/reports/stats', { 
-        month: report.month, 
-        year: report.year 
-      });
+      const [detailRes, transRes] = await Promise.all([
+        apiGet<ReportStats>('/api/reports/stats', { 
+          month: report.month, 
+          year: report.year 
+        }),
+        apiGet<TransactionDetail[]>('/api/transactions', {
+          month: report.month,
+          year: report.year,
+          limit: 1000 // Get all transactions for the month
+        })
+      ]);
+      
       if (detailRes.success && detailRes.data) {
         incomeDetails = detailRes.data.incomeByCategory || [];
         expenseDetails = detailRes.data.expenseByCategory || [];
+      }
+      
+      if (transRes.success && transRes.data) {
+        transactions = transRes.data;
       }
     } catch (e) {
       console.error('Failed to fetch details:', e);
     }
     
+    // Sheet 1: Summary
     const summaryData = [
       ['Laporan Keuangan Masjid Syamsul Ulum'],
       [`Periode: ${report.period}`],
+      [`Tanggal Export: ${new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}`],
       [],
       ['RINGKASAN'],
       ['Jenis', 'Jumlah (Rp)'],
@@ -144,9 +174,60 @@ export default function LaporanPublicPage() {
       ...expenseDetails.map(c => [c.name, c.amount]),
     ];
     
-    const ws = XLSX.utils.aoa_to_sheet(summaryData);
-    ws['!cols'] = [{ wch: 30 }, { wch: 20 }];
-    XLSX.utils.book_append_sheet(wb, ws, 'Laporan');
+    const wsSummary = XLSX.utils.aoa_to_sheet(summaryData);
+    wsSummary['!cols'] = [{ wch: 35 }, { wch: 20 }];
+    XLSX.utils.book_append_sheet(wb, wsSummary, 'Ringkasan');
+    
+    // Sheet 2: Detail Transaksi Pemasukan
+    const incomeTransactions = transactions.filter(t => t.type === 'INCOME');
+    const incomeData = [
+      ['DETAIL TRANSAKSI PEMASUKAN'],
+      [`Periode: ${report.period}`],
+      [],
+      ['No', 'Tanggal', 'Keterangan', 'Donatur', 'Kategori', 'Jumlah (Rp)'],
+      ...incomeTransactions.map((t, i) => [
+        i + 1,
+        new Date(t.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
+        t.description || '-',
+        t.donor || '-',
+        t.category?.name || '-',
+        t.amount
+      ])
+    ];
+    
+    if (incomeTransactions.length === 0) {
+      incomeData.push(['', '', 'Tidak ada transaksi pemasukan', '', '', '']);
+    }
+    
+    const wsIncome = XLSX.utils.aoa_to_sheet(incomeData);
+    wsIncome['!cols'] = [{ wch: 5 }, { wch: 20 }, { wch: 35 }, { wch: 25 }, { wch: 20 }, { wch: 18 }];
+    XLSX.utils.book_append_sheet(wb, wsIncome, 'Pemasukan');
+    
+    // Sheet 3: Detail Transaksi Pengeluaran
+    const expenseTransactions = transactions.filter(t => t.type === 'EXPENSE');
+    const expenseData = [
+      ['DETAIL TRANSAKSI PENGELUARAN'],
+      [`Periode: ${report.period}`],
+      [],
+      ['No', 'Tanggal', 'Keterangan', 'Penerima', 'Kategori', 'Jumlah (Rp)'],
+      ...expenseTransactions.map((t, i) => [
+        i + 1,
+        new Date(t.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
+        t.description || '-',
+        t.recipient || '-',
+        t.category?.name || '-',
+        t.amount
+      ])
+    ];
+    
+    if (expenseTransactions.length === 0) {
+      expenseData.push(['', '', 'Tidak ada transaksi pengeluaran', '', '', '']);
+    }
+    
+    const wsExpense = XLSX.utils.aoa_to_sheet(expenseData);
+    wsExpense['!cols'] = [{ wch: 5 }, { wch: 20 }, { wch: 35 }, { wch: 25 }, { wch: 20 }, { wch: 18 }];
+    XLSX.utils.book_append_sheet(wb, wsExpense, 'Pengeluaran');
+    
     XLSX.writeFile(wb, `laporan-${report.year}-${String(report.month).padStart(2, '0')}.xlsx`);
   };
 
