@@ -1,40 +1,15 @@
 /**
  * Currency formatting utilities for Indonesian Rupiah
- * Uses Indonesian abbreviations: Jt (Juta), Rb (Ribu), M (Miliar), T (Triliun)
+ * Always displays full numbers without abbreviations
  */
 
 /**
- * Format currency with Indonesian abbreviations
- * - Triliun (T): >= 1.000.000.000.000
- * - Miliar (M): >= 1.000.000.000  
- * - Juta (Jt): >= 1.000.000
- * - Ribu (Rb): >= 10.000 (only abbreviate if >= 10rb for readability)
- * - Full number for < 10.000
+ * Format currency with full number (no abbreviation)
+ * e.g. Rp 10.000.000
  */
 export function formatCurrency(amount: number): string {
-  const absAmount = Math.abs(amount);
   const sign = amount < 0 ? '-' : '';
-  
-  if (absAmount >= 1_000_000_000_000) {
-    // Triliun
-    const value = absAmount / 1_000_000_000_000;
-    return `${sign}Rp ${value % 1 === 0 ? value.toFixed(0) : value.toFixed(1)} T`;
-  } else if (absAmount >= 1_000_000_000) {
-    // Miliar
-    const value = absAmount / 1_000_000_000;
-    return `${sign}Rp ${value % 1 === 0 ? value.toFixed(0) : value.toFixed(1)} M`;
-  } else if (absAmount >= 1_000_000) {
-    // Juta
-    const value = absAmount / 1_000_000;
-    return `${sign}Rp ${value % 1 === 0 ? value.toFixed(0) : value.toFixed(1)} Jt`;
-  } else if (absAmount >= 10_000) {
-    // Ribu (only for >= 10rb)
-    const value = absAmount / 1_000;
-    return `${sign}Rp ${value.toFixed(0)} Rb`;
-  } else {
-    // Full number
-    return `${sign}Rp ${absAmount.toLocaleString('id-ID')}`;
-  }
+  return `${sign}Rp ${Math.abs(amount).toLocaleString('id-ID')}`;
 }
 
 /**

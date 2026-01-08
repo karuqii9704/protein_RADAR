@@ -15,6 +15,7 @@ import {
   Users,
   Image,
   BadgeCheck,
+  History,
 } from "lucide-react";
 import { getCurrentUser } from "@/lib/auth";
 
@@ -80,6 +81,12 @@ const menuItems: MenuItem[] = [
     href: "/admin/settings",
     label: "Pengaturan",
     icon: Settings,
+  },
+  {
+    href: "/admin/activity-logs",
+    label: "Log Aktivitas",
+    icon: History,
+    allowedRoles: ['SUPER_ADMIN'], // Only SUPER_ADMIN can access
   },
 ];
 

@@ -13,7 +13,6 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import HeroCarousel from '@/components/dashboard/HeroCarousel';
-import CategoryButtons from '@/components/dashboard/CategoryButtons';
 import { apiGet } from '@/lib/api';
 import { formatCurrency } from '@/lib/currency';
 import type { DashboardStats, Program, Transaction, News } from '@/types';
@@ -21,7 +20,7 @@ import type { DashboardStats, Program, Transaction, News } from '@/types';
 export default function HomePage() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [programs, setPrograms] = useState<Program[]>([]);
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
+
   const [news, setNews] = useState<News[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -29,16 +28,14 @@ export default function HomePage() {
     const fetchData = async () => {
       try {
         // Fetch all data in parallel
-        const [statsRes, programsRes, transactionsRes, newsRes] = await Promise.all([
+        const [statsRes, programsRes, newsRes] = await Promise.all([
           apiGet<DashboardStats>('/api/dashboard/stats'),
           apiGet<Program[]>('/api/programs', { featured: true, limit: 3 }),
-          apiGet<Transaction[]>('/api/transactions', { limit: 5 }),
           apiGet<News[]>('/api/news', { limit: 3 }),
         ]);
 
         if (statsRes.success && statsRes.data) setStats(statsRes.data);
         if (programsRes.success && programsRes.data) setPrograms(programsRes.data);
-        if (transactionsRes.success && transactionsRes.data) setTransactions(transactionsRes.data);
         if (newsRes.success && newsRes.data) setNews(newsRes.data);
       } catch (error) {
         console.error('Failed to fetch data:', error);
@@ -59,8 +56,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Category Buttons - Wakaf Salman Style */}
-      <CategoryButtons />
 
       {/* Stats Cards - Enhanced Design */}
       <section className="py-12 px-4 -mt-16 relative z-20">
@@ -252,83 +247,6 @@ export default function HomePage() {
                 Belum ada program tersedia
               </div>
             )}
-          </div>
-        </div>
-      </section>
-
-      {/* Recent Transactions */}
-      <section className="py-12 px-4 bg-gray-50">
-        <div className="container mx-auto">
-          <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-2xl font-bold text-gray-900">Transaksi Terbaru</h3>
-              <Link href="/laporan" className="text-green-600 font-semibold hover:text-green-700 flex items-center gap-2">
-                Lihat Semua
-                <ChevronRight className="w-5 h-5" />
-              </Link>
-            </div>
-            <div className="space-y-3">
-              {loading ? (
-                [...Array(5)].map((_, i) => (
-                  <div key={i} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl animate-pulse">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-gray-200 rounded-xl"></div>
-                      <div className="space-y-2">
-                        <div className="h-4 bg-gray-200 rounded w-40"></div>
-                        <div className="h-3 bg-gray-200 rounded w-24"></div>
-                      </div>
-                    </div>
-                    <div className="h-5 bg-gray-200 rounded w-28"></div>
-                  </div>
-                ))
-              ) : transactions.length > 0 ? (
-                transactions.map((transaction) => (
-                  <div 
-                    key={transaction.id}
-                    className="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all border border-transparent hover:border-gray-200"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className={`p-3 rounded-xl ${
-                        transaction.type === 'INCOME' 
-                          ? 'bg-green-100' 
-                          : 'bg-red-100'
-                      }`}>
-                        {transaction.type === 'INCOME' ? (
-                          <TrendingUp className="w-6 h-6 text-green-600" />
-                        ) : (
-                          <TrendingDown className="w-6 h-6 text-red-600" />
-                        )}
-                      </div>
-                      <div>
-                        <p className="font-semibold text-gray-900">
-                          {transaction.type === 'INCOME' ? transaction.donor : transaction.recipient}
-                        </p>
-                        <div className="flex items-center gap-2 mt-1">
-                          <span className="text-xs text-gray-500">{transaction.date}</span>
-                          <span className="text-xs px-2 py-0.5 bg-gray-200 text-gray-700 rounded-full">
-                            {transaction.category?.name}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className={`text-lg font-bold ${
-                        transaction.type === 'INCOME' 
-                          ? 'text-green-600' 
-                          : 'text-red-600'
-                      }`}>
-                        {transaction.type === 'INCOME' ? '+' : '-'} Rp {transaction.amount.toLocaleString('id-ID')}
-                      </p>
-                      <p className="text-xs text-gray-500 mt-1 capitalize">{transaction.type.toLowerCase()}</p>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="text-center py-12 text-gray-500">
-                  Belum ada transaksi
-                </div>
-              )}
-            </div>
           </div>
         </div>
       </section>

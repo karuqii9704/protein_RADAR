@@ -240,3 +240,27 @@ model Setting {
 
   @@map("settings")
 }
+
+// ==========================================
+// ACTIVITY LOG (Audit Trail)
+// ==========================================
+
+model ActivityLog {
+  id          String   @id @default(cuid())
+  action      String   // CREATE, UPDATE, DELETE
+  entity      String   // Program, News, Transaction, etc.
+  entityId    String?  // ID of affected entity
+  entityTitle String?  // Title/name for display
+  userId      String   // ID of user who performed action
+  userName    String   // User's name
+  userRole    String   // SUPER_ADMIN or ADMIN
+  details     String?  @db.Text // Additional JSON details
+  ipAddress   String?  // IP address of requester
+  
+  createdAt   DateTime @default(now())
+
+  @@index([entity])
+  @@index([userId])
+  @@index([createdAt])
+  @@map("activity_logs")
+}
