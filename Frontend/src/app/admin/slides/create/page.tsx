@@ -74,7 +74,47 @@ export default function CreateSlidePage() {
     fetchContent();
   }, [formData.linkType]);
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Compress image to reduce base64 size (Vercel has 4.5MB body limit)
+  const compressImage = (file: File, maxWidth = 1200, quality = 0.7): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = document.createElement('img');
+        img.src = event.target?.result as string;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          
+          // Scale down if larger than maxWidth
+          if (width > maxWidth) {
+            height = (height * maxWidth) / width;
+            width = maxWidth;
+          }
+          
+          canvas.width = width;
+          canvas.height = height;
+          
+          const ctx = canvas.getContext('2d');
+          if (!ctx) {
+            reject(new Error('Failed to get canvas context'));
+            return;
+          }
+          
+          ctx.drawImage(img, 0, 0, width, height);
+          
+          // Convert to JPEG with compression
+          const compressedBase64 = canvas.toDataURL('image/jpeg', quality);
+          resolve(compressedBase64);
+        };
+        img.onerror = reject;
+      };
+      reader.onerror = reject;
+    });
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -83,18 +123,32 @@ export default function CreateSlidePage() {
       return;
     }
 
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('Ukuran file maksimal 5MB');
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error('Ukuran file maksimal 10MB');
       return;
     }
 
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const base64String = reader.result as string;
-      setImagePreview(base64String);
-      setFormData(prev => ({ ...prev, image: base64String }));
-    };
-    reader.readAsDataURL(file);
+    try {
+      toast.loading('Mengompresi gambar...', { id: 'compress' });
+      const compressedBase64 = await compressImage(file);
+      toast.dismiss('compress');
+      
+      // Check compressed size (should be under 2MB for safe API call)
+      const base64Size = compressedBase64.length * 0.75;
+      if (base64Size > 2 * 1024 * 1024) {
+        // Try with more compression
+        const moreCompressed = await compressImage(file, 800, 0.5);
+        setImagePreview(moreCompressed);
+        setFormData(prev => ({ ...prev, image: moreCompressed }));
+      } else {
+        setImagePreview(compressedBase64);
+        setFormData(prev => ({ ...prev, image: compressedBase64 }));
+      }
+      toast.success('Gambar berhasil dimuat');
+    } catch (error) {
+      console.error('Image compression error:', error);
+      toast.error('Gagal memproses gambar');
+    }
   };
 
   const removeImage = () => {

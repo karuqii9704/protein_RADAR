@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { 
   Calendar, 
   Users, 
@@ -70,9 +71,19 @@ export default function ProgramsPage() {
               >
                 {/* Image */}
                 <div className="h-48 bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white relative overflow-hidden">
-                  <HandHeart className="w-20 h-20 opacity-50 group-hover:scale-110 transition-transform" />
+                  {program.image ? (
+                    <Image
+                      src={program.image}
+                      alt={program.title}
+                      fill
+                      className="object-cover group-hover:scale-110 transition-transform"
+                      unoptimized={program.image.startsWith('data:') || program.image.startsWith('http')}
+                    />
+                  ) : (
+                    <HandHeart className="w-20 h-20 opacity-50 group-hover:scale-110 transition-transform" />
+                  )}
                   {program.isFeatured && (
-                    <span className="absolute top-4 left-4 px-3 py-1 bg-yellow-400 text-yellow-900 text-xs font-bold rounded-full">
+                    <span className="absolute top-4 left-4 px-3 py-1 bg-yellow-400 text-yellow-900 text-xs font-bold rounded-full z-10">
                       ⭐ Unggulan
                     </span>
                   )}
