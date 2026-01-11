@@ -7,10 +7,18 @@ export const dynamic = 'force-dynamic';
 // GET /api/news/[slug] - Get news detail by slug
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ slug: string }> }
+  { params }: { params: { slug: string } }
 ) {
   try {
-    const { slug } = await params;
+    // Handle params - can be Promise in some Next.js versions
+    const resolvedParams = await Promise.resolve(params);
+    const slug = resolvedParams.slug;
+    
+    console.log('Fetching news with slug:', slug);
+
+    if (!slug) {
+      return errorResponse('Slug is required', 400);
+    }
 
     const news = await prisma.news.findUnique({
       where: { slug },
@@ -25,15 +33,21 @@ export async function GET(
       },
     });
 
-    if (!news || !news.isPublished) {
+    console.log('News found:', news ? 'yes' : 'no', 'isPublished:', news?.isPublished);
+
+    if (!news) {
       return errorResponse('News not found', 404);
     }
 
-    // Increment view count
-    await prisma.news.update({
+    if (!news.isPublished) {
+      return errorResponse('News not published', 404);
+    }
+
+    // Increment view count (don't await, fire and forget)
+    prisma.news.update({
       where: { id: news.id },
       data: { viewCount: { increment: 1 } },
-    });
+    }).catch(err => console.error('Failed to increment view count:', err));
 
     return successResponse({
       id: news.id,
@@ -57,6 +71,7 @@ export async function GET(
     });
   } catch (error) {
     console.error('News detail fetch error:', error);
-    return errorResponse('Failed to fetch news details', 500);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    return errorResponse(`Failed to fetch news details: ${errorMessage}`, 500);
   }
 }
