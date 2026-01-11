@@ -6,15 +6,6 @@ import { Role } from '@prisma/client';
 
 export const dynamic = 'force-dynamic';
 
-// Config for body size (10MB for base64 images)
-export const config = {
-  api: {
-    bodyParser: {
-      sizeLimit: '10mb',
-    },
-  },
-};
-
 // Helper to generate slug
 function generateSlug(title: string): string {
   return title
