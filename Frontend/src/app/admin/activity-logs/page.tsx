@@ -9,7 +9,15 @@ import {
   Plus,
   Edit,
   Trash2,
-  Eye
+  Eye,
+  LogIn,
+  CheckCircle,
+  XCircle,
+  X,
+  Globe,
+  Clock,
+  User,
+  Info
 } from 'lucide-react';
 import { apiGet } from '@/lib/api';
 
@@ -22,6 +30,7 @@ interface ActivityLog {
   userDisplay: string;
   timestamp: string;
   ipAddress: string | null;
+  details: string | null;
 }
 
 export default function ActivityLogsPage() {
@@ -31,6 +40,7 @@ export default function ActivityLogsPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [filterEntity, setFilterEntity] = useState('');
   const [filterAction, setFilterAction] = useState('');
+  const [selectedLog, setSelectedLog] = useState<ActivityLog | null>(null);
 
   const fetchLogs = async () => {
     setLoading(true);
@@ -63,6 +73,9 @@ export default function ActivityLogsPage() {
       case 'CREATE': return <Plus className="w-4 h-4 text-green-600" />;
       case 'UPDATE': return <Edit className="w-4 h-4 text-blue-600" />;
       case 'DELETE': return <Trash2 className="w-4 h-4 text-red-600" />;
+      case 'LOGIN': return <LogIn className="w-4 h-4 text-purple-600" />;
+      case 'APPROVE': return <CheckCircle className="w-4 h-4 text-green-600" />;
+      case 'REJECT': return <XCircle className="w-4 h-4 text-orange-600" />;
       default: return <Eye className="w-4 h-4 text-gray-600" />;
     }
   };
@@ -72,15 +85,21 @@ export default function ActivityLogsPage() {
       case 'CREATE': return 'bg-green-100 text-green-700';
       case 'UPDATE': return 'bg-blue-100 text-blue-700';
       case 'DELETE': return 'bg-red-100 text-red-700';
+      case 'LOGIN': return 'bg-purple-100 text-purple-700';
+      case 'APPROVE': return 'bg-emerald-100 text-emerald-700';
+      case 'REJECT': return 'bg-orange-100 text-orange-700';
       default: return 'bg-gray-100 text-gray-700';
     }
   };
 
   const getActionLabel = (action: string) => {
     switch (action) {
-      case 'CREATE': return 'Buat';
+      case 'CREATE': return '+ Buat';
       case 'UPDATE': return 'Edit';
       case 'DELETE': return 'Hapus';
+      case 'LOGIN': return 'Login';
+      case 'APPROVE': return 'Terima';
+      case 'REJECT': return 'Tolak';
       default: return action;
     }
   };
@@ -94,8 +113,18 @@ export default function ActivityLogsPage() {
       'Donation': 'Donasi',
       'User': 'Pengguna',
       'Setting': 'Pengaturan',
+      'Auth': 'Login',
     };
     return labels[entity] || entity;
+  };
+
+  const parseDetails = (details: string | null) => {
+    if (!details) return null;
+    try {
+      return JSON.parse(details);
+    } catch {
+      return null;
+    }
   };
 
   return (
@@ -129,6 +158,7 @@ export default function ActivityLogsPage() {
             className="px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500"
           >
             <option value="">Semua Entitas</option>
+            <option value="Auth">Login</option>
             <option value="Program">Program</option>
             <option value="News">Berita</option>
             <option value="Transaction">Transaksi</option>
@@ -143,9 +173,12 @@ export default function ActivityLogsPage() {
             className="px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500"
           >
             <option value="">Semua Aksi</option>
+            <option value="LOGIN">Login</option>
             <option value="CREATE">Buat</option>
             <option value="UPDATE">Edit</option>
             <option value="DELETE">Hapus</option>
+            <option value="APPROVE">Terima</option>
+            <option value="REJECT">Tolak</option>
           </select>
         </div>
       </div>
@@ -176,7 +209,11 @@ export default function ActivityLogsPage() {
                 ))
               ) : logs.length > 0 ? (
                 logs.map((log) => (
-                  <tr key={log.id} className="hover:bg-gray-50 transition">
+                  <tr 
+                    key={log.id} 
+                    className="hover:bg-gray-50 transition cursor-pointer"
+                    onClick={() => setSelectedLog(log)}
+                  >
                     <td className="px-4 py-4">
                       <span className="text-sm font-mono text-gray-600">{log.timestamp}</span>
                     </td>
@@ -193,9 +230,17 @@ export default function ActivityLogsPage() {
                       <span className="text-sm text-gray-700">{getEntityLabel(log.entity)}</span>
                     </td>
                     <td className="px-4 py-4">
-                      <span className="text-sm text-gray-600">
-                        {log.entityTitle || log.entityId || '-'}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-gray-600 truncate max-w-xs">
+                          {log.entityTitle || log.entityId || '-'}
+                        </span>
+                        <button 
+                          className="p-1 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition"
+                          onClick={(e) => { e.stopPropagation(); setSelectedLog(log); }}
+                        >
+                          <Info className="w-4 h-4" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -236,6 +281,116 @@ export default function ActivityLogsPage() {
           </div>
         )}
       </div>
+
+      {/* Detail Modal */}
+      {selectedLog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div 
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => setSelectedLog(null)}
+          />
+          <div className="relative bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-100">
+              <div>
+                <h2 className="text-xl font-bold text-gray-900">Detail Log Aktivitas</h2>
+                <p className="text-gray-500 text-sm mt-1">ID: {selectedLog.id}</p>
+              </div>
+              <button
+                onClick={() => setSelectedLog(null)}
+                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-6 space-y-4">
+              {/* Timestamp */}
+              <div className="flex items-start gap-3">
+                <div className="p-2 bg-gray-100 rounded-lg">
+                  <Clock className="w-5 h-5 text-gray-600" />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Waktu</p>
+                  <p className="font-medium text-gray-900">{selectedLog.timestamp}</p>
+                </div>
+              </div>
+
+              {/* User */}
+              <div className="flex items-start gap-3">
+                <div className="p-2 bg-gray-100 rounded-lg">
+                  <User className="w-5 h-5 text-gray-600" />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Admin</p>
+                  <p className="font-medium text-gray-900">{selectedLog.userDisplay}</p>
+                </div>
+              </div>
+
+              {/* Action */}
+              <div className="flex items-start gap-3">
+                <div className="p-2 bg-gray-100 rounded-lg">
+                  {getActionIcon(selectedLog.action)}
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Aksi</p>
+                  <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${getActionColor(selectedLog.action)}`}>
+                    {getActionLabel(selectedLog.action)}
+                  </span>
+                </div>
+              </div>
+
+              {/* Entity */}
+              <div className="flex items-start gap-3">
+                <div className="p-2 bg-gray-100 rounded-lg">
+                  <Info className="w-5 h-5 text-gray-600" />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Entitas</p>
+                  <p className="font-medium text-gray-900">{getEntityLabel(selectedLog.entity)}</p>
+                  {selectedLog.entityTitle && (
+                    <p className="text-sm text-gray-600 mt-1">{selectedLog.entityTitle}</p>
+                  )}
+                </div>
+              </div>
+
+              {/* IP Address */}
+              <div className="flex items-start gap-3">
+                <div className="p-2 bg-gray-100 rounded-lg">
+                  <Globe className="w-5 h-5 text-gray-600" />
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">IP Address</p>
+                  <p className="font-medium font-mono text-gray-900">
+                    {selectedLog.ipAddress || 'Tidak tersedia'}
+                  </p>
+                </div>
+              </div>
+
+              {/* Details JSON */}
+              {selectedLog.details && parseDetails(selectedLog.details) && (
+                <div className="pt-4 border-t border-gray-100">
+                  <p className="text-sm text-gray-500 mb-2">Informasi Tambahan</p>
+                  <pre className="bg-gray-50 p-3 rounded-lg text-xs overflow-auto max-h-40 font-mono">
+                    {JSON.stringify(parseDetails(selectedLog.details), null, 2)}
+                  </pre>
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="px-6 py-4 bg-gray-50 border-t border-gray-100">
+              <button
+                onClick={() => setSelectedLog(null)}
+                className="w-full px-4 py-2.5 bg-gray-200 text-gray-700 rounded-xl font-medium hover:bg-gray-300 transition"
+              >
+                Tutup
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

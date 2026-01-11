@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import { prisma } from '@/lib/prisma';
 import { successResponse, errorResponse, ErrorMessages } from '@/utils/api-response';
 import { generateToken } from '@/middleware/auth';
+import { logActivity } from '@/lib/activityLog';
 
 export const dynamic = 'force-dynamic';
 
@@ -66,6 +67,18 @@ export async function POST(request: NextRequest) {
       userId: user.id,
       email: user.email,
       role: user.role,
+    });
+
+    // Log login activity
+    logActivity({
+      action: 'LOGIN',
+      entity: 'Auth',
+      entityId: user.id,
+      entityTitle: `Login: ${user.name}`,
+      userId: user.id,
+      userName: user.name,
+      userRole: user.role,
+      request,
     });
 
     return successResponse({

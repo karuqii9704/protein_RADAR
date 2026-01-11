@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { successResponse, errorResponse, paginatedResponse, getPaginationParams } from '@/utils/api-response';
 import { withAuth, isAuthError } from '@/middleware/auth';
 import { TransactionType, Role } from '@prisma/client';
+import { logActivity } from '@/lib/activityLog';
 
 export const dynamic = 'force-dynamic';
 
@@ -131,6 +132,23 @@ export async function POST(request: NextRequest) {
           select: { id: true, name: true, color: true },
         },
       },
+    });
+
+    // Log activity
+    logActivity({
+      action: 'CREATE',
+      entity: 'Transaction',
+      entityId: transaction.id,
+      entityTitle: `${type === 'INCOME' ? 'Pemasukan' : 'Pengeluaran'}: ${description} - Rp ${Number(amount).toLocaleString('id-ID')}`,
+      userId: authResult.user.userId,
+      userName: authResult.user.name,
+      userRole: authResult.user.role,
+      details: {
+        type,
+        amount: Number(amount),
+        category: transaction.category?.name,
+      },
+      request,
     });
 
     return successResponse({
