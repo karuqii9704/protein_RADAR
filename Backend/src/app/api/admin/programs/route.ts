@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { successResponse, errorResponse, paginatedResponse, getPaginationParams } from '@/utils/api-response';
 import { withAuth, isAuthError } from '@/middleware/auth';
 import { Role } from '@prisma/client';
+import { logActivity } from '@/lib/activityLog';
 
 export const dynamic = 'force-dynamic';
 
@@ -119,6 +120,18 @@ export async function POST(request: NextRequest) {
         startDate: startDate ? new Date(startDate) : new Date(),
         endDate: endDate ? new Date(endDate) : null,
       },
+    });
+
+    // Log activity
+    logActivity({
+      action: 'CREATE',
+      entity: 'Program',
+      entityId: program.id,
+      entityTitle: program.title,
+      userId: authResult.user.userId,
+      userName: authResult.user.name || 'Unknown',
+      userRole: authResult.user.role,
+      request,
     });
 
     return successResponse({

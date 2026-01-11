@@ -49,7 +49,7 @@ export function extractToken(request: NextRequest): string | null {
 export async function withAuth(
   request: NextRequest,
   allowedRoles?: Role[]
-): Promise<{ user: JwtPayload } | NextResponse> {
+): Promise<{ user: JwtPayload & { name: string } } | NextResponse> {
   const token = extractToken(request);
   
   if (!token) {
@@ -65,7 +65,7 @@ export async function withAuth(
   // Check if user still exists and is active
   const user = await prisma.user.findUnique({
     where: { id: payload.userId },
-    select: { id: true, isActive: true, role: true },
+    select: { id: true, name: true, isActive: true, role: true },
   });
   
   if (!user || !user.isActive) {
@@ -77,7 +77,7 @@ export async function withAuth(
     return errorResponse(ErrorMessages.FORBIDDEN, 403);
   }
   
-  return { user: payload };
+  return { user: { ...payload, name: user.name } };
 }
 
 // Helper to check if auth result is an error
