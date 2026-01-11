@@ -45,7 +45,7 @@ export default function ActivityLogsPage() {
       const res = await apiGet<ActivityLog[]>('/api/admin/activity-logs', params);
       if (res.success && res.data) {
         setLogs(res.data);
-        setTotalPages(res.pagination?.totalPages || 1);
+        setTotalPages(res.meta?.totalPages || 1);
       }
     } catch (error) {
       console.error('Failed to fetch logs:', error);
