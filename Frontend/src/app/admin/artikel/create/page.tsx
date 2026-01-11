@@ -45,13 +45,53 @@ export default function CreateArtikelPage() {
     }
 
     setLoading(true);
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setImagePreview(reader.result as string);
-      setFormData(prev => ({ ...prev, image: reader.result as string })); // Store base64
-      setLoading(false);
+    
+    // Compress image before converting to base64
+    const compressImage = (file: File): Promise<string> => {
+      return new Promise((resolve) => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const img = document.createElement('img');
+        
+        img.onload = () => {
+          // Max dimensions
+          const MAX_WIDTH = 800;
+          const MAX_HEIGHT = 600;
+          
+          let width = img.width;
+          let height = img.height;
+          
+          if (width > MAX_WIDTH) {
+            height = (height * MAX_WIDTH) / width;
+            width = MAX_WIDTH;
+          }
+          if (height > MAX_HEIGHT) {
+            width = (width * MAX_HEIGHT) / height;
+            height = MAX_HEIGHT;
+          }
+          
+          canvas.width = width;
+          canvas.height = height;
+          ctx?.drawImage(img, 0, 0, width, height);
+          
+          // Convert to JPEG with 70% quality
+          resolve(canvas.toDataURL('image/jpeg', 0.7));
+        };
+        
+        img.src = URL.createObjectURL(file);
+      });
     };
-    reader.readAsDataURL(file);
+
+    try {
+      const compressedImage = await compressImage(file);
+      setImagePreview(compressedImage);
+      setFormData(prev => ({ ...prev, image: compressedImage }));
+    } catch (error) {
+      toast.error('Gagal memproses gambar');
+      console.error('Image compression error:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const removeImage = () => {
@@ -71,13 +111,12 @@ export default function CreateArtikelPage() {
     setIsSubmitting(true);
 
     try {
-      const res = await apiPost('/api/admin/news', {
+      const res = await apiPost('/api/admin/artikel', {
         title: formData.title,
         content: formData.content,
         excerpt: formData.excerpt || formData.content.substring(0, 200),
-        category: 'ARTIKEL', // Always ARTIKEL for this page
         isPublished: publish,
-        image: formData.image, // Include image in submission
+        image: formData.image,
       });
 
       if (res.success) {
