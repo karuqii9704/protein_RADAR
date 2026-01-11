@@ -2,7 +2,7 @@ import { prisma } from './prisma';
 import { NextRequest } from 'next/server';
 
 interface LogActivityParams {
-  action: 'CREATE' | 'UPDATE' | 'DELETE';
+  action: 'CREATE' | 'UPDATE' | 'DELETE' | 'APPROVE' | 'REJECT';
   entity: string;
   entityId?: string;
   entityTitle?: string;

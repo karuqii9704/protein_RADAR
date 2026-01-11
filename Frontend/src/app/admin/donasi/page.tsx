@@ -110,22 +110,29 @@ export default function AdminDonationPage() {
 
   const handleApprove = async () => {
     if (!selectedDonation) return;
+    
+    // Confirmation dialog
+    const confirmed = window.confirm(
+      `Apakah Anda yakin ingin MENERIMA donasi dari ${selectedDonation.donorName} sebesar ${formatCurrency(selectedDonation.amount)}?\n\nAksi ini tidak dapat dibatalkan.`
+    );
+    if (!confirmed) return;
+    
     setIsProcessing(true);
     try {
       const res = await apiPost(`/api/admin/donations/${selectedDonation.id}/verify`, {
         action: 'approve',
       });
       if (res.success) {
-        toast.success('Donasi berhasil diverifikasi!');
+        toast.success('Donasi berhasil diterima!');
         setIsModalOpen(false);
         setSelectedDonation(null);
         fetchDonations();
         fetchStats();
       } else {
-        toast.error(res.error || 'Gagal memverifikasi donasi');
+        toast.error(res.error || 'Gagal menerima donasi');
       }
     } catch (error) {
-      toast.error('Gagal memverifikasi donasi');
+      toast.error('Gagal menerima donasi');
     } finally {
       setIsProcessing(false);
     }
@@ -136,6 +143,13 @@ export default function AdminDonationPage() {
       toast.error('Alasan penolakan wajib diisi');
       return;
     }
+    
+    // Confirmation dialog
+    const confirmed = window.confirm(
+      `Apakah Anda yakin ingin MENOLAK donasi dari ${selectedDonation.donorName}?\n\nAlasan: ${rejectReason.trim()}\n\nAksi ini tidak dapat dibatalkan.`
+    );
+    if (!confirmed) return;
+    
     setIsProcessing(true);
     try {
       const res = await apiPost(`/api/admin/donations/${selectedDonation.id}/verify`, {
@@ -564,7 +578,7 @@ export default function AdminDonationPage() {
                       ) : (
                         <CheckCircle className="w-5 h-5" />
                       )}
-                      Approve
+                      Terima
                     </button>
                   </>
                 )}

@@ -1,15 +1,16 @@
 import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { successResponse, errorResponse } from '@/utils/api-response';
-import { withAuth, isAuthError, JwtPayload } from '@/middleware/auth';
+import { withAuth, isAuthError } from '@/middleware/auth';
 import { Role, TransactionType } from '@prisma/client';
+import { logActivity } from '@/lib/activityLog';
 
 export const dynamic = 'force-dynamic';
 
 // POST /api/admin/donations/[id]/verify - Verify (approve/reject) a donation
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
     const authResult = await withAuth(request, [Role.SUPER_ADMIN, Role.ADMIN]);
@@ -17,7 +18,8 @@ export async function POST(
       return authResult;
     }
 
-    const { id } = await params;
+    const resolvedParams = await Promise.resolve(params);
+    const id = resolvedParams.id;
     const body = await request.json();
     const { action, rejectReason } = body;
 
@@ -26,8 +28,7 @@ export async function POST(
       return errorResponse('Action harus "approve" atau "reject"', 400);
     }
 
-    // Get the current user from auth result
-    const currentUser = (authResult as { user: JwtPayload }).user;
+    const currentUser = authResult.user;
 
     // Get donation with program info
     const donation = await prisma.donation.findUnique({
@@ -44,6 +45,8 @@ export async function POST(
     if (donation.status !== 'PENDING') {
       return errorResponse('Donasi sudah diverifikasi sebelumnya', 400);
     }
+
+    const donorDisplay = donation.isAnonymous ? 'Hamba Allah' : donation.donorName;
 
     if (action === 'approve') {
       // Find or create "Donasi Program" category for transactions
@@ -90,7 +93,6 @@ export async function POST(
         });
 
         // 3. Create transaction for financial report
-        const donorDisplay = donation.isAnonymous ? 'Hamba Allah' : donation.donorName;
         await tx.transaction.create({
           data: {
             type: TransactionType.INCOME,
@@ -104,6 +106,23 @@ export async function POST(
             createdById: currentUser.userId,
           },
         });
+      });
+
+      // Log activity for approve
+      logActivity({
+        action: 'APPROVE',
+        entity: 'Donation',
+        entityId: donation.id,
+        entityTitle: `Donasi ${donorDisplay} - Rp ${Number(donation.amount).toLocaleString('id-ID')}`,
+        userId: currentUser.userId,
+        userName: currentUser.name,
+        userRole: currentUser.role,
+        details: {
+          program: donation.program.title,
+          amount: Number(donation.amount),
+          donor: donorDisplay,
+        },
+        request,
       });
 
       return successResponse({
@@ -125,6 +144,24 @@ export async function POST(
           verifiedById: currentUser.userId,
           verifiedAt: new Date(),
         },
+      });
+
+      // Log activity for reject
+      logActivity({
+        action: 'REJECT',
+        entity: 'Donation',
+        entityId: donation.id,
+        entityTitle: `Donasi ${donorDisplay} - Rp ${Number(donation.amount).toLocaleString('id-ID')}`,
+        userId: currentUser.userId,
+        userName: currentUser.name,
+        userRole: currentUser.role,
+        details: {
+          program: donation.program.title,
+          amount: Number(donation.amount),
+          donor: donorDisplay,
+          reason: rejectReason,
+        },
+        request,
       });
 
       return successResponse({
