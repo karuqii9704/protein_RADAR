@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { successResponse, errorResponse } from '@/utils/api-response';
 import { withAuth, isAuthError } from '@/middleware/auth';
 import { Role, TransactionType } from '@prisma/client';
+import { logActivity } from '@/lib/activityLog';
 
 export const dynamic = 'force-dynamic';
 
@@ -98,6 +99,23 @@ export async function PUT(
       },
     });
 
+    // Log activity
+    logActivity({
+      action: 'UPDATE',
+      entity: 'Transaction',
+      entityId: transaction.id,
+      entityTitle: `${transaction.type === 'INCOME' ? 'Pemasukan' : 'Pengeluaran'}: ${transaction.description} - Rp ${Number(transaction.amount).toLocaleString('id-ID')}`,
+      userId: authResult.user.userId,
+      userName: authResult.user.name,
+      userRole: authResult.user.role,
+      details: {
+        type: transaction.type,
+        amount: Number(transaction.amount),
+        category: transaction.category?.name,
+      },
+      request,
+    });
+
     return successResponse({
       id: transaction.id,
       type: transaction.type,
@@ -125,10 +143,32 @@ export async function DELETE(
     const { id } = await params;
 
     // Check if exists
-    const existing = await prisma.transaction.findUnique({ where: { id } });
+    const existing = await prisma.transaction.findUnique({ 
+      where: { id },
+      include: {
+        category: { select: { name: true } },
+      },
+    });
     if (!existing) {
       return errorResponse('Transaction not found', 404);
     }
+
+    // Log activity before delete
+    logActivity({
+      action: 'DELETE',
+      entity: 'Transaction',
+      entityId: id,
+      entityTitle: `${existing.type === 'INCOME' ? 'Pemasukan' : 'Pengeluaran'}: ${existing.description} - Rp ${Number(existing.amount).toLocaleString('id-ID')}`,
+      userId: authResult.user.userId,
+      userName: authResult.user.name,
+      userRole: authResult.user.role,
+      details: {
+        type: existing.type,
+        amount: Number(existing.amount),
+        category: existing.category?.name,
+      },
+      request,
+    });
 
     // Delete transaction
     await prisma.transaction.delete({ where: { id } });

@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect, use } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { 
   ArrowLeft, 
   Save, 
@@ -26,8 +26,9 @@ interface Transaction {
   category: { id: string; name: string };
 }
 
-export default function EditTransactionPage({ params }: { params: Promise<{ id: string }> }) {
-  const resolvedParams = use(params);
+export default function EditTransactionPage() {
+  const params = useParams();
+  const transactionId = params.id as string;
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -45,6 +46,8 @@ export default function EditTransactionPage({ params }: { params: Promise<{ id: 
 
   useEffect(() => {
     const fetchData = async () => {
+      if (!transactionId) return;
+      
       try {
         // Fetch categories
         const catRes = await apiGet<Category[]>('/api/admin/categories');
@@ -53,7 +56,7 @@ export default function EditTransactionPage({ params }: { params: Promise<{ id: 
         }
 
         // Fetch transaction
-        const txRes = await apiGet<Transaction>(`/api/admin/transactions/${resolvedParams.id}`);
+        const txRes = await apiGet<Transaction>(`/api/admin/transactions/${transactionId}`);
         if (txRes.success && txRes.data) {
           const tx = txRes.data;
           setFormData({
@@ -78,7 +81,7 @@ export default function EditTransactionPage({ params }: { params: Promise<{ id: 
       }
     };
     fetchData();
-  }, [resolvedParams.id, router]);
+  }, [transactionId, router]);
 
   const incomeCategories = categories.filter(c => c.type === 'INCOME');
   const expenseCategories = categories.filter(c => c.type === 'EXPENSE');
@@ -92,7 +95,7 @@ export default function EditTransactionPage({ params }: { params: Promise<{ id: 
     setIsSubmitting(true);
 
     try {
-      const res = await apiPut(`/api/admin/transactions/${resolvedParams.id}`, {
+      const res = await apiPut(`/api/admin/transactions/${transactionId}`, {
         type: formData.type,
         amount: Number(formData.amount),
         description: formData.description,
