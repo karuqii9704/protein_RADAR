@@ -74,13 +74,21 @@ export default function SlidesPage() {
 
     try {
       // Swap orders
-      await Promise.all([
+      const [res1, res2] = await Promise.all([
         apiPut(`/api/admin/slides/${id}`, { order: targetSlide.order }),
         apiPut(`/api/admin/slides/${targetSlide.id}`, { order: currentSlide.order }),
       ]);
-      fetchSlides();
+      
+      if (res1.success && res2.success) {
+        toast.success('Urutan berhasil diubah');
+        fetchSlides();
+      } else {
+        toast.error('Gagal mengubah urutan');
+        console.error('Move slide error:', res1, res2);
+      }
     } catch (error) {
       toast.error('Gagal mengubah urutan');
+      console.error('Move slide error:', error);
     }
   };
 
