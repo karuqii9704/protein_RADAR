@@ -30,7 +30,7 @@ interface ActivityLog {
   userDisplay: string;
   timestamp: string;
   ipAddress: string | null;
-  details: string | null;
+  details: Record<string, unknown> | string | null;
 }
 
 export default function ActivityLogsPage() {
@@ -118,13 +118,19 @@ export default function ActivityLogsPage() {
     return labels[entity] || entity;
   };
 
-  const parseDetails = (details: string | null) => {
+  const parseDetails = (details: unknown) => {
     if (!details) return null;
-    try {
-      return JSON.parse(details);
-    } catch {
-      return null;
+    // If already object, return as-is
+    if (typeof details === 'object') return details;
+    // If string, try to parse
+    if (typeof details === 'string') {
+      try {
+        return JSON.parse(details);
+      } catch {
+        return null;
+      }
     }
+    return null;
   };
 
   return (
