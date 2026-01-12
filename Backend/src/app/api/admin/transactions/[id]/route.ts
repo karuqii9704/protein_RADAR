@@ -72,8 +72,11 @@ export async function PUT(
     const body = await request.json();
     const { type, amount, description, donor, recipient, date, categoryId, receiptNumber, notes } = body;
 
-    // Check if transaction exists
-    const existing = await prisma.transaction.findUnique({ where: { id } });
+    // Check if transaction exists and get old values
+    const existing = await prisma.transaction.findUnique({ 
+      where: { id },
+      include: { category: { select: { name: true } } },
+    });
     if (!existing) {
       return errorResponse('Transaction not found', 404);
     }
@@ -99,7 +102,29 @@ export async function PUT(
       },
     });
 
-    // Log activity
+    // Build changes object (before -> after)
+    const changes: Record<string, { from: unknown; to: unknown }> = {};
+    
+    if (description && description !== existing.description) {
+      changes.description = { from: existing.description, to: description };
+    }
+    if (amount !== undefined && Number(amount) !== Number(existing.amount)) {
+      changes.amount = { from: Number(existing.amount), to: Number(amount) };
+    }
+    if (type && type !== existing.type) {
+      changes.type = { from: existing.type, to: type };
+    }
+    if (categoryId && categoryId !== existing.categoryId) {
+      changes.category = { from: existing.category?.name, to: transaction.category?.name };
+    }
+    if (donor !== undefined && donor !== existing.donor) {
+      changes.donor = { from: existing.donor, to: donor };
+    }
+    if (recipient !== undefined && recipient !== existing.recipient) {
+      changes.recipient = { from: existing.recipient, to: recipient };
+    }
+
+    // Log activity with changes
     logActivity({
       action: 'UPDATE',
       entity: 'Transaction',
@@ -109,9 +134,8 @@ export async function PUT(
       userName: authResult.user.name,
       userRole: authResult.user.role,
       details: {
-        type: transaction.type,
-        amount: Number(transaction.amount),
-        category: transaction.category?.name,
+        changes,
+        fieldsChanged: Object.keys(changes),
       },
       request,
     });
