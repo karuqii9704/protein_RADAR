@@ -17,7 +17,7 @@ import {
   BadgeCheck,
   History,
 } from "lucide-react";
-import { getCurrentUser } from "@/lib/auth";
+import { getCurrentUser, logout } from "@/lib/auth";
 
 interface AdminSidebarProps {
   onClose?: () => void;
@@ -178,6 +178,7 @@ export default function AdminSidebar({ onClose }: AdminSidebarProps) {
 
         {/* Logout */}
         <button
+          onClick={logout}
           className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-red-500/10 hover:text-red-400 transition-all"
         >
           <LogOut className="w-5 h-5 flex-shrink-0" />
